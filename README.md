@@ -4,7 +4,7 @@
 
 ## What we're building
 
-Tennisfolio is an open-source app for recording and analysing your own tennis matches — the sporting equivalent of [Wealthfolio](https://github.com/wealthfolio/wealthfolio), which does the same for an investment portfolio. You log opponents, clubs, leagues, matches and sets; the app derives results, streaks and win-rates and shows them back to you. No account, no cloud, no third-party analytics, no subscription. The database is a single local file you own and can back up to your NAS.
+Tennisfolio is an open-source app for recording and analysing your own tennis matches — the sporting equivalent of [Wealthfolio](https://github.com/wealthfolio/wealthfolio), which does the same for an investment portfolio. You log opponents, clubs, tournaments, matches and sets; the app derives results, streaks and win-rates and shows them back to you. No account, no cloud, no third-party analytics, no subscription. The database is a single local file you own and can back up to your NAS.
 
 The prototype already exists as a Notion workspace ("Tennis Journey") with four linked tables — Opponents, Clubs, Matches, Sets. That validated the data model, but Notion's data entry is too slow (every match means manually creating and relinking rows, and buttons can't take input in one shot). Tennisfolio exists to fix exactly that: **capture a whole match, including its sets, from a single screen.**
 
@@ -19,13 +19,13 @@ The guiding ethos, borrowed from Wealthfolio's "boring, beautiful, and it just w
 
 ## Data model
 
-Carried over from the Notion prototype, with results **derived** rather than stored (a set is won when games won > games lost; a match result and its score string aggregate up from its sets). The one addition is **Leagues**, linked to Matches.
+Carried over from the Notion prototype, with results **derived** rather than stored (a set is won when games won > games lost; a match result and its score string aggregate up from its sets). The one addition is **Tournaments**, linked to Matches, with a type select: Knockout Tournament or Ranking League.
 
 | Table | Purpose |
 |---|---|
 | Opponents | Who you played |
 | Clubs | Where you played — surface, environment |
-| Leagues | Season/league context for league matches |
+| Tournaments | Knockout or ranking-league context for matches |
 | Matches | One row per match; result and score are derived |
 | Sets | Per-set games won/lost; a match's result aggregates from these |
 
@@ -37,7 +37,7 @@ The feature that justifies the whole app. A single form:
 
 - Opponent (dropdown, with quick "＋ new opponent")
 - Club (dropdown) → pre-fills surface, editable
-- League + stage (optional)
+- Tournament + stage (optional)
 - **Score** — one field: `6-4` or `6-4 3-6 10-7`
 
 On submit, the app parses the score string into sets, writes the Match and its linked Sets in one transaction, and computes the result. No relinking, no per-set rows to create by hand.
@@ -56,7 +56,7 @@ On submit, the app parses the score string into sets, writes the Match and its l
 
 **Phase 2 — Stats dashboard.** Win-rate overall and by surface / opponent / club / league; current and longest streaks; tiebreak record; deciding-set record. Charts and filters.
 
-**Phase 3 — Leagues.** Standings/table view derived from league matches, season filters, head-to-head pages per opponent.
+**Phase 3 — Tournaments.** Standings/table view derived from tournament matches, season filters, head-to-head pages per opponent.
 
 **Phase 4 — Later / optional.** Mobile companion; hooks into Apple Health (match duration/calories) and Home Assistant; and a small **MCP server** so Claude can answer "what's my clay win-rate this season?" straight from the local DB.
 
