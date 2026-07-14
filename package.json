@@ -1,0 +1,17 @@
+{
+  "name": "tennisfolio",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev:web": "pnpm --filter @tennisfolio/web dev",
+    "build:web": "pnpm --filter @tennisfolio/web build",
+    "lint:web": "pnpm --filter @tennisfolio/web lint",
+    "format:web": "pnpm --filter @tennisfolio/web format",
+    "test:core": "pnpm --filter @tennisfolio/core test"
+  },
+  "packageManager": "pnpm@11.13.0"
+}

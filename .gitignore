@@ -1,0 +1,25 @@
+# Node / pnpm
+node_modules
+dist
+dist-ssr
+*.local
+pnpm-debug.log*
+
+# Python / uv
+.venv
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Editors / OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+
+# Env
+.env
+
+# Claude Code local settings
+.claude/settings.local.json
