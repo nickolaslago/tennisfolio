@@ -1,13 +1,36 @@
-import { ChevronLeft, Trash2, UserPlus } from 'lucide-react'
-import { Link, useParams } from 'react-router-dom'
+import { ChevronLeft, Pencil, Trash2, UserPlus } from 'lucide-react'
+import { type FormEvent, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { EntityList, type EntityColumn } from '@/components/data/entity-list'
-import { ErrorState, LoadingState } from '@/components/data/query-state'
+import { FormBanner, FormField } from '@/components/data/entity-form'
+import { EmptyState, ErrorState, LoadingState } from '@/components/data/query-state'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import type { Opponent } from '@/lib/api/opponents'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Textarea } from '@/components/ui/textarea'
+import { fieldErrorsFromApiError } from '@/lib/api/form-errors'
+import type { AgeRange, Handedness, Opponent, OpponentCreate } from '@/lib/api/opponents'
 import { useDeleteOpponent, useOpponent, useOpponents } from '@/hooks/use-opponents'
+import { useCreateOpponent, useUpdateOpponent } from '@/hooks/use-opponents'
+import { useMatches } from '@/hooks/use-matches'
+import type { Match } from '@/lib/api/matches'
 import { useDocumentTitle } from '@/lib/use-document-title'
 
 const fullName = (opponent: Opponent) =>
@@ -120,10 +143,140 @@ export function OpponentsPage() {
   )
 }
 
+type ResultFilter = 'all' | 'wins' | 'losses'
+
+function matchResultLabel(match: Match) {
+  if (!match.result) return 'Scheduled'
+  return match.result === 'Win' ? 'Win' : 'Loss'
+}
+
+function OpponentMatches({ opponentId }: { opponentId: number }) {
+  const matches = useMatches({ opponent_id: opponentId })
+  const [filter, setFilter] = useState<ResultFilter>('all')
+
+  const items = matches.data?.items ?? []
+  const filtered = items.filter((match) => {
+    if (filter === 'wins') return match.result === 'Win'
+    if (filter === 'losses') return match.result === 'Loss'
+    return true
+  })
+
+  const wins = items.filter((m) => m.result === 'Win').length
+  const losses = items.filter((m) => m.result === 'Loss').length
+
+  const columns: EntityColumn<Match>[] = [
+    {
+      id: 'date',
+      header: 'Date',
+      sortValue: (m) => m.match_date,
+      cell: (m) => (
+        <Link to={`/matches/${m.id}`} className="font-medium hover:underline">
+          {m.match_date}
+        </Link>
+      ),
+    },
+    {
+      id: 'score',
+      header: 'Score',
+      cell: (m) => m.score ?? '—',
+    },
+    {
+      id: 'result',
+      header: 'Result',
+      sortValue: (m) => m.result ?? '',
+      cell: (m) => matchResultLabel(m),
+    },
+    {
+      id: 'surface',
+      header: 'Surface',
+      sortValue: (m) => m.surface,
+      cell: (m) => m.surface ?? '—',
+    },
+  ]
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="cn-font-heading text-lg font-semibold">Head-to-head</h2>
+        {matches.isPending || matches.isError ? null : (
+          <p className="text-sm text-muted-foreground">
+            {wins}–{losses} ({items.length} match{items.length === 1 ? '' : 'es'})
+          </p>
+        )}
+      </div>
+
+      {matches.isPending ? (
+        <LoadingState />
+      ) : matches.isError ? (
+        <ErrorState error={matches.error} onRetry={() => void matches.refetch()} />
+      ) : items.length === 0 ? (
+        <EmptyState
+          title="No matches yet"
+          description="Matches played against this opponent will show up here."
+        />
+      ) : (
+        <>
+          <div role="group" aria-label="Filter by result" className="flex gap-2">
+            {(
+              [
+                { value: 'all', label: 'All' },
+                { value: 'wins', label: 'Wins' },
+                { value: 'losses', label: 'Losses' },
+              ] as const
+            ).map((option) => (
+              <Button
+                key={option.value}
+                type="button"
+                size="sm"
+                variant={filter === option.value ? 'secondary' : 'outline'}
+                aria-pressed={filter === option.value}
+                onClick={() => setFilter(option.value)}
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
+
+          {filtered.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No matches for this filter.
+            </p>
+          ) : (
+            <Card>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      {columns.map((column) => (
+                        <TableHead key={column.id}>{column.header}</TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filtered.map((match) => (
+                      <TableRow key={match.id}>
+                        {columns.map((column) => (
+                          <TableCell key={column.id}>{column.cell(match)}</TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
 export function OpponentDetailPage() {
   const { id } = useParams()
   const opponentId = Number(id)
   const opponent = useOpponent(opponentId)
+  const deleteOpponent = useDeleteOpponent()
+  const navigate = useNavigate()
   useDocumentTitle(
     opponent.data ? `${opponent.data.name ?? ''} ${opponent.data.last_name}`.trim() : 'Opponent',
   )
@@ -145,17 +298,40 @@ export function OpponentDetailPage() {
         <ErrorState error={opponent.error} onRetry={() => void opponent.refetch()} />
       ) : (
         <>
-          <PageHeader
-            title={
-              opponent.data.name
-                ? `${opponent.data.name} ${opponent.data.last_name}`
-                : opponent.data.last_name
-            }
-            description={opponent.data.level ?? undefined}
-          />
-          <Card>
+          <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+            <PageHeader
+              title={
+                opponent.data.name
+                  ? `${opponent.data.name} ${opponent.data.last_name}`
+                  : opponent.data.last_name
+              }
+              description={opponent.data.level ?? undefined}
+            />
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" asChild>
+                <Link to={`/opponents/${opponent.data.id}/edit`}>
+                  <Pencil aria-hidden="true" data-icon="inline-start" />
+                  Edit
+                </Link>
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={deleteOpponent.isPending}
+                onClick={() => {
+                  deleteOpponent.mutate(opponent.data.id, {
+                    onSuccess: () => navigate('/opponents'),
+                  })
+                }}
+              >
+                <Trash2 aria-hidden="true" data-icon="inline-start" />
+                Delete
+              </Button>
+            </div>
+          </div>
+          <Card className="mb-6">
             <CardContent>
-              <dl className="grid grid-cols-2 gap-4 text-sm">
+              <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
                 <div>
                   <dt className="text-muted-foreground">Nationality</dt>
                   <dd>{opponent.data.nationality ?? '—'}</dd>
@@ -175,8 +351,256 @@ export function OpponentDetailPage() {
               </dl>
             </CardContent>
           </Card>
+
+          <OpponentMatches opponentId={opponent.data.id} />
         </>
       )}
+    </>
+  )
+}
+
+const HANDEDNESS_OPTIONS: { value: Handedness; label: string }[] = [
+  { value: 'R', label: 'Right' },
+  { value: 'L', label: 'Left' },
+]
+
+const AGE_RANGE_OPTIONS: AgeRange[] = [
+  'Under 18',
+  '18-25',
+  '26-35',
+  '36-45',
+  '46-55',
+  '56-65',
+  'Over 65',
+]
+
+interface OpponentFormState {
+  last_name: string
+  name: string
+  nationality: string
+  handedness: Handedness | ''
+  age_range: AgeRange | ''
+  level: string
+  notes: string
+}
+
+const EMPTY_FORM: OpponentFormState = {
+  last_name: '',
+  name: '',
+  nationality: '',
+  handedness: '',
+  age_range: '',
+  level: '',
+  notes: '',
+}
+
+function toFormState(opponent: Opponent): OpponentFormState {
+  return {
+    last_name: opponent.last_name,
+    name: opponent.name ?? '',
+    nationality: opponent.nationality ?? '',
+    handedness: opponent.handedness ?? '',
+    age_range: opponent.age_range ?? '',
+    level: opponent.level ?? '',
+    notes: opponent.notes ?? '',
+  }
+}
+
+function toPayload(form: OpponentFormState): OpponentCreate {
+  return {
+    last_name: form.last_name.trim(),
+    name: form.name.trim() || null,
+    nationality: form.nationality.trim() || null,
+    handedness: form.handedness || null,
+    age_range: form.age_range || null,
+    level: form.level.trim() || null,
+    notes: form.notes.trim() || null,
+  }
+}
+
+function validate(form: OpponentFormState): Record<string, string> {
+  const errors: Record<string, string> = {}
+  if (!form.last_name.trim()) errors.last_name = 'Last name is required.'
+  return errors
+}
+
+export function OpponentFormPage() {
+  const { id } = useParams()
+  const isEdit = id !== undefined
+  const opponentId = Number(id)
+
+  useDocumentTitle(isEdit ? 'Edit opponent' : 'Add opponent')
+
+  const opponent = useOpponent(isEdit ? opponentId : NaN)
+
+  if (!isEdit) return <OpponentForm mode="create" />
+
+  if (!Number.isFinite(opponentId)) {
+    return <ErrorState error={new Error(`"${id}" is not a valid opponent id.`)} />
+  }
+  if (opponent.isPending) return <LoadingState />
+  if (opponent.isError) {
+    return <ErrorState error={opponent.error} onRetry={() => void opponent.refetch()} />
+  }
+  return <OpponentForm mode="edit" opponent={opponent.data} />
+}
+
+function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Opponent }) {
+  const isEdit = props.mode === 'edit'
+  const opponentId = isEdit ? props.opponent.id : NaN
+  const navigate = useNavigate()
+
+  const createOpponent = useCreateOpponent()
+  const updateOpponent = useUpdateOpponent(opponentId)
+
+  const [form, setForm] = useState<OpponentFormState>(() =>
+    isEdit ? toFormState(props.opponent) : EMPTY_FORM,
+  )
+  const [touched, setTouched] = useState(false)
+
+  const mutation = isEdit ? updateOpponent : createOpponent
+  const clientErrors = validate(form)
+  const serverErrors = fieldErrorsFromApiError(mutation.error)
+  const errors = touched ? { ...serverErrors, ...clientErrors } : serverErrors
+  const bannerMessage =
+    mutation.isError && Object.keys(serverErrors).length === 0 ? mutation.error : null
+
+  const backTo = isEdit ? `/opponents/${opponentId}` : '/opponents'
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault()
+    setTouched(true)
+    if (Object.keys(clientErrors).length > 0) return
+
+    const payload = toPayload(form)
+    if (isEdit) {
+      updateOpponent.mutate(payload, {
+        onSuccess: (updated) => navigate(`/opponents/${updated.id}`),
+      })
+    } else {
+      createOpponent.mutate(payload, {
+        onSuccess: (created) => navigate(`/opponents/${created.id}`),
+      })
+    }
+  }
+
+  return (
+    <>
+      <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
+        <Link to={backTo}>
+          <ChevronLeft aria-hidden="true" data-icon="inline-start" />
+          {isEdit ? 'Back to opponent' : 'Back to Opponents'}
+        </Link>
+      </Button>
+
+      <PageHeader
+        title={isEdit ? 'Edit opponent' : 'Add opponent'}
+        description="Players you've faced and your head-to-head records."
+      />
+
+      <Card>
+        <CardContent>
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
+            <FormBanner error={bannerMessage} />
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField id="name" label="First name" optional error={errors.name}>
+                <Input
+                  id="name"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  aria-invalid={Boolean(errors.name)}
+                />
+              </FormField>
+
+              <FormField id="last_name" label="Last name" error={errors.last_name}>
+                <Input
+                  id="last_name"
+                  value={form.last_name}
+                  onChange={(e) => setForm({ ...form, last_name: e.target.value })}
+                  aria-invalid={Boolean(errors.last_name)}
+                  aria-describedby={errors.last_name ? 'last_name-error' : undefined}
+                  required
+                />
+              </FormField>
+
+              <FormField id="nationality" label="Nationality" optional error={errors.nationality}>
+                <Input
+                  id="nationality"
+                  value={form.nationality}
+                  onChange={(e) => setForm({ ...form, nationality: e.target.value })}
+                  aria-invalid={Boolean(errors.nationality)}
+                />
+              </FormField>
+
+              <FormField id="level" label="Level" optional error={errors.level}>
+                <Input
+                  id="level"
+                  value={form.level}
+                  onChange={(e) => setForm({ ...form, level: e.target.value })}
+                  aria-invalid={Boolean(errors.level)}
+                  placeholder="e.g. 4.5 NTRP, Club champion…"
+                />
+              </FormField>
+
+              <FormField id="handedness" label="Handedness" optional error={errors.handedness}>
+                <Select
+                  value={form.handedness}
+                  onValueChange={(value) => setForm({ ...form, handedness: value as Handedness })}
+                >
+                  <SelectTrigger id="handedness" className="w-full">
+                    <SelectValue placeholder="Select handedness" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {HANDEDNESS_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormField>
+
+              <FormField id="age_range" label="Age range" optional error={errors.age_range}>
+                <Select
+                  value={form.age_range}
+                  onValueChange={(value) => setForm({ ...form, age_range: value as AgeRange })}
+                >
+                  <SelectTrigger id="age_range" className="w-full">
+                    <SelectValue placeholder="Select age range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {AGE_RANGE_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormField>
+            </div>
+
+            <FormField id="notes" label="Notes" optional error={errors.notes} className="w-full">
+              <Textarea
+                id="notes"
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                aria-invalid={Boolean(errors.notes)}
+                rows={4}
+              />
+            </FormField>
+
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" asChild>
+                <Link to={backTo}>Cancel</Link>
+              </Button>
+              <Button type="submit" disabled={mutation.isPending}>
+                {isEdit ? 'Save changes' : 'Add opponent'}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </>
   )
 }

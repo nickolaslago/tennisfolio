@@ -1,4 +1,11 @@
-import { ArrowDown, ArrowUp, ChevronsUpDown, LayoutGrid, Search, Table as TableIcon } from 'lucide-react'
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronsUpDown,
+  LayoutGrid,
+  Search,
+  Table as TableIcon,
+} from 'lucide-react'
 import type { ComponentType, ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -120,13 +127,7 @@ function CreateActionButton({ action, label }: { action: CreateAction; label: st
   )
 }
 
-function ViewToggle({
-  view,
-  onChange,
-}: {
-  view: ViewMode
-  onChange: (view: ViewMode) => void
-}) {
+function ViewToggle({ view, onChange }: { view: ViewMode; onChange: (view: ViewMode) => void }) {
   const options: { value: ViewMode; label: string; icon: IconComponent }[] = [
     { value: 'table', label: 'Table view', icon: TableIcon },
     { value: 'card', label: 'Card view', icon: LayoutGrid },
