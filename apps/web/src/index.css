@@ -1,130 +1,185 @@
 @import 'tailwindcss';
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import '@fontsource-variable/geist';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
-    --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
+  --font-heading: var(--font-sans);
+  --font-sans: 'Geist Variable', sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+
+  /* Tennisfolio brand semantic tokens — expose the Roland-Garros palette
+       as Tailwind utilities (bg-surface, text-win, border-loss, …). These
+       are domain/brand tokens that sit alongside shadcn's own tokens. */
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-win: var(--win);
+  --color-win-foreground: var(--win-foreground);
+  --color-loss: var(--loss);
+  --color-loss-foreground: var(--loss-foreground);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+  /* ── Roland-Garros palette · raw reference values ─────────────────────
+       Private palette layer. Do NOT reference these directly in components;
+       consume the semantic tokens (and the Tailwind utilities they generate)
+       below. Re-theming — a dark mode, or the future Expo mobile app — means
+       re-pointing the semantic tokens at different palette values, never
+       editing component code. */
+  --rg-clay: #c23b22; /* Clay Terracotta      — primary contrast        */
+  --rg-court: #004b23; /* Classic Court Green  — secondary contrast      */
+  --rg-baseline: #f1f3f4; /* Crisp Baseline White — backgrounds / negative  */
+  --rg-ochre: #e3783b; /* Suntan Ochre         — light accent            */
+  --rg-slate: #1c2d37; /* Dark Slate / Navy    — text, borders, primary  */
+  --rg-white: #ffffff; /* raised surfaces (cards, popovers, dropdowns)   */
+
+  /* ── Semantic tokens · shadcn/ui contract ───────────────────────────── */
+  --background: var(--rg-baseline); /* Crisp Baseline White — used generously */
+  --foreground: var(--rg-slate); /* body text — Dark Slate/Navy */
+  --card: var(--rg-white); /* cards lift off the baseline-white page */
+  --card-foreground: var(--rg-slate);
+  --popover: var(--rg-white);
+  --popover-foreground: var(--rg-slate);
+  --primary: var(--rg-slate); /* primary buttons — Dark Slate/Navy (per spec) */
+  --primary-foreground: var(--rg-baseline);
+  --secondary: var(--rg-court); /* secondary buttons — Classic Court Green */
+  --secondary-foreground: var(--rg-baseline);
+  --muted: #e4e7e9; /* soft cool grey — tab list, table zebra/hover */
+  --muted-foreground: #55636d; /* secondary text / placeholders (AA on bg) */
+  --accent: #f3ded7; /* soft clay wash — subtle hover surface (menus) */
+  --accent-foreground: var(--rg-slate);
+  --destructive: var(--rg-clay); /* destructive actions — Clay Terracotta */
+  --border: #d3d8db; /* light slate tint (see note in PR/report) */
+  --input: #d3d8db;
+  --ring: var(--rg-ochre); /* focus ring — Suntan Ochre */
+  --chart-1: var(--rg-clay);
+  --chart-2: var(--rg-court);
+  --chart-3: var(--rg-ochre);
+  --chart-4: var(--rg-slate);
+  --chart-5: #55636d;
+  --radius: 0.625rem;
+
+  /* ── Brand semantic tokens · Tennisfolio domain ─────────────────────────
+       Match/set results are a core domain concept, so win/loss get first-class
+       tokens (green = win, clay = loss) rather than ad-hoc UI colours. */
+  --surface: var(--rg-baseline); /* Crisp Baseline White — negative space */
+  --surface-foreground: var(--rg-slate);
+  --win: var(--rg-court); /* a won match / set   → Classic Court Green */
+  --win-foreground: var(--rg-baseline);
+  --loss: var(--rg-clay); /* a lost match / set  → Clay Terracotta */
+  --loss-foreground: var(--rg-baseline);
+  --highlight: var(--rg-ochre); /* light accent / call-outs → Suntan Ochre */
+  --highlight-foreground: var(--rg-slate); /* dark text — AA on ochre */
+
+  /* sidebar tokens — kept for shadcn compatibility, themed to match */
+  --sidebar: var(--rg-white);
+  --sidebar-foreground: var(--rg-slate);
+  --sidebar-primary: var(--rg-slate);
+  --sidebar-primary-foreground: var(--rg-baseline);
+  --sidebar-accent: #f3ded7;
+  --sidebar-accent-foreground: var(--rg-slate);
+  --sidebar-border: #d3d8db;
+  --sidebar-ring: var(--rg-ochre);
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+  /* Dark mode is NOT part of DAT-79. This block is a stub carried over from
+       the shadcn scaffold (neutral greys) so the `dark` variant still compiles.
+       To ship dark mode later, re-point these semantic tokens at a dark
+       Roland-Garros palette exactly the way :root does above. */
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+
+  /* brand tokens — stub dark values so the utilities still resolve */
+  --surface: oklch(0.205 0 0);
+  --surface-foreground: oklch(0.985 0 0);
+  --win: #2e9e5b;
+  --win-foreground: #0b140f;
+  --loss: #e2694f;
+  --loss-foreground: #1a0b08;
+  --highlight: #e3783b;
+  --highlight-foreground: #1c2d37;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
   body {
     @apply bg-background text-foreground;
-    }
+  }
   html {
     @apply font-sans;
-    }
+  }
 }
