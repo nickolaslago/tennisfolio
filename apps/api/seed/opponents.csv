@@ -1,0 +1,9 @@
+opponent_id,last_name,name,nationality,handeness,age_range,level,notes
+opp-1,FEDERER,Roger Federer,Switzerland,R,36-45,10,
+opp-2,NADAL,Rafael Nadal,Spain,L,36-45,10,
+opp-3,DJOKOVIC,Novak Djokovic,Serbia,R,36-45,10,
+opp-4,MURRAY,Andy Murray,United Kingdom,R,36-45,9,
+opp-5,ALCARAZ,Carlos Alcaraz,Spain,R,18-25,9.5,
+opp-6,SINNER,Jannik Sinner,Italy,R,18-25,9.5,
+opp-7,WAWRINKA,Stan Wawrinka,Switzerland,R,36-45,8.5,
+opp-8,ZVEREV,Alexander Zverev,Germany,R,26-35,9,

@@ -19,11 +19,12 @@ class AgeRange(enum.Enum):
     """Coarse age bucket for an opponent (exact age is intentionally not tracked)."""
 
     UNDER_18 = "Under 18"
-    A18_29 = "18-29"
-    A30_39 = "30-39"
-    A40_49 = "40-49"
-    A50_59 = "50-59"
-    A60_PLUS = "60+"
+    A18_25 = "18-25"
+    A26_35 = "26-35"
+    A36_45 = "36-45"
+    A46_55 = "46-55"
+    A56_65 = "56-65"
+    OVER_65 = "Over 65"
 
 
 class Surface(enum.Enum):
