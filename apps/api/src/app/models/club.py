@@ -22,6 +22,7 @@ class Club(TimestampMixin, Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
     city: Mapped[str | None] = mapped_column(String(120))
+    country: Mapped[str | None] = mapped_column(String(80))
     surface: Mapped[Surface | None] = mapped_column(SURFACE_ENUM)
     environment: Mapped[Environment | None] = mapped_column(ENVIRONMENT_ENUM)
 
