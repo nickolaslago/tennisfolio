@@ -1,17 +1,33 @@
-import { formatScore, parseScore } from '@tennisfolio/core'
-import { Button } from '@/components/ui/button'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
-const sampleScore = formatScore(parseScore('6-4 3-6 10-7'))
+import { AppShell } from '@/components/layout/app-shell'
+import { ClubDetailPage, ClubsPage } from '@/pages/clubs'
+import { HomePage } from '@/pages/home'
+import { MatchDetailPage, MatchesPage } from '@/pages/matches'
+import { NotFoundPage } from '@/pages/not-found'
+import { OpponentDetailPage, OpponentsPage } from '@/pages/opponents'
+import { TournamentDetailPage, TournamentsPage } from '@/pages/tournaments'
+
+const router = createBrowserRouter([
+  {
+    element: <AppShell />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: 'matches', element: <MatchesPage /> },
+      { path: 'matches/:id', element: <MatchDetailPage /> },
+      { path: 'opponents', element: <OpponentsPage /> },
+      { path: 'opponents/:id', element: <OpponentDetailPage /> },
+      { path: 'clubs', element: <ClubsPage /> },
+      { path: 'clubs/:id', element: <ClubDetailPage /> },
+      { path: 'tournaments', element: <TournamentsPage /> },
+      { path: 'tournaments/:id', element: <TournamentDetailPage /> },
+      { path: '*', element: <NotFoundPage /> },
+    ],
+  },
+])
 
 function App() {
-  return (
-    <main className="flex min-h-svh flex-col items-center justify-center gap-4 bg-background text-foreground">
-      <h1 className="text-3xl font-semibold">🎾 Tennisfolio</h1>
-      <p className="text-muted-foreground">Hello, world — the web app is running.</p>
-      <p className="text-muted-foreground text-sm">Sample score: {sampleScore}</p>
-      <Button>It works</Button>
-    </main>
-  )
+  return <RouterProvider router={router} />
 }
 
 export default App
