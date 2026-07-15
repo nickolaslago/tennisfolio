@@ -16,4 +16,5 @@ function entityKeys<Entity extends string>(entity: Entity) {
 export const queryKeys = {
   opponents: entityKeys('opponents'),
   clubs: entityKeys('clubs'),
+  matches: entityKeys('matches'),
 }
