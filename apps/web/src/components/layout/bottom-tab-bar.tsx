@@ -10,7 +10,10 @@ export function BottomTabBar() {
       aria-label="Primary"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-sidebar-border bg-sidebar pb-[env(safe-area-inset-bottom)] text-sidebar-foreground md:hidden"
     >
-      <ul className="grid grid-cols-5">
+      <ul
+        className="grid"
+        style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}
+      >
         {navItems.map((item) => (
           <li key={item.to}>
             <NavLink

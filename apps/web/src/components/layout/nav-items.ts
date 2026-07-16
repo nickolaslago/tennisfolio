@@ -1,4 +1,4 @@
-import { Home, MapPin, Swords, Trophy, Users, type LucideIcon } from 'lucide-react'
+import { Download, Home, MapPin, Swords, Trophy, Users, type LucideIcon } from 'lucide-react'
 
 export interface NavItem {
   label: string
@@ -14,4 +14,5 @@ export const navItems: NavItem[] = [
   { label: 'Opponents', to: '/opponents', icon: Users },
   { label: 'Clubs', to: '/clubs', icon: MapPin },
   { label: 'Tournaments', to: '/tournaments', icon: Trophy },
+  { label: 'Export', to: '/export', icon: Download },
 ]
