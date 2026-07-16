@@ -6,7 +6,7 @@ import { HomePage } from '@/pages/home'
 import { MatchDetailPage, MatchesPage } from '@/pages/matches'
 import { NotFoundPage } from '@/pages/not-found'
 import { OpponentDetailPage, OpponentFormPage, OpponentsPage } from '@/pages/opponents'
-import { TournamentDetailPage, TournamentsPage } from '@/pages/tournaments'
+import { TournamentDetailPage, TournamentFormPage, TournamentsPage } from '@/pages/tournaments'
 
 const router = createBrowserRouter([
   {
@@ -24,6 +24,8 @@ const router = createBrowserRouter([
       { path: 'clubs/:id/edit', element: <ClubFormPage /> },
       { path: 'clubs/:id', element: <ClubDetailPage /> },
       { path: 'tournaments', element: <TournamentsPage /> },
+      { path: 'tournaments/new', element: <TournamentFormPage /> },
+      { path: 'tournaments/:id/edit', element: <TournamentFormPage /> },
       { path: 'tournaments/:id', element: <TournamentDetailPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
