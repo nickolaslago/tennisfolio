@@ -1,4 +1,13 @@
-import { computeMatchResult, formatScore, InvalidScoreError, parseScore } from '@tennisfolio/core'
+import {
+  computeMatchResult,
+  formatScore,
+  InvalidScoreError,
+  parseScore,
+  SCORE_FORMAT_OPTIONS,
+  type ScoredSet,
+  type ScoreFormat,
+  type ScoreFormatOption,
+} from '@tennisfolio/core'
 import { CalendarClock, CheckCircle2, ChevronLeft, PlusCircle, Trophy } from 'lucide-react'
 import { type FormEvent, useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
@@ -34,6 +43,91 @@ import { useDocumentTitle } from '@/lib/use-document-title'
 
 const SURFACE_OPTIONS: Surface[] = ['Hard', 'Clay', 'Grass', 'Carpet']
 
+const DEFAULT_SCORE_FORMAT: ScoreFormat = 'three-sets'
+const MAX_SCORE_PAIRS = 5
+
+/** A single games/points pair from the structured score fields, kept as raw text. */
+interface ScorePair {
+  won: string
+  lost: string
+}
+
+/** A full set of blank pairs — we always hold the max and slice by the format. */
+function emptyPairs(): ScorePair[] {
+  return Array.from({ length: MAX_SCORE_PAIRS }, () => ({ won: '', lost: '' }))
+}
+
+function formatOptionFor(value: ScoreFormat): ScoreFormatOption {
+  return SCORE_FORMAT_OPTIONS.find((option) => option.value === value) ?? SCORE_FORMAT_OPTIONS[0]
+}
+
+/** Picks the scoring type that best represents a parsed score, for edit prefill. */
+function detectScoreFormat(sets: ScoredSet[]): ScoreFormat {
+  if (sets.length >= 4) return 'five-sets'
+  if (sets.length >= 2) return 'three-sets'
+  const [only] = sets
+  if (only.tiebreak && Math.max(only.gamesWon, only.gamesLost) >= 10) return 'super-tiebreak'
+  if (only.tiebreak) return 'tiebreak'
+  return 'one-set'
+}
+
+/** Splits a stored score string into a format + prefilled fields for editing. */
+function scoreToStructured(score: string | null | undefined): {
+  scoreFormat: ScoreFormat
+  scorePairs: ScorePair[]
+} {
+  const scorePairs = emptyPairs()
+  if (!score || !score.trim()) {
+    return { scoreFormat: DEFAULT_SCORE_FORMAT, scorePairs }
+  }
+  try {
+    const sets = parseScore(score)
+    sets.forEach((set, index) => {
+      if (index < scorePairs.length) {
+        scorePairs[index] = { won: String(set.gamesWon), lost: String(set.gamesLost) }
+      }
+    })
+    return { scoreFormat: detectScoreFormat(sets), scorePairs }
+  } catch {
+    // A stored score should always re-parse, but if it somehow doesn't, keep the
+    // first token editable under Custom rather than dropping it silently.
+    const [first = ''] = score.trim().split(/\s+/)
+    const [won = '', lost = ''] = first.split('-')
+    scorePairs[0] = { won: won.replace(/\D/g, ''), lost: lost.replace(/\D/g, '') }
+    return { scoreFormat: 'custom', scorePairs }
+  }
+}
+
+type StructuredScore = { score: string } | { error: string }
+
+/**
+ * Builds the canonical score string ("6-4 3-6 10-7") from the structured
+ * fields, or reports a structural problem the parser can't (a half-filled pair,
+ * or a gap before a filled set). The result string is still handed to
+ * {@link parseScore} for the real tennis validation.
+ */
+function readStructuredScore(option: ScoreFormatOption, pairs: ScorePair[]): StructuredScore {
+  const unit = option.kind === 'sets' ? 'set' : 'score'
+  const tokens: string[] = []
+  let sawEmpty = false
+  for (const pair of pairs.slice(0, option.pairs)) {
+    const won = pair.won.trim()
+    const lost = pair.lost.trim()
+    if (won === '' && lost === '') {
+      sawEmpty = true
+      continue
+    }
+    if (won === '' || lost === '') {
+      return { error: `Fill both numbers for each ${unit}, or clear it.` }
+    }
+    if (sawEmpty) {
+      return { error: 'Only the trailing sets can be left empty.' }
+    }
+    tokens.push(`${won}-${lost}`)
+  }
+  return { score: tokens.join(' ') }
+}
+
 function todayIso(): string {
   return new Date().toLocaleDateString('en-CA') // YYYY-MM-DD in local time
 }
@@ -66,7 +160,8 @@ interface MatchFormState {
   matchDate: string
   durationMin: string
   notes: string
-  score: string
+  scoreFormat: ScoreFormat
+  scorePairs: ScorePair[]
   scheduleMode: boolean
 }
 
@@ -80,7 +175,8 @@ function emptyForm(): MatchFormState {
     matchDate: todayIso(),
     durationMin: '',
     notes: '',
-    score: '',
+    scoreFormat: DEFAULT_SCORE_FORMAT,
+    scorePairs: emptyPairs(),
     scheduleMode: false,
   }
 }
@@ -95,7 +191,7 @@ function toFormState(match: Match): MatchFormState {
     matchDate: match.match_date,
     durationMin: match.duration_min !== null ? String(match.duration_min) : '',
     notes: match.notes ?? '',
-    score: match.score ?? '',
+    ...scoreToStructured(match.score),
     scheduleMode: false,
   }
 }
@@ -201,7 +297,11 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
   )
 
   const scheduleMode = !isComplete && form.scheduleMode
-  const preview = previewScore(form.score)
+  const scoreFormatOption = formatOptionFor(form.scoreFormat)
+  const structuredScore = readStructuredScore(scoreFormatOption, form.scorePairs)
+  const scoreString = 'score' in structuredScore ? structuredScore.score : ''
+  const structuredError = 'error' in structuredScore ? structuredScore.error : undefined
+  const preview = previewScore(scoreString)
 
   // Client validation, keyed by API field name so server errors merge cleanly.
   const clientErrors: Record<string, string> = {}
@@ -211,7 +311,8 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
     clientErrors.duration_min = 'Duration must be a whole number of minutes.'
   }
   if (!scheduleMode) {
-    if (!form.score.trim()) clientErrors.score = 'Enter a score, or switch to schedule mode.'
+    if (structuredError) clientErrors.score = structuredError
+    else if (!scoreString.trim()) clientErrors.score = 'Enter a score, or switch to schedule mode.'
     else if (preview.state === 'error') clientErrors.score = preview.message
   }
 
@@ -230,11 +331,11 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
     ...(scoreServerError ? { score: scoreServerError } : {}),
     ...(touched ? clientErrors : {}),
   }
-  // The score error may show before a submit attempt — as soon as the field is
+  // The score error may show before a submit attempt — as soon as a field is
   // left with unparseable content (parse-as-you-type feedback).
+  const liveScoreError = structuredError ?? (preview.state === 'error' ? preview.message : undefined)
   const scoreError =
-    fieldErrors.score ??
-    (scoreBlurred && !scheduleMode && preview.state === 'error' ? preview.message : undefined)
+    fieldErrors.score ?? (scoreBlurred && !scheduleMode ? liveScoreError : undefined)
 
   const bannerMessage =
     mutation.isError && Object.keys(serverErrors).length === 0 && !scoreServerError
@@ -245,6 +346,12 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
 
   const setField = <K extends keyof MatchFormState>(key: K, value: MatchFormState[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }))
+
+  const setScorePair = (index: number, side: 'won' | 'lost', value: string) =>
+    setForm((prev) => ({
+      ...prev,
+      scorePairs: prev.scorePairs.map((pair, i) => (i === index ? { ...pair, [side]: value } : pair)),
+    }))
 
   const handleClubChange = (value: string) => {
     const club = allClubs.find((c) => String(c.id) === value)
@@ -290,13 +397,13 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
     }
 
     if (isComplete) {
-      const payload: MatchUpdate = { ...base, score: form.score.trim() }
+      const payload: MatchUpdate = { ...base, score: scoreString }
       updateMatch.mutate(payload, { onSuccess: (saved) => setSavedMatch(saved) })
     } else {
       const payload: MatchCreate = {
         ...base,
         // Omit the score entirely in schedule mode → the API stores it as scheduled.
-        score: scheduleMode ? undefined : form.score.trim(),
+        score: scheduleMode ? undefined : scoreString,
       }
       createMatch.mutate(payload, { onSuccess: (saved) => setSavedMatch(saved) })
     }
@@ -398,19 +505,56 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
                   page to see the result.
                 </div>
               ) : (
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="score">Score</Label>
-                  <Input
-                    id="score"
-                    value={form.score}
-                    onChange={(e) => setField('score', e.target.value)}
-                    onBlur={() => setScoreBlurred(true)}
-                    placeholder="e.g. 6-4 or 6-4 3-6 10-7"
-                    autoComplete="off"
-                    inputMode="numeric"
-                    aria-invalid={Boolean(scoreError)}
-                    aria-describedby={scoreError ? 'score-error' : 'score-hint'}
-                  />
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="score-format">Scoring type</Label>
+                    <Select
+                      value={form.scoreFormat}
+                      onValueChange={(value) => setField('scoreFormat', value as ScoreFormat)}
+                    >
+                      <SelectTrigger id="score-format" className="w-full sm:w-56">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SCORE_FORMAT_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    {scoreFormatOption.kind === 'sets' ? (
+                      form.scorePairs.slice(0, scoreFormatOption.pairs).map((pair, index) => (
+                        <ScorePairRow
+                          key={index}
+                          rowLabel={`Set ${index + 1}`}
+                          wonLabel={`Set ${index + 1} games won`}
+                          lostLabel={`Set ${index + 1} games lost`}
+                          optional={scoreFormatOption.pairs > 1 && index > 0}
+                          pair={pair}
+                          invalid={Boolean(scoreError)}
+                          describedBy={scoreError ? 'score-error' : 'score-hint'}
+                          onChange={(side, value) => setScorePair(index, side, value)}
+                          onBlur={() => setScoreBlurred(true)}
+                        />
+                      ))
+                    ) : (
+                      <ScorePairRow
+                        rowLabel="Points"
+                        wonLabel="Points won"
+                        lostLabel="Points lost"
+                        pair={form.scorePairs[0]}
+                        invalid={Boolean(scoreError)}
+                        describedBy={scoreError ? 'score-error' : 'score-hint'}
+                        onChange={(side, value) => setScorePair(0, side, value)}
+                        onBlur={() => setScoreBlurred(true)}
+                      />
+                    )}
+                  </div>
+
                   {scoreError ? (
                     <p id="score-error" className="text-xs text-destructive">
                       {scoreError}
@@ -432,7 +576,7 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
                     </p>
                   ) : (
                     <p id="score-hint" className="text-xs text-muted-foreground">
-                      Your games first — one field for the whole match.
+                      Your games first — fill each set you played.
                     </p>
                   )}
                 </div>
@@ -579,6 +723,63 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
         onCreated={handleClubCreated}
       />
     </>
+  )
+}
+
+/** One row of the structured score entry: a labelled won/lost numeric pair. */
+function ScorePairRow({
+  rowLabel,
+  wonLabel,
+  lostLabel,
+  pair,
+  invalid,
+  optional,
+  describedBy,
+  onChange,
+  onBlur,
+}: {
+  rowLabel: string
+  wonLabel: string
+  lostLabel: string
+  pair: ScorePair
+  invalid: boolean
+  optional?: boolean
+  describedBy?: string
+  onChange: (side: 'won' | 'lost', value: string) => void
+  onBlur: () => void
+}) {
+  // Games/points are one or two digits — keep the fields strictly numeric.
+  const sanitize = (value: string) => value.replace(/\D/g, '').slice(0, 2)
+  return (
+    <div className="flex items-center gap-2">
+      <span className="w-12 shrink-0 text-sm font-medium text-muted-foreground">{rowLabel}</span>
+      <Input
+        aria-label={wonLabel}
+        value={pair.won}
+        onChange={(e) => onChange('won', sanitize(e.target.value))}
+        onBlur={onBlur}
+        inputMode="numeric"
+        autoComplete="off"
+        className="w-16 text-center"
+        aria-invalid={invalid}
+        aria-describedby={describedBy}
+      />
+      <span aria-hidden="true" className="text-muted-foreground">
+        –
+      </span>
+      <Input
+        aria-label={lostLabel}
+        value={pair.lost}
+        onChange={(e) => onChange('lost', sanitize(e.target.value))}
+        onBlur={onBlur}
+        inputMode="numeric"
+        autoComplete="off"
+        className="w-16 text-center"
+        aria-invalid={invalid}
+        aria-describedby={describedBy}
+      />
+      {optional ? <span className="text-xs text-muted-foreground">optional</span> : null}
+    </div>
   )
 }
 
