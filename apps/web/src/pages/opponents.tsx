@@ -1,10 +1,11 @@
 import { ChevronLeft, Pencil, Trash2, UserPlus } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { EntityList, type EntityColumn } from '@/components/data/entity-list'
 import { FormBanner, FormField } from '@/components/data/entity-form'
 import { EmptyState, ErrorState, LoadingState } from '@/components/data/query-state'
+import { RowOptionsMenu } from '@/components/data/row-options-menu'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -41,16 +42,16 @@ export function OpponentsPage() {
   const opponents = useOpponents()
   const deleteOpponent = useDeleteOpponent()
 
-  const deleteButton = (opponent: Opponent) => (
-    <Button
-      variant="ghost"
-      size="icon-sm"
-      aria-label={`Delete ${opponent.last_name}`}
-      disabled={deleteOpponent.isPending}
-      onClick={() => deleteOpponent.mutate(opponent.id)}
-    >
-      <Trash2 aria-hidden="true" />
-    </Button>
+  const rowOptions = (opponent: Opponent) => (
+    <RowOptionsMenu
+      label={fullName(opponent)}
+      editTo={`/opponents/${opponent.id}/edit`}
+      duplicateTo="/opponents/new"
+      duplicateState={{ duplicate: opponent }}
+      onDelete={() => deleteOpponent.mutate(opponent.id)}
+      deletePending={deleteOpponent.isPending}
+      deleteDescription="This permanently removes the opponent. This can't be undone."
+    />
   )
 
   const columns: EntityColumn<Opponent>[] = [
@@ -97,7 +98,7 @@ export function OpponentsPage() {
         error={opponents.error}
         onRetry={() => void opponents.refetch()}
         columns={columns}
-        rowActions={deleteButton}
+        rowActions={rowOptions}
         getSearchText={(o) => `${fullName(o)} ${o.nationality ?? ''} ${o.level ?? ''}`}
         searchPlaceholder="Filter opponents…"
         defaultSort={{ columnId: 'name', direction: 'asc' }}
@@ -119,7 +120,7 @@ export function OpponentsPage() {
                 >
                   {fullName(o)}
                 </Link>
-                {deleteButton(o)}
+                {rowOptions(o)}
               </div>
               <dl className="grid grid-cols-2 gap-2 text-sm">
                 <div>
@@ -449,12 +450,16 @@ function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Oppo
   const isEdit = props.mode === 'edit'
   const opponentId = isEdit ? props.opponent.id : NaN
   const navigate = useNavigate()
+  const location = useLocation()
+  const duplicateFrom = isEdit
+    ? undefined
+    : (location.state as { duplicate?: Opponent } | null)?.duplicate
 
   const createOpponent = useCreateOpponent()
   const updateOpponent = useUpdateOpponent(opponentId)
 
   const [form, setForm] = useState<OpponentFormState>(() =>
-    isEdit ? toFormState(props.opponent) : EMPTY_FORM,
+    isEdit ? toFormState(props.opponent) : duplicateFrom ? toFormState(duplicateFrom) : EMPTY_FORM,
   )
   const [touched, setTouched] = useState(false)
 

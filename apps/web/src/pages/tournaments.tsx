@@ -1,10 +1,11 @@
 import { ChevronLeft, Pencil, Trash2, Trophy } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { EntityList, type EntityColumn } from '@/components/data/entity-list'
 import { FormBanner, FormField } from '@/components/data/entity-form'
 import { EmptyState, ErrorState, LoadingState } from '@/components/data/query-state'
+import { RowOptionsMenu } from '@/components/data/row-options-menu'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -55,16 +56,16 @@ export function TournamentsPage() {
     return clubs.data?.items.find((c) => c.id === clubId)?.name ?? null
   }
 
-  const deleteButton = (tournament: Tournament) => (
-    <Button
-      variant="ghost"
-      size="icon-sm"
-      aria-label={`Delete ${tournament.name}`}
-      disabled={deleteTournament.isPending}
-      onClick={() => deleteTournament.mutate(tournament.id)}
-    >
-      <Trash2 aria-hidden="true" />
-    </Button>
+  const rowOptions = (tournament: Tournament) => (
+    <RowOptionsMenu
+      label={tournament.name}
+      editTo={`/tournaments/${tournament.id}/edit`}
+      duplicateTo="/tournaments/new"
+      duplicateState={{ duplicate: tournament }}
+      onDelete={() => deleteTournament.mutate(tournament.id)}
+      deletePending={deleteTournament.isPending}
+      deleteDescription="This permanently removes the tournament. This can't be undone."
+    />
   )
 
   const columns: EntityColumn<Tournament>[] = [
@@ -118,7 +119,7 @@ export function TournamentsPage() {
         error={tournaments.error}
         onRetry={() => void tournaments.refetch()}
         columns={columns}
-        rowActions={deleteButton}
+        rowActions={rowOptions}
         getSearchText={(t) =>
           `${t.name} ${t.season ?? ''} ${t.tournament_type} ${clubName(t.club_id) ?? ''}`
         }
@@ -142,7 +143,7 @@ export function TournamentsPage() {
                 >
                   {t.name}
                 </Link>
-                {deleteButton(t)}
+                {rowOptions(t)}
               </div>
               <dl className="grid grid-cols-2 gap-2 text-sm">
                 <div>
@@ -535,13 +536,21 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
   const isEdit = props.mode === 'edit'
   const tournamentId = isEdit ? props.tournament.id : NaN
   const navigate = useNavigate()
+  const location = useLocation()
+  const duplicateFrom = isEdit
+    ? undefined
+    : (location.state as { duplicate?: Tournament } | null)?.duplicate
 
   const clubs = useClubs()
   const createTournament = useCreateTournament()
   const updateTournament = useUpdateTournament(tournamentId)
 
   const [form, setForm] = useState<TournamentFormState>(() =>
-    isEdit ? toFormState(props.tournament) : EMPTY_FORM,
+    isEdit
+      ? toFormState(props.tournament)
+      : duplicateFrom
+        ? toFormState(duplicateFrom)
+        : EMPTY_FORM,
   )
   const [touched, setTouched] = useState(false)
 

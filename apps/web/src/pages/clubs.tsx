@@ -1,10 +1,11 @@
 import { ChevronLeft, MapPinPlus, Pencil, Trash2 } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { EntityList, type EntityColumn } from '@/components/data/entity-list'
 import { FormBanner, FormField } from '@/components/data/entity-form'
 import { EmptyState, ErrorState, LoadingState } from '@/components/data/query-state'
+import { RowOptionsMenu } from '@/components/data/row-options-menu'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -36,16 +37,16 @@ export function ClubsPage() {
   const clubs = useClubs()
   const deleteClub = useDeleteClub()
 
-  const deleteButton = (club: Club) => (
-    <Button
-      variant="ghost"
-      size="icon-sm"
-      aria-label={`Delete ${club.name}`}
-      disabled={deleteClub.isPending}
-      onClick={() => deleteClub.mutate(club.id)}
-    >
-      <Trash2 aria-hidden="true" />
-    </Button>
+  const rowOptions = (club: Club) => (
+    <RowOptionsMenu
+      label={club.name}
+      editTo={`/clubs/${club.id}/edit`}
+      duplicateTo="/clubs/new"
+      duplicateState={{ duplicate: club }}
+      onDelete={() => deleteClub.mutate(club.id)}
+      deletePending={deleteClub.isPending}
+      deleteDescription="This permanently removes the club. This can't be undone."
+    />
   )
 
   const columns: EntityColumn<Club>[] = [
@@ -96,7 +97,7 @@ export function ClubsPage() {
         error={clubs.error}
         onRetry={() => void clubs.refetch()}
         columns={columns}
-        rowActions={deleteButton}
+        rowActions={rowOptions}
         getSearchText={(c) =>
           `${c.name} ${c.city ?? ''} ${c.country ?? ''} ${c.surface ?? ''} ${c.environment ?? ''}`
         }
@@ -120,7 +121,7 @@ export function ClubsPage() {
                 >
                   {c.name}
                 </Link>
-                {deleteButton(c)}
+                {rowOptions(c)}
               </div>
               <dl className="grid grid-cols-2 gap-2 text-sm">
                 <div>
@@ -457,12 +458,16 @@ function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
   const isEdit = props.mode === 'edit'
   const clubId = isEdit ? props.club.id : NaN
   const navigate = useNavigate()
+  const location = useLocation()
+  const duplicateFrom = isEdit
+    ? undefined
+    : (location.state as { duplicate?: Club } | null)?.duplicate
 
   const createClub = useCreateClub()
   const updateClub = useUpdateClub(clubId)
 
   const [form, setForm] = useState<ClubFormState>(() =>
-    isEdit ? toFormState(props.club) : EMPTY_FORM,
+    isEdit ? toFormState(props.club) : duplicateFrom ? toFormState(duplicateFrom) : EMPTY_FORM,
   )
   const [touched, setTouched] = useState(false)
 
@@ -562,9 +567,7 @@ function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
               <FormField id="environment" label="Environment" optional error={errors.environment}>
                 <Select
                   value={form.environment}
-                  onValueChange={(value) =>
-                    setForm({ ...form, environment: value as Environment })
-                  }
+                  onValueChange={(value) => setForm({ ...form, environment: value as Environment })}
                 >
                   <SelectTrigger id="environment" className="w-full">
                     <SelectValue placeholder="Select environment" />

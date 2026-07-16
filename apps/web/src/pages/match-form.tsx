@@ -1,7 +1,7 @@
 import { computeMatchResult, formatScore, InvalidScoreError, parseScore } from '@tennisfolio/core'
 import { CalendarClock, CheckCircle2, ChevronLeft, PlusCircle, Trophy } from 'lucide-react'
 import { type FormEvent, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 
 import { FormBanner, FormField } from '@/components/data/entity-form'
 import { ErrorState, LoadingState } from '@/components/data/query-state'
@@ -143,6 +143,10 @@ export function MatchFormPage() {
 
 function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match }) {
   const isComplete = props.mode === 'complete'
+  const location = useLocation()
+  const duplicateFrom = isComplete
+    ? undefined
+    : (location.state as { duplicate?: Match } | null)?.duplicate
 
   const opponents = useOpponents()
   const clubs = useClubs()
@@ -152,9 +156,13 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
   const updateMatch = useUpdateMatch(isComplete ? props.match.id : NaN)
   const mutation = isComplete ? updateMatch : createMatch
 
-  const [form, setForm] = useState<MatchFormState>(() =>
-    isComplete ? toFormState(props.match) : emptyForm(),
-  )
+  const [form, setForm] = useState<MatchFormState>(() => {
+    if (isComplete) return toFormState(props.match)
+    if (duplicateFrom) {
+      return { ...toFormState(duplicateFrom), scheduleMode: duplicateFrom.status === 'scheduled' }
+    }
+    return emptyForm()
+  })
   const [touched, setTouched] = useState(false)
   const [scoreBlurred, setScoreBlurred] = useState(false)
   const [savedMatch, setSavedMatch] = useState<Match | null>(null)
@@ -221,9 +229,8 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
   // The score error may show before a submit attempt — as soon as the field is
   // left with unparseable content (parse-as-you-type feedback).
   const scoreError =
-    fieldErrors.score ?? (scoreBlurred && !scheduleMode && preview.state === 'error'
-      ? preview.message
-      : undefined)
+    fieldErrors.score ??
+    (scoreBlurred && !scheduleMode && preview.state === 'error' ? preview.message : undefined)
 
   const bannerMessage =
     mutation.isError && Object.keys(serverErrors).length === 0 && !scoreServerError
@@ -408,7 +415,11 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
                     <p id="score-hint" className="text-xs text-muted-foreground">
                       Reads as a{' '}
                       <span
-                        className={preview.result === 'Win' ? 'font-medium text-win' : 'font-medium text-loss'}
+                        className={
+                          preview.result === 'Win'
+                            ? 'font-medium text-win'
+                            : 'font-medium text-loss'
+                        }
                       >
                         {preview.result}
                       </span>{' '}
@@ -461,7 +472,12 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
                   </Select>
                 </FormField>
 
-                <FormField id="tournament" label="Tournament" optional error={fieldErrors.tournament_id}>
+                <FormField
+                  id="tournament"
+                  label="Tournament"
+                  optional
+                  error={fieldErrors.tournament_id}
+                >
                   <EntitySelect
                     id="tournament"
                     value={form.tournamentId}
@@ -592,13 +608,17 @@ function SavedMatchPanel({
               <CalendarClock className="mt-0.5 size-6 text-highlight" aria-hidden="true" />
             ) : (
               <CheckCircle2
-                className={match.result === 'Win' ? 'mt-0.5 size-6 text-win' : 'mt-0.5 size-6 text-loss'}
+                className={
+                  match.result === 'Win' ? 'mt-0.5 size-6 text-win' : 'mt-0.5 size-6 text-loss'
+                }
                 aria-hidden="true"
               />
             )}
             <div className="flex flex-col gap-0.5">
               {isScheduled ? (
-                <span className="cn-font-heading text-xl font-semibold text-highlight">Scheduled</span>
+                <span className="cn-font-heading text-xl font-semibold text-highlight">
+                  Scheduled
+                </span>
               ) : (
                 <span
                   className={
