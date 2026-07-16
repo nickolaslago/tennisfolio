@@ -2,9 +2,10 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.models.enums import AgeRange, Handedness
+from app.schemas.entity_icon import validate_entity_icon
 
 
 class OpponentBase(BaseModel):
@@ -15,6 +16,12 @@ class OpponentBase(BaseModel):
     age_range: AgeRange | None = None
     level: str | None = Field(default=None, max_length=80)
     notes: str | None = None
+    icon: str | None = Field(default=None, max_length=80)
+
+    @field_validator("icon")
+    @classmethod
+    def _validate_icon(cls, value: str | None) -> str | None:
+        return validate_entity_icon(value) if value is not None else value
 
 
 class OpponentCreate(OpponentBase):
@@ -31,6 +38,12 @@ class OpponentUpdate(BaseModel):
     age_range: AgeRange | None = None
     level: str | None = Field(default=None, max_length=80)
     notes: str | None = None
+    icon: str | None = Field(default=None, max_length=80)
+
+    @field_validator("icon")
+    @classmethod
+    def _validate_icon(cls, value: str | None) -> str | None:
+        return validate_entity_icon(value) if value is not None else value
 
 
 class OpponentRead(OpponentBase):

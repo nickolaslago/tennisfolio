@@ -14,6 +14,7 @@ export interface Opponent {
   age_range: AgeRange | null
   level: string | null
   notes: string | null
+  icon: string | null
   created_at: string
   updated_at: string
 }
@@ -26,6 +27,7 @@ export interface OpponentCreate {
   age_range?: AgeRange | null
   level?: string | null
   notes?: string | null
+  icon?: string | null
 }
 
 export type OpponentUpdate = Partial<OpponentCreate>

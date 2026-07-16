@@ -25,6 +25,7 @@ class Club(TimestampMixin, Base):
     country: Mapped[str | None] = mapped_column(String(80))
     surface: Mapped[Surface | None] = mapped_column(SURFACE_ENUM)
     environment: Mapped[Environment | None] = mapped_column(ENVIRONMENT_ENUM)
+    icon: Mapped[str | None] = mapped_column(String(80))
 
     matches: Mapped[list[Match]] = relationship(back_populates="club")
     tournaments: Mapped[list[Tournament]] = relationship(back_populates="club")

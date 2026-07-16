@@ -43,14 +43,18 @@ function opponentLabel(opponent: Opponent): string {
 }
 
 /** Merge server-fetched rows with any just-created locally, deduped by id, into select options. */
-function toOptions<T extends { id: number }>(
+function toOptions<T extends { id: number; icon: string | null }>(
   fetched: T[],
   extra: T[],
   label: (item: T) => string,
 ): EntitySelectOption[] {
   const byId = new Map<number, T>()
   for (const item of [...fetched, ...extra]) byId.set(item.id, item)
-  return Array.from(byId.values()).map((item) => ({ value: String(item.id), label: label(item) }))
+  return Array.from(byId.values()).map((item) => ({
+    value: String(item.id),
+    label: label(item),
+    icon: item.icon,
+  }))
 }
 
 interface MatchFormState {

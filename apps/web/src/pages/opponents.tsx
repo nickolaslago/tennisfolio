@@ -2,6 +2,8 @@ import { ChevronLeft, Pencil, Trash2, UserPlus } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 
+import { EntityIcon } from '@/components/data/entity-icon'
+import { EntityIconPicker } from '@/components/data/entity-icon-picker'
 import { EntityList, type EntityColumn } from '@/components/data/entity-list'
 import { FormBanner, FormField } from '@/components/data/entity-form'
 import { EmptyState, ErrorState, LoadingState } from '@/components/data/query-state'
@@ -60,7 +62,11 @@ export function OpponentsPage() {
       header: 'Name',
       sortValue: (o) => fullName(o).toLowerCase(),
       cell: (o) => (
-        <Link to={`/opponents/${o.id}`} className="font-medium hover:underline">
+        <Link
+          to={`/opponents/${o.id}`}
+          className="flex items-center gap-1.5 font-medium hover:underline"
+        >
+          <EntityIcon value={o.icon} />
           {fullName(o)}
         </Link>
       ),
@@ -116,8 +122,9 @@ export function OpponentsPage() {
               <div className="flex items-start justify-between gap-2">
                 <Link
                   to={`/opponents/${o.id}`}
-                  className="cn-font-heading text-base font-medium hover:underline"
+                  className="flex items-center gap-1.5 cn-font-heading text-base font-medium hover:underline"
                 >
+                  <EntityIcon value={o.icon} />
                   {fullName(o)}
                 </Link>
                 {rowOptions(o)}
@@ -307,6 +314,7 @@ export function OpponentDetailPage() {
                   : opponent.data.last_name
               }
               description={opponent.data.level ?? undefined}
+              icon={opponent.data.icon}
             />
             <div className="flex gap-2">
               <Button variant="outline" size="sm" asChild>
@@ -383,6 +391,7 @@ interface OpponentFormState {
   age_range: AgeRange | ''
   level: string
   notes: string
+  icon: string | null
 }
 
 const EMPTY_FORM: OpponentFormState = {
@@ -393,6 +402,7 @@ const EMPTY_FORM: OpponentFormState = {
   age_range: '',
   level: '',
   notes: '',
+  icon: null,
 }
 
 function toFormState(opponent: Opponent): OpponentFormState {
@@ -404,6 +414,7 @@ function toFormState(opponent: Opponent): OpponentFormState {
     age_range: opponent.age_range ?? '',
     level: opponent.level ?? '',
     notes: opponent.notes ?? '',
+    icon: opponent.icon,
   }
 }
 
@@ -416,6 +427,7 @@ function toPayload(form: OpponentFormState): OpponentCreate {
     age_range: form.age_range || null,
     level: form.level.trim() || null,
     notes: form.notes.trim() || null,
+    icon: form.icon,
   }
 }
 
@@ -507,6 +519,10 @@ function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Oppo
         <CardContent>
           <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
             <FormBanner error={bannerMessage} />
+
+            <FormField id="icon" label="Icon" optional>
+              <EntityIconPicker value={form.icon} onChange={(icon) => setForm({ ...form, icon })} />
+            </FormField>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField id="name" label="First name" optional error={errors.name}>

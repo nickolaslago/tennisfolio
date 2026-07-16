@@ -1,5 +1,6 @@
 from datetime import date
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
@@ -210,3 +211,38 @@ def test_delete_tournament_with_matches_sets_match_tournament_null(
 
     db_session.refresh(match)
     assert match.tournament_id is None
+
+
+def test_create_tournament_with_icon_round_trips(client: TestClient) -> None:
+    response = client.post(
+        "/tournaments",
+        json={
+            "name": "Winter Open",
+            "tournament_type": "Knockout Tournament",
+            "icon": "icon:trophy:highlight",
+        },
+    )
+    assert response.status_code == 201
+    created = response.json()
+    assert created["icon"] == "icon:trophy:highlight"
+
+    response = client.patch(f"/tournaments/{created['id']}", json={"icon": "emoji:🏆"})
+    assert response.status_code == 200
+    assert response.json()["icon"] == "emoji:🏆"
+
+
+@pytest.mark.parametrize(
+    "icon",
+    [
+        "not-an-encoding",
+        "icon:not-a-real-icon:highlight",
+        "icon:trophy:hotpink",
+        "emoji:",
+    ],
+)
+def test_create_tournament_rejects_invalid_icon(client: TestClient, icon: str) -> None:
+    response = client.post(
+        "/tournaments",
+        json={"name": "Winter Open", "tournament_type": "Knockout Tournament", "icon": icon},
+    )
+    assert response.status_code == 422

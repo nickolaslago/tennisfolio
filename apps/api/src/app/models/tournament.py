@@ -31,6 +31,7 @@ class Tournament(TimestampMixin, Base):
     start_date: Mapped[date | None] = mapped_column(Date)
     end_date: Mapped[date | None] = mapped_column(Date)
     notes: Mapped[str | None] = mapped_column(Text)
+    icon: Mapped[str | None] = mapped_column(String(80))
 
     club: Mapped[Club | None] = relationship(back_populates="tournaments")
     matches: Mapped[list[Match]] = relationship(back_populates="tournament")
