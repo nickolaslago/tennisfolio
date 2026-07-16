@@ -231,6 +231,92 @@ def test_create_tournament_with_icon_round_trips(client: TestClient) -> None:
     assert response.json()["icon"] == "emoji:🏆"
 
 
+def test_create_tournament_with_organiser_round_trips(client: TestClient) -> None:
+    response = client.post(
+        "/tournaments",
+        json={
+            "name": "Winter Open",
+            "tournament_type": "Knockout Tournament",
+            "organiser": "Riverside Tennis Club",
+        },
+    )
+    assert response.status_code == 201
+    created = response.json()
+    assert created["organiser"] == "Riverside Tennis Club"
+
+    fetched = client.get(f"/tournaments/{created['id']}").json()
+    assert fetched["organiser"] == "Riverside Tennis Club"
+
+
+def test_organiser_defaults_to_null(client: TestClient) -> None:
+    created = client.post(
+        "/tournaments", json={"name": "Winter Open", "tournament_type": "Knockout Tournament"}
+    ).json()
+    assert created["organiser"] is None
+
+
+def test_update_tournament_sets_and_clears_organiser(client: TestClient) -> None:
+    created = client.post(
+        "/tournaments", json={"name": "Winter Open", "tournament_type": "Knockout Tournament"}
+    ).json()
+
+    response = client.patch(f"/tournaments/{created['id']}", json={"organiser": "Jane Doe"})
+    assert response.status_code == 200
+    assert response.json()["organiser"] == "Jane Doe"
+
+    response = client.patch(f"/tournaments/{created['id']}", json={"organiser": None})
+    assert response.status_code == 200
+    assert response.json()["organiser"] is None
+
+
+def test_create_tournament_rejects_overlong_organiser(client: TestClient) -> None:
+    response = client.post(
+        "/tournaments",
+        json={
+            "name": "Winter Open",
+            "tournament_type": "Knockout Tournament",
+            "organiser": "x" * 121,
+        },
+    )
+    assert response.status_code == 422
+
+
+@pytest.mark.parametrize(
+    "fmt",
+    [
+        "Best of 3",
+        "Best of 5",
+        "1 Set",
+        "Tie Break",
+        "Super Tie Break",
+        "Round robin, then knockout",
+    ],
+)
+def test_create_tournament_accepts_format_values(client: TestClient, fmt: str) -> None:
+    response = client.post(
+        "/tournaments",
+        json={"name": "Winter Open", "tournament_type": "Knockout Tournament", "format": fmt},
+    )
+    assert response.status_code == 201
+    created = response.json()
+    assert created["format"] == fmt
+
+    fetched = client.get(f"/tournaments/{created['id']}").json()
+    assert fetched["format"] == fmt
+
+
+def test_create_tournament_rejects_overlong_format(client: TestClient) -> None:
+    response = client.post(
+        "/tournaments",
+        json={
+            "name": "Winter Open",
+            "tournament_type": "Knockout Tournament",
+            "format": "x" * 81,
+        },
+    )
+    assert response.status_code == 422
+
+
 @pytest.mark.parametrize(
     "icon",
     [

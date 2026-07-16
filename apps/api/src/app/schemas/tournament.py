@@ -13,6 +13,7 @@ class TournamentBase(BaseModel):
     season: str | None = Field(default=None, max_length=40)
     tournament_type: TournamentType
     format: str | None = Field(default=None, max_length=80)
+    organiser: str | None = Field(default=None, max_length=120)
     club_id: int | None = None
     start_date: date | None = None
     end_date: date | None = None
@@ -36,6 +37,7 @@ class TournamentUpdate(BaseModel):
     season: str | None = Field(default=None, max_length=40)
     tournament_type: TournamentType | None = None
     format: str | None = Field(default=None, max_length=80)
+    organiser: str | None = Field(default=None, max_length=120)
     club_id: int | None = None
     start_date: date | None = None
     end_date: date | None = None

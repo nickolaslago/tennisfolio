@@ -1,5 +1,6 @@
 export * from './types'
 export * from './score'
 export * from './score-format'
+export * from './tournament-format'
 export * from './entity-icon'
 export * from './countries'

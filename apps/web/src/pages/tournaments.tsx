@@ -1,3 +1,4 @@
+import { TOURNAMENT_FORMAT_OPTIONS, isTournamentFormat } from '@tennisfolio/core'
 import { ChevronLeft, Pencil, Trash2, Trophy } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
@@ -38,6 +39,7 @@ import {
   useUpdateTournament,
 } from '@/hooks/use-tournaments'
 import { useClub, useClubs } from '@/hooks/use-clubs'
+import { useLastOrganiser } from '@/hooks/use-last-organiser'
 import { useMatches } from '@/hooks/use-matches'
 import type { Match } from '@/lib/api/matches'
 import { useDocumentTitle } from '@/lib/use-document-title'
@@ -98,6 +100,12 @@ export function TournamentsPage() {
       cell: (t) => t.tournament_type,
     },
     {
+      id: 'organiser',
+      header: 'Organiser',
+      sortValue: (t) => t.organiser ?? '',
+      cell: (t) => t.organiser ?? '—',
+    },
+    {
       id: 'club',
       header: 'Host club',
       sortValue: (t) => clubName(t.club_id),
@@ -127,7 +135,9 @@ export function TournamentsPage() {
         columns={columns}
         rowActions={rowOptions}
         getSearchText={(t) =>
-          `${t.name} ${t.season ?? ''} ${t.tournament_type} ${clubName(t.club_id) ?? ''}`
+          `${t.name} ${t.season ?? ''} ${t.tournament_type} ${t.organiser ?? ''} ${
+            clubName(t.club_id) ?? ''
+          }`
         }
         searchPlaceholder="Filter tournaments…"
         defaultSort={{ columnId: 'name', direction: 'asc' }}
@@ -160,6 +170,10 @@ export function TournamentsPage() {
                 <div>
                   <dt className="text-muted-foreground">Type</dt>
                   <dd>{t.tournament_type}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Organiser</dt>
+                  <dd>{t.organiser ?? '—'}</dd>
                 </div>
                 <div>
                   <dt className="text-muted-foreground">Host club</dt>
@@ -421,6 +435,10 @@ export function TournamentDetailPage() {
                   <dd>{tournament.data.format ?? '—'}</dd>
                 </div>
                 <div>
+                  <dt className="text-muted-foreground">Organiser</dt>
+                  <dd>{tournament.data.organiser ?? '—'}</dd>
+                </div>
+                <div>
                   <dt className="text-muted-foreground">Host club</dt>
                   <dd>
                     {tournament.data.club_id === null ? (
@@ -461,11 +479,15 @@ const TOURNAMENT_TYPE_OPTIONS: { value: TournamentType; label: string }[] = [
 /** Sentinel select value for "no host club" — Radix Select item values can't be an empty string. */
 const NO_CLUB_VALUE = 'none'
 
+/** Sentinel select value for the "Custom" format option that reveals a free-text field. */
+const CUSTOM_FORMAT_VALUE = '__custom__'
+
 interface TournamentFormState {
   name: string
   season: string
   tournament_type: TournamentType | ''
   format: string
+  organiser: string
   club_id: string
   start_date: string
   end_date: string
@@ -478,6 +500,7 @@ const EMPTY_FORM: TournamentFormState = {
   season: '',
   tournament_type: '',
   format: '',
+  organiser: '',
   club_id: '',
   start_date: '',
   end_date: '',
@@ -491,6 +514,7 @@ function toFormState(tournament: Tournament): TournamentFormState {
     season: tournament.season ?? '',
     tournament_type: tournament.tournament_type,
     format: tournament.format ?? '',
+    organiser: tournament.organiser ?? '',
     club_id: tournament.club_id !== null ? String(tournament.club_id) : '',
     start_date: tournament.start_date ?? '',
     end_date: tournament.end_date ?? '',
@@ -505,6 +529,7 @@ function toPayload(form: TournamentFormState): TournamentCreate {
     season: form.season.trim() || null,
     tournament_type: form.tournament_type as TournamentType,
     format: form.format.trim() || null,
+    organiser: form.organiser.trim() || null,
     club_id: form.club_id ? Number(form.club_id) : null,
     start_date: form.start_date || null,
     end_date: form.end_date || null,
@@ -556,13 +581,17 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
   const clubs = useClubs()
   const createTournament = useCreateTournament()
   const updateTournament = useUpdateTournament(tournamentId)
+  const [lastOrganiser, rememberOrganiser] = useLastOrganiser()
 
-  const [form, setForm] = useState<TournamentFormState>(() =>
-    isEdit
-      ? toFormState(props.tournament)
-      : duplicateFrom
-        ? toFormState(duplicateFrom)
-        : EMPTY_FORM,
+  const [form, setForm] = useState<TournamentFormState>(() => {
+    if (isEdit) return toFormState(props.tournament)
+    if (duplicateFrom) return toFormState(duplicateFrom)
+    return { ...EMPTY_FORM, organiser: lastOrganiser }
+  })
+  // A non-empty format that isn't one of the named presets is an existing
+  // free-text value — start the field in "Custom" mode so it stays editable.
+  const [customFormat, setCustomFormat] = useState<boolean>(
+    () => form.format.length > 0 && !isTournamentFormat(form.format),
   )
   const [touched, setTouched] = useState(false)
 
@@ -583,11 +612,17 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
     const payload = toPayload(form)
     if (isEdit) {
       updateTournament.mutate(payload, {
-        onSuccess: (updated) => navigate(`/tournaments/${updated.id}`),
+        onSuccess: (updated) => {
+          rememberOrganiser(form.organiser)
+          navigate(`/tournaments/${updated.id}`)
+        },
       })
     } else {
       createTournament.mutate(payload, {
-        onSuccess: (created) => navigate(`/tournaments/${created.id}`),
+        onSuccess: (created) => {
+          rememberOrganiser(form.organiser)
+          navigate(`/tournaments/${created.id}`)
+        },
       })
     }
   }
@@ -666,12 +701,53 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
               </FormField>
 
               <FormField id="format" label="Format" optional error={errors.format}>
+                <Select
+                  value={customFormat ? CUSTOM_FORMAT_VALUE : form.format}
+                  onValueChange={(value) => {
+                    if (value === CUSTOM_FORMAT_VALUE) {
+                      setCustomFormat(true)
+                      setForm({ ...form, format: '' })
+                    } else {
+                      setCustomFormat(false)
+                      setForm({ ...form, format: value })
+                    }
+                  }}
+                >
+                  <SelectTrigger
+                    id="format"
+                    className="w-full"
+                    aria-invalid={Boolean(errors.format)}
+                  >
+                    <SelectValue placeholder="Select format" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TOURNAMENT_FORMAT_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value={CUSTOM_FORMAT_VALUE}>Custom</SelectItem>
+                  </SelectContent>
+                </Select>
+                {customFormat && (
+                  <Input
+                    id="format-custom"
+                    className="mt-2"
+                    value={form.format}
+                    onChange={(e) => setForm({ ...form, format: e.target.value })}
+                    aria-label="Custom format"
+                    placeholder="e.g. Round robin, then knockout"
+                  />
+                )}
+              </FormField>
+
+              <FormField id="organiser" label="Organiser" optional error={errors.organiser}>
                 <Input
-                  id="format"
-                  value={form.format}
-                  onChange={(e) => setForm({ ...form, format: e.target.value })}
-                  aria-invalid={Boolean(errors.format)}
-                  placeholder="e.g. Best of 5, Round robin…"
+                  id="organiser"
+                  value={form.organiser}
+                  onChange={(e) => setForm({ ...form, organiser: e.target.value })}
+                  aria-invalid={Boolean(errors.organiser)}
+                  placeholder="e.g. Riverside Tennis Club"
                 />
               </FormField>
 
