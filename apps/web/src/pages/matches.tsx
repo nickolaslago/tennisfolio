@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { EntityList, type EntityColumn } from '@/components/data/entity-list'
 import { ErrorState, LoadingState } from '@/components/data/query-state'
+import { RowOptionsMenu } from '@/components/data/row-options-menu'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -187,16 +188,16 @@ export function MatchesPage() {
   const tournamentName = (id: number | null) =>
     id === null ? null : (tournamentsById.get(id)?.name ?? null)
 
-  const deleteButton = (match: Match) => (
-    <Button
-      variant="ghost"
-      size="icon-sm"
-      aria-label={`Delete match on ${match.match_date}`}
-      disabled={deleteMatch.isPending}
-      onClick={() => deleteMatch.mutate(match.id)}
-    >
-      <Trash2 aria-hidden="true" />
-    </Button>
+  const rowOptions = (match: Match) => (
+    <RowOptionsMenu
+      label={`match on ${match.match_date}`}
+      editTo={`/matches/${match.id}/edit`}
+      duplicateTo="/matches/new"
+      duplicateState={{ duplicate: match }}
+      onDelete={() => deleteMatch.mutate(match.id)}
+      deletePending={deleteMatch.isPending}
+      deleteDescription="This permanently removes the match and its set scores. This can't be undone."
+    />
   )
 
   const completeButton = (match: Match) =>
@@ -350,9 +351,7 @@ export function MatchesPage() {
               <Label htmlFor="filter-surface">Surface</Label>
               <Select
                 value={filters.surface || ALL_VALUE}
-                onValueChange={(value) =>
-                  setParam('surface', value === ALL_VALUE ? '' : value)
-                }
+                onValueChange={(value) => setParam('surface', value === ALL_VALUE ? '' : value)}
               >
                 <SelectTrigger id="filter-surface" className="w-full">
                   <SelectValue placeholder="All surfaces" />
@@ -425,7 +424,7 @@ export function MatchesPage() {
         rowActions={(m) => (
           <div className="flex items-center justify-end gap-2">
             {completeButton(m)}
-            {deleteButton(m)}
+            {rowOptions(m)}
           </div>
         )}
         defaultSort={{ columnId: 'date', direction: 'desc' }}
@@ -441,10 +440,13 @@ export function MatchesPage() {
           <Card className="h-full">
             <CardContent className="flex flex-col gap-3">
               <div className="flex items-start justify-between gap-2">
-                <Link to={`/matches/${m.id}`} className="cn-font-heading text-base font-medium hover:underline">
+                <Link
+                  to={`/matches/${m.id}`}
+                  className="cn-font-heading text-base font-medium hover:underline"
+                >
                   {m.match_date}
                 </Link>
-                {deleteButton(m)}
+                {rowOptions(m)}
               </div>
               <dl className="grid grid-cols-2 gap-2 text-sm">
                 <div>
