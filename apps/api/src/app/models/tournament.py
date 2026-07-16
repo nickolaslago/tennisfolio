@@ -25,6 +25,7 @@ class Tournament(TimestampMixin, Base):
     season: Mapped[str | None] = mapped_column(String(40))
     tournament_type: Mapped[TournamentType] = mapped_column(TOURNAMENT_TYPE_ENUM, nullable=False)
     format: Mapped[str | None] = mapped_column(String(80))
+    organiser: Mapped[str | None] = mapped_column(String(120))
     club_id: Mapped[int | None] = mapped_column(
         ForeignKey("clubs.id", ondelete="SET NULL"), index=True
     )

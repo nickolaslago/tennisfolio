@@ -10,6 +10,7 @@ export interface Tournament {
   season: string | null
   tournament_type: TournamentType
   format: string | null
+  organiser: string | null
   club_id: number | null
   start_date: string | null
   end_date: string | null
@@ -24,6 +25,7 @@ export interface TournamentCreate {
   season?: string | null
   tournament_type: TournamentType
   format?: string | null
+  organiser?: string | null
   club_id?: number | null
   start_date?: string | null
   end_date?: string | null
