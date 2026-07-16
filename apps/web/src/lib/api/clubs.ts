@@ -12,6 +12,7 @@ export interface Club {
   country: string | null
   surface: Surface | null
   environment: Environment | null
+  icon: string | null
   created_at: string
   updated_at: string
 }
@@ -22,6 +23,7 @@ export interface ClubCreate {
   country?: string | null
   surface?: Surface | null
   environment?: Environment | null
+  icon?: string | null
 }
 
 export type ClubUpdate = Partial<ClubCreate>

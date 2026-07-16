@@ -26,5 +26,6 @@ class Opponent(TimestampMixin, Base):
     age_range: Mapped[AgeRange | None] = mapped_column(AGE_RANGE_ENUM)
     level: Mapped[str | None] = mapped_column(String(80))
     notes: Mapped[str | None] = mapped_column(Text)
+    icon: Mapped[str | None] = mapped_column(String(80))
 
     matches: Mapped[list[Match]] = relationship(back_populates="opponent")

@@ -2,6 +2,8 @@ import { ChevronLeft, Pencil, Trash2, Trophy } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 
+import { EntityIcon } from '@/components/data/entity-icon'
+import { EntityIconPicker } from '@/components/data/entity-icon-picker'
 import { EntityList, type EntityColumn } from '@/components/data/entity-list'
 import { FormBanner, FormField } from '@/components/data/entity-form'
 import { EmptyState, ErrorState, LoadingState } from '@/components/data/query-state'
@@ -74,7 +76,11 @@ export function TournamentsPage() {
       header: 'Name',
       sortValue: (t) => t.name.toLowerCase(),
       cell: (t) => (
-        <Link to={`/tournaments/${t.id}`} className="font-medium hover:underline">
+        <Link
+          to={`/tournaments/${t.id}`}
+          className="flex items-center gap-1.5 font-medium hover:underline"
+        >
+          <EntityIcon value={t.icon} />
           {t.name}
         </Link>
       ),
@@ -139,8 +145,9 @@ export function TournamentsPage() {
               <div className="flex items-start justify-between gap-2">
                 <Link
                   to={`/tournaments/${t.id}`}
-                  className="cn-font-heading text-base font-medium hover:underline"
+                  className="flex items-center gap-1.5 cn-font-heading text-base font-medium hover:underline"
                 >
+                  <EntityIcon value={t.icon} />
                   {t.name}
                 </Link>
                 {rowOptions(t)}
@@ -374,6 +381,7 @@ export function TournamentDetailPage() {
             <PageHeader
               title={tournament.data.name}
               description={tournament.data.season ?? tournament.data.tournament_type}
+              icon={tournament.data.icon}
             />
             <div className="flex gap-2">
               <Button variant="outline" size="sm" asChild>
@@ -462,6 +470,7 @@ interface TournamentFormState {
   start_date: string
   end_date: string
   notes: string
+  icon: string | null
 }
 
 const EMPTY_FORM: TournamentFormState = {
@@ -473,6 +482,7 @@ const EMPTY_FORM: TournamentFormState = {
   start_date: '',
   end_date: '',
   notes: '',
+  icon: null,
 }
 
 function toFormState(tournament: Tournament): TournamentFormState {
@@ -485,6 +495,7 @@ function toFormState(tournament: Tournament): TournamentFormState {
     start_date: tournament.start_date ?? '',
     end_date: tournament.end_date ?? '',
     notes: tournament.notes ?? '',
+    icon: tournament.icon,
   }
 }
 
@@ -498,6 +509,7 @@ function toPayload(form: TournamentFormState): TournamentCreate {
     start_date: form.start_date || null,
     end_date: form.end_date || null,
     notes: form.notes.trim() || null,
+    icon: form.icon,
   }
 }
 
@@ -598,6 +610,10 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
         <CardContent>
           <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
             <FormBanner error={bannerMessage} />
+
+            <FormField id="icon" label="Icon" optional>
+              <EntityIconPicker value={form.icon} onChange={(icon) => setForm({ ...form, icon })} />
+            </FormField>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField id="name" label="Name" error={errors.name} className="sm:col-span-2">

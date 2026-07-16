@@ -2,9 +2,10 @@
 
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.models.enums import TournamentType
+from app.schemas.entity_icon import validate_entity_icon
 
 
 class TournamentBase(BaseModel):
@@ -16,6 +17,12 @@ class TournamentBase(BaseModel):
     start_date: date | None = None
     end_date: date | None = None
     notes: str | None = None
+    icon: str | None = Field(default=None, max_length=80)
+
+    @field_validator("icon")
+    @classmethod
+    def _validate_icon(cls, value: str | None) -> str | None:
+        return validate_entity_icon(value) if value is not None else value
 
 
 class TournamentCreate(TournamentBase):
@@ -33,6 +40,12 @@ class TournamentUpdate(BaseModel):
     start_date: date | None = None
     end_date: date | None = None
     notes: str | None = None
+    icon: str | None = Field(default=None, max_length=80)
+
+    @field_validator("icon")
+    @classmethod
+    def _validate_icon(cls, value: str | None) -> str | None:
+        return validate_entity_icon(value) if value is not None else value
 
 
 class TournamentRead(TournamentBase):

@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react'
 
+import { EntityIcon } from '@/components/data/entity-icon'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -12,6 +13,7 @@ import {
 export interface EntitySelectOption {
   value: string
   label: string
+  icon?: string | null
 }
 
 /** Non-empty sentinel — Radix Select item values can't be an empty string. */
@@ -51,6 +53,7 @@ export function EntitySelect({
   // An unmatched value keeps the trigger showing its placeholder; when a
   // `noneLabel` row exists, map the empty selection onto it so it reads back.
   const radixValue = value === '' ? (noneLabel ? NONE_VALUE : undefined) : value
+  const selectedOption = options.find((option) => option.value === value)
 
   const handleValueChange = (next: string) => {
     // Radix's hidden native <select> emits a spurious empty-string change right
@@ -71,12 +74,20 @@ export function EntitySelect({
           aria-invalid={ariaInvalid}
           aria-describedby={ariaDescribedby}
         >
-          <SelectValue placeholder={placeholder} />
+          <SelectValue placeholder={placeholder}>
+            {selectedOption ? (
+              <>
+                <EntityIcon value={selectedOption.icon} />
+                {selectedOption.label}
+              </>
+            ) : undefined}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {noneLabel ? <SelectItem value={NONE_VALUE}>{noneLabel}</SelectItem> : null}
           {options.map((option) => (
             <SelectItem key={option.value} value={option.value}>
+              <EntityIcon value={option.icon} />
               {option.label}
             </SelectItem>
           ))}

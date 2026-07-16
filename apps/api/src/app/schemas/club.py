@@ -2,9 +2,10 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.models.enums import Environment, Surface
+from app.schemas.entity_icon import validate_entity_icon
 
 
 class ClubBase(BaseModel):
@@ -13,6 +14,12 @@ class ClubBase(BaseModel):
     country: str | None = Field(default=None, max_length=80)
     surface: Surface | None = None
     environment: Environment | None = None
+    icon: str | None = Field(default=None, max_length=80)
+
+    @field_validator("icon")
+    @classmethod
+    def _validate_icon(cls, value: str | None) -> str | None:
+        return validate_entity_icon(value) if value is not None else value
 
 
 class ClubCreate(ClubBase):
@@ -27,6 +34,12 @@ class ClubUpdate(BaseModel):
     country: str | None = Field(default=None, max_length=80)
     surface: Surface | None = None
     environment: Environment | None = None
+    icon: str | None = Field(default=None, max_length=80)
+
+    @field_validator("icon")
+    @classmethod
+    def _validate_icon(cls, value: str | None) -> str | None:
+        return validate_entity_icon(value) if value is not None else value
 
 
 class ClubRead(ClubBase):

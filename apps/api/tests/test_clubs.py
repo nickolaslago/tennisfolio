@@ -1,3 +1,4 @@
+import pytest
 from fastapi.testclient import TestClient
 
 
@@ -100,3 +101,28 @@ def test_delete_club(client: TestClient) -> None:
 def test_delete_club_not_found(client: TestClient) -> None:
     response = client.delete("/clubs/999")
     assert response.status_code == 404
+
+
+def test_create_club_with_icon_round_trips(client: TestClient) -> None:
+    response = client.post("/clubs", json={"name": "Riverside", "icon": "icon:map-pin:secondary"})
+    assert response.status_code == 201
+    created = response.json()
+    assert created["icon"] == "icon:map-pin:secondary"
+
+    response = client.patch(f"/clubs/{created['id']}", json={"icon": "emoji:🏟️"})
+    assert response.status_code == 200
+    assert response.json()["icon"] == "emoji:🏟️"
+
+
+@pytest.mark.parametrize(
+    "icon",
+    [
+        "not-an-encoding",
+        "icon:not-a-real-icon:secondary",
+        "icon:map-pin:hotpink",
+        "emoji:",
+    ],
+)
+def test_create_club_rejects_invalid_icon(client: TestClient, icon: str) -> None:
+    response = client.post("/clubs", json={"name": "Riverside", "icon": icon})
+    assert response.status_code == 422

@@ -14,6 +14,7 @@ export interface Tournament {
   start_date: string | null
   end_date: string | null
   notes: string | null
+  icon: string | null
   created_at: string
   updated_at: string
 }
@@ -27,6 +28,7 @@ export interface TournamentCreate {
   start_date?: string | null
   end_date?: string | null
   notes?: string | null
+  icon?: string | null
 }
 
 export type TournamentUpdate = Partial<TournamentCreate>

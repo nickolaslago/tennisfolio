@@ -2,6 +2,8 @@ import { ChevronLeft, MapPinPlus, Pencil, Trash2 } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 
+import { EntityIcon } from '@/components/data/entity-icon'
+import { EntityIconPicker } from '@/components/data/entity-icon-picker'
 import { EntityList, type EntityColumn } from '@/components/data/entity-list'
 import { FormBanner, FormField } from '@/components/data/entity-form'
 import { EmptyState, ErrorState, LoadingState } from '@/components/data/query-state'
@@ -55,7 +57,11 @@ export function ClubsPage() {
       header: 'Name',
       sortValue: (c) => c.name.toLowerCase(),
       cell: (c) => (
-        <Link to={`/clubs/${c.id}`} className="font-medium hover:underline">
+        <Link
+          to={`/clubs/${c.id}`}
+          className="flex items-center gap-1.5 font-medium hover:underline"
+        >
+          <EntityIcon value={c.icon} />
           {c.name}
         </Link>
       ),
@@ -117,8 +123,9 @@ export function ClubsPage() {
               <div className="flex items-start justify-between gap-2">
                 <Link
                   to={`/clubs/${c.id}`}
-                  className="cn-font-heading text-base font-medium hover:underline"
+                  className="flex items-center gap-1.5 cn-font-heading text-base font-medium hover:underline"
                 >
+                  <EntityIcon value={c.icon} />
                   {c.name}
                 </Link>
                 {rowOptions(c)}
@@ -331,7 +338,11 @@ export function ClubDetailPage() {
       ) : (
         <>
           <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-            <PageHeader title={club.data.name} description={club.data.country ?? undefined} />
+            <PageHeader
+              title={club.data.name}
+              description={club.data.country ?? undefined}
+              icon={club.data.icon}
+            />
             <div className="flex gap-2">
               <Button variant="outline" size="sm" asChild>
                 <Link to={`/clubs/${club.data.id}/edit`}>
@@ -397,6 +408,7 @@ interface ClubFormState {
   country: string
   surface: Surface | ''
   environment: Environment | ''
+  icon: string | null
 }
 
 const EMPTY_FORM: ClubFormState = {
@@ -405,6 +417,7 @@ const EMPTY_FORM: ClubFormState = {
   country: '',
   surface: '',
   environment: '',
+  icon: null,
 }
 
 function toFormState(club: Club): ClubFormState {
@@ -414,6 +427,7 @@ function toFormState(club: Club): ClubFormState {
     country: club.country ?? '',
     surface: club.surface ?? '',
     environment: club.environment ?? '',
+    icon: club.icon,
   }
 }
 
@@ -424,6 +438,7 @@ function toPayload(form: ClubFormState): ClubCreate {
     country: form.country.trim() || null,
     surface: form.surface || null,
     environment: form.environment || null,
+    icon: form.icon,
   }
 }
 
@@ -515,6 +530,10 @@ function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
         <CardContent>
           <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
             <FormBanner error={bannerMessage} />
+
+            <FormField id="icon" label="Icon" optional>
+              <EntityIconPicker value={form.icon} onChange={(icon) => setForm({ ...form, icon })} />
+            </FormField>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField id="name" label="Name" error={errors.name} className="sm:col-span-2">

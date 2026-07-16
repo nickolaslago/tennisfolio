@@ -1,5 +1,6 @@
 from datetime import date
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
@@ -124,3 +125,50 @@ def test_delete_opponent_with_matches_conflicts(client: TestClient, db_session: 
     assert response.json()["error"]["message"] == (
         f"Opponent {created['id']} has matches and cannot be deleted"
     )
+
+
+def test_create_opponent_with_emoji_icon(client: TestClient) -> None:
+    response = client.post("/opponents", json={"last_name": "Nadal", "icon": "emoji:🎾"})
+    assert response.status_code == 201
+    assert response.json()["icon"] == "emoji:🎾"
+
+
+def test_create_opponent_with_lucide_icon(client: TestClient) -> None:
+    response = client.post(
+        "/opponents", json={"last_name": "Nadal", "icon": "icon:swords:highlight"}
+    )
+    assert response.status_code == 201
+    assert response.json()["icon"] == "icon:swords:highlight"
+
+
+def test_create_opponent_without_icon_defaults_to_none(client: TestClient) -> None:
+    response = client.post("/opponents", json={"last_name": "Nadal"})
+    assert response.status_code == 201
+    assert response.json()["icon"] is None
+
+
+def test_update_opponent_icon_round_trips(client: TestClient) -> None:
+    created = client.post("/opponents", json={"last_name": "Nadal"}).json()
+
+    response = client.patch(f"/opponents/{created['id']}", json={"icon": "emoji:🥎"})
+    assert response.status_code == 200
+    assert response.json()["icon"] == "emoji:🥎"
+
+    response = client.get(f"/opponents/{created['id']}")
+    assert response.json()["icon"] == "emoji:🥎"
+
+
+@pytest.mark.parametrize(
+    "icon",
+    [
+        "not-an-encoding",
+        "icon:not-a-real-icon:highlight",
+        "icon:trophy:hotpink",
+        "icon:trophy",
+        "emoji:",
+        "emoji: 🎾",
+    ],
+)
+def test_create_opponent_rejects_invalid_icon(client: TestClient, icon: str) -> None:
+    response = client.post("/opponents", json={"last_name": "Nadal", "icon": icon})
+    assert response.status_code == 422
