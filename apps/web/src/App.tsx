@@ -17,6 +17,7 @@ const router = createBrowserRouter([
       { path: 'matches', element: <MatchesPage /> },
       { path: 'matches/new', element: <MatchFormPage /> },
       { path: 'matches/:id/complete', element: <MatchFormPage /> },
+      { path: 'matches/:id/edit', element: <MatchFormPage /> },
       { path: 'matches/:id', element: <MatchDetailPage /> },
       { path: 'opponents', element: <OpponentsPage /> },
       { path: 'opponents/new', element: <OpponentFormPage /> },
