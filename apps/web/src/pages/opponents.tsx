@@ -2,6 +2,7 @@ import { ChevronLeft, Pencil, Trash2, UserPlus } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 
+import { CountryCombobox } from '@/components/data/country-combobox'
 import { EntityIcon } from '@/components/data/entity-icon'
 import { EntityIconPicker } from '@/components/data/entity-icon-picker'
 import { EntityList, type EntityColumn } from '@/components/data/entity-list'
@@ -546,10 +547,10 @@ function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Oppo
               </FormField>
 
               <FormField id="nationality" label="Nationality" optional error={errors.nationality}>
-                <Input
+                <CountryCombobox
                   id="nationality"
-                  value={form.nationality}
-                  onChange={(e) => setForm({ ...form, nationality: e.target.value })}
+                  value={form.nationality || null}
+                  onChange={(nationality) => setForm({ ...form, nationality: nationality ?? '' })}
                   aria-invalid={Boolean(errors.nationality)}
                 />
               </FormField>
