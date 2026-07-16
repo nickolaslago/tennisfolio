@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app.errors import register_exception_handlers
-from app.routers import clubs, export, health, matches, opponents, tournaments
+from app.routers import clubs, export, health, matches, opponents, stats, tournaments
 
 app = FastAPI(title="Tennisfolio API")
 
@@ -12,6 +12,7 @@ app.include_router(opponents.router)
 app.include_router(clubs.router)
 app.include_router(tournaments.router)
 app.include_router(matches.router)
+app.include_router(stats.router)
 app.include_router(export.router)
 
 
