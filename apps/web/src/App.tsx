@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import { AppShell } from '@/components/layout/app-shell'
-import { ClubDetailPage, ClubsPage } from '@/pages/clubs'
+import { ClubDetailPage, ClubFormPage, ClubsPage } from '@/pages/clubs'
 import { HomePage } from '@/pages/home'
 import { MatchDetailPage, MatchesPage } from '@/pages/matches'
 import { NotFoundPage } from '@/pages/not-found'
@@ -20,6 +20,8 @@ const router = createBrowserRouter([
       { path: 'opponents/:id/edit', element: <OpponentFormPage /> },
       { path: 'opponents/:id', element: <OpponentDetailPage /> },
       { path: 'clubs', element: <ClubsPage /> },
+      { path: 'clubs/new', element: <ClubFormPage /> },
+      { path: 'clubs/:id/edit', element: <ClubFormPage /> },
       { path: 'clubs/:id', element: <ClubDetailPage /> },
       { path: 'tournaments', element: <TournamentsPage /> },
       { path: 'tournaments/:id', element: <TournamentDetailPage /> },
