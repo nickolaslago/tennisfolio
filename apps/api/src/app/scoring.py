@@ -9,13 +9,16 @@ kept in exact behavioural parity by shared test suites.
 
 Scoring model
 -------------
-* A match records 1, 3, or 5 sets. Even set counts cannot decide a winner and
-  are rejected.
+* A match records between 1 and 5 sets and ends the moment a player clinches:
+  best-of-1 (1 set), best-of-3 (2 sets for a straight-sets win, 3 for a
+  decider), or best-of-5 (3, 4, or 5 sets). Set counts that no best-of format
+  could produce are rejected.
 * A standard set is won 6-0 to 6-4, 7-5, or 7-6 (7-6 being a tiebreak set).
 * The deciding (final) set may instead be a super-tiebreak — first to 10,
   win by two — written like ``10-7`` or ``12-10``.
 * The player who wins the match must win the final set, and cannot have
-  clinched before it (a best-of-``n`` match ends at ``n // 2 + 1`` sets won).
+  clinched before it (a best-of-``n`` match ends once a player takes
+  ``n // 2 + 1`` sets).
 """
 
 from __future__ import annotations
@@ -29,12 +32,19 @@ SetResult = Literal["Win", "Loss"]
 MatchResult = Literal["Win", "Loss"]
 
 _SET_RE = re.compile(r"^(-?\d+)-(-?\d+)$")
-_ALLOWED_SET_COUNTS = (1, 3, 5)
-# For a match of N sets, the winner must take exactly one of these many sets:
-# 3-set matches are ambiguous (best-of-3 decider = 2, best-of-5 sweep = 3).
+_ALLOWED_SET_COUNTS = (1, 2, 3, 4, 5)
+# For a match of N recorded sets, the winner must take exactly one of these many
+# sets — the clinch count for a best-of format that ends after N sets:
+#   1 set  -> best-of-1 (1-0)
+#   2 sets -> best-of-3 straight-sets win (2-0)
+#   3 sets -> best-of-3 decider (2-1) or best-of-5 sweep (3-0) — ambiguous
+#   4 sets -> best-of-5 (3-1)
+#   5 sets -> best-of-5 decider (3-2)
 _WINNING_SETS_BY_COUNT: dict[int, frozenset[int]] = {
     1: frozenset({1}),
+    2: frozenset({2}),
     3: frozenset({2, 3}),
+    4: frozenset({3}),
     5: frozenset({3}),
 }
 
@@ -84,9 +94,10 @@ def parse_score(score: str) -> list[ScoredSet]:
 
     winner_wins = max(user_wins, opponent_wins)
     if winner_wins not in _WINNING_SETS_BY_COUNT[count]:
+        expected = " or ".join(str(w) for w in sorted(_WINNING_SETS_BY_COUNT[count]))
         raise InvalidScoreError(
-            f"Inconsistent score: a best-of-{count} match is won by taking "
-            f"{count // 2 + 1} sets, but this score has a player winning {winner_wins}."
+            f"Inconsistent score: a completed {count}-set match is won by taking "
+            f"{expected} sets, but this score has the leading player winning {winner_wins}."
         )
 
     return sets
@@ -104,11 +115,6 @@ def format_score(sets: Iterable[ScoredSet]) -> str:
 
 
 def _set_count_message(count: int) -> str:
-    if count % 2 == 0:
-        return (
-            f"A tennis match has an odd number of sets (1, 3, or 5); "
-            f"{count} sets cannot decide a winner."
-        )
     return f"A tennis match has at most 5 sets; got {count}."
 
 

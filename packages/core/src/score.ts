@@ -11,7 +11,10 @@ import type { MatchResult, ScoredSet } from './types'
  * kept in exact behavioural parity by shared test suites.
  *
  * Scoring model:
- * - A match records 1, 3, or 5 sets. Even set counts cannot decide a winner.
+ * - A match records between 1 and 5 sets and ends the moment a player clinches:
+ *   best-of-1 (1 set), best-of-3 (2 sets for a straight-sets win, 3 for a
+ *   decider), or best-of-5 (3, 4, or 5 sets). Set counts that no best-of format
+ *   could produce are rejected.
  * - A standard set is won 6-0 to 6-4, 7-5, or 7-6 (7-6 being a tiebreak set).
  * - The deciding (final) set may instead be a super-tiebreak — first to 10,
  *   win by two — written like "10-7" or "12-10".
@@ -20,12 +23,19 @@ import type { MatchResult, ScoredSet } from './types'
  */
 
 const SET_PATTERN = /^(-?\d+)-(-?\d+)$/
-const ALLOWED_SET_COUNTS = [1, 3, 5]
-// For a match of N sets, the winner must take exactly one of these many sets:
-// 3-set matches are ambiguous (best-of-3 decider = 2, best-of-5 sweep = 3).
+const ALLOWED_SET_COUNTS = [1, 2, 3, 4, 5]
+// For a match of N recorded sets, the winner must take exactly one of these many
+// sets — the clinch count for a best-of format that ends after N sets:
+//   1 set  -> best-of-1 (1-0)
+//   2 sets -> best-of-3 straight-sets win (2-0)
+//   3 sets -> best-of-3 decider (2-1) or best-of-5 sweep (3-0) — ambiguous
+//   4 sets -> best-of-5 (3-1)
+//   5 sets -> best-of-5 decider (3-2)
 const WINNING_SETS_BY_COUNT: Record<number, number[]> = {
   1: [1],
+  2: [2],
   3: [2, 3],
+  4: [3],
   5: [3],
 }
 
@@ -70,9 +80,10 @@ export function parseScore(score: string): ScoredSet[] {
 
   const winnerWins = Math.max(userWins, opponentWins)
   if (!WINNING_SETS_BY_COUNT[count].includes(winnerWins)) {
+    const expected = [...WINNING_SETS_BY_COUNT[count]].sort((a, b) => a - b).join(' or ')
     throw new InvalidScoreError(
-      `Inconsistent score: a best-of-${count} match is won by taking ` +
-        `${Math.floor(count / 2) + 1} sets, but this score has a player winning ${winnerWins}.`,
+      `Inconsistent score: a completed ${count}-set match is won by taking ` +
+        `${expected} sets, but this score has the leading player winning ${winnerWins}.`,
     )
   }
 
@@ -91,12 +102,6 @@ export function formatScore(sets: ScoredSet[]): string {
 }
 
 function setCountMessage(count: number): string {
-  if (count % 2 === 0) {
-    return (
-      `A tennis match has an odd number of sets (1, 3, or 5); ` +
-      `${count} sets cannot decide a winner.`
-    )
-  }
   return `A tennis match has at most 5 sets; got ${count}.`
 }
 

@@ -60,9 +60,32 @@ describe('parseScore — valid scores', () => {
     expect(sets.map((s) => s.tiebreak)).toEqual([false, false, false])
   })
 
+  it('accepts a two-set straight-sets win (2-0)', () => {
+    const sets = parseScore('6-4 6-3')
+    expect(sets.map((s) => s.result)).toEqual(['Win', 'Win'])
+    expect(computeMatchResult(sets)).toBe('Win')
+  })
+
+  it('accepts a two-set straight-sets loss (0-2)', () => {
+    const sets = parseScore('4-6 3-6')
+    expect(sets.map((s) => s.result)).toEqual(['Loss', 'Loss'])
+    expect(computeMatchResult(sets)).toBe('Loss')
+  })
+
   it('accepts a three-set sweep (best-of-five straight-sets win)', () => {
     const sets = parseScore('6-4 6-3 6-2')
     expect(computeMatchResult(sets)).toBe('Win')
+  })
+
+  it('accepts a four-set early clinch (3-1)', () => {
+    const sets = parseScore('6-4 3-6 6-3 6-4')
+    expect(sets.map((s) => s.result)).toEqual(['Win', 'Loss', 'Win', 'Win'])
+    expect(computeMatchResult(sets)).toBe('Win')
+  })
+
+  it('accepts a four-set early clinch loss (1-3)', () => {
+    const sets = parseScore('6-4 3-6 3-6 4-6')
+    expect(computeMatchResult(sets)).toBe('Loss')
   })
 
   it('parses a five-set match', () => {
@@ -118,8 +141,10 @@ describe('round-trip', () => {
     '7-5',
     '7-6',
     '10-7',
+    '6-4 6-3',
     '6-4 3-6 10-7',
     '6-4 4-6 7-5',
+    '6-4 3-6 6-3 6-4',
     '6-4 4-6 6-3 4-6 6-4',
     '6-4 4-6 6-3 4-6 10-8',
   ])('sets → string → sets is lossless for %s', (score) => {
@@ -139,12 +164,12 @@ describe('parseScore — rejections', () => {
     expect(() => parseScore('   ')).toThrow(/at least one set/)
   })
 
-  it('rejects an even set count of two', () => {
-    expect(() => parseScore('6-4 6-3')).toThrow(/cannot decide a winner/)
+  it('rejects an incomplete two-set match (1-1)', () => {
+    expect(() => parseScore('6-4 3-6')).toThrow(/is won by taking/)
   })
 
-  it('rejects an even set count of four', () => {
-    expect(() => parseScore('6-4 6-3 3-6 6-2')).toThrow(/cannot decide a winner/)
+  it('rejects an incomplete four-set match (2-2)', () => {
+    expect(() => parseScore('6-4 3-6 6-3 3-6')).toThrow(/is won by taking/)
   })
 
   it('rejects too many sets', () => {

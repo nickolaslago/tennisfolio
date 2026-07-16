@@ -177,7 +177,7 @@ def test_create_rejects_score_and_sets_together(client: TestClient) -> None:
     "score",
     [
         "7-7",  # a set cannot end level
-        "6-4 6-4",  # even set counts cannot decide a winner
+        "6-4 3-6",  # 1-1: neither player has clinched a best-of-three
         "9-7",  # not a valid set score
         "10-7 6-4 6-4",  # super-tiebreak only as the deciding set
         "10-9",  # super-tiebreak must be won by two past 10
