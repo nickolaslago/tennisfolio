@@ -27,6 +27,11 @@ services:
       TENNISFOLIO_DATABASE_URL: ${TENNISFOLIO_DATABASE_URL:-postgresql+psycopg://tennisfolio:tennisfolio@db:5432/tennisfolio}
     ports:
       - "${API_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   web:
     build:
@@ -34,9 +39,15 @@ services:
       dockerfile: apps/web/Dockerfile
     restart: unless-stopped
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     ports:
       - "${WEB_PORT:-3000}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   pgdata:
