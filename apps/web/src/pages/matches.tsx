@@ -1,8 +1,28 @@
-import { ClipboardCheck, Plus, SlidersHorizontal, Trash2, X } from 'lucide-react'
+import {
+  ChevronLeft,
+  ClipboardCheck,
+  Pencil,
+  Plus,
+  SlidersHorizontal,
+  Trash2,
+  X,
+} from 'lucide-react'
 import { useMemo } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { EntityList, type EntityColumn } from '@/components/data/entity-list'
+import { ErrorState, LoadingState } from '@/components/data/query-state'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -15,13 +35,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useClubs } from '@/hooks/use-clubs'
-import { useDeleteMatch, useMatches } from '@/hooks/use-matches'
-import { useOpponents } from '@/hooks/use-opponents'
-import { useTournaments } from '@/hooks/use-tournaments'
-import type { Match, MatchListParams, MatchStatus, Surface } from '@/lib/api/matches'
-import { DetailPlaceholderPage } from '@/pages/placeholders'
+import { useClub, useClubs } from '@/hooks/use-clubs'
+import { useDeleteMatch, useMatch, useMatches } from '@/hooks/use-matches'
+import { useOpponent, useOpponents } from '@/hooks/use-opponents'
+import { useTournament, useTournaments } from '@/hooks/use-tournaments'
+import type { Match, MatchListParams, MatchStatus, SetRead, Surface } from '@/lib/api/matches'
 import { useDocumentTitle } from '@/lib/use-document-title'
 
 const SURFACE_OPTIONS: Surface[] = ['Hard', 'Clay', 'Grass', 'Carpet']
@@ -474,6 +501,217 @@ export function MatchesPage() {
   )
 }
 
+function opponentFullName(opponent: { name: string | null; last_name: string }) {
+  return opponent.name ? `${opponent.name} ${opponent.last_name}` : opponent.last_name
+}
+
+function MatchHeaderCard({ match, opponentName }: { match: Match; opponentName: string }) {
+  const club = useClub(match.club_id ?? NaN)
+  const tournament = useTournament(match.tournament_id ?? NaN)
+
+  return (
+    <Card className="mb-6">
+      <CardContent>
+        <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
+          <div>
+            <dt className="text-muted-foreground">Opponent</dt>
+            <dd>
+              <Link to={`/opponents/${match.opponent_id}`} className="font-medium hover:underline">
+                {opponentName}
+              </Link>
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">Date</dt>
+            <dd>{match.match_date}</dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">Club</dt>
+            <dd>
+              {match.club_id === null ? (
+                '—'
+              ) : (
+                <Link to={`/clubs/${match.club_id}`} className="hover:underline">
+                  {club.data?.name ?? '—'}
+                </Link>
+              )}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">Tournament</dt>
+            <dd>
+              {match.tournament_id === null ? (
+                '—'
+              ) : (
+                <>
+                  <Link to={`/tournaments/${match.tournament_id}`} className="hover:underline">
+                    {tournament.data?.name ?? '—'}
+                  </Link>
+                  {match.stage ? (
+                    <span className="text-muted-foreground"> · {match.stage}</span>
+                  ) : null}
+                </>
+              )}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">Surface</dt>
+            <dd>{match.surface ?? '—'}</dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">Duration</dt>
+            <dd>{match.duration_min !== null ? `${match.duration_min} min` : '—'}</dd>
+          </div>
+          <div className="col-span-2 sm:col-span-4">
+            <dt className="text-muted-foreground">Notes</dt>
+            <dd>{match.notes ?? '—'}</dd>
+          </div>
+        </dl>
+      </CardContent>
+    </Card>
+  )
+}
+
+function SetBreakdown({ sets }: { sets: SetRead[] }) {
+  if (sets.length === 0) {
+    return (
+      <Card>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            No sets recorded — complete this match with a score to see the set-by-set breakdown.
+          </p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <Card>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Set</TableHead>
+              <TableHead>Games</TableHead>
+              <TableHead>Tiebreak</TableHead>
+              <TableHead>Result</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sets.map((set) => (
+              <TableRow key={set.set_no}>
+                <TableCell>{set.set_no}</TableCell>
+                <TableCell className="font-medium">
+                  {set.games_won}–{set.games_lost}
+                </TableCell>
+                <TableCell>{set.tiebreak ? 'Yes' : '—'}</TableCell>
+                <TableCell>
+                  <span
+                    className={
+                      set.result === 'Win' ? 'font-medium text-win' : 'font-medium text-loss'
+                    }
+                  >
+                    {set.result}
+                  </span>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  )
+}
+
 export function MatchDetailPage() {
-  return <DetailPlaceholderPage sectionTitle="Matches" entity="match" basePath="/matches" />
+  const { id } = useParams()
+  const matchId = Number(id)
+  const match = useMatch(matchId)
+  const opponent = useOpponent(match.data?.opponent_id ?? NaN)
+  const deleteMatch = useDeleteMatch()
+  const navigate = useNavigate()
+
+  const opponentName = match.data
+    ? opponent.data
+      ? opponentFullName(opponent.data)
+      : `Opponent #${match.data.opponent_id}`
+    : ''
+
+  useDocumentTitle(match.data ? `vs ${opponentName}` : 'Match')
+
+  return (
+    <>
+      <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
+        <Link to="/matches">
+          <ChevronLeft aria-hidden="true" data-icon="inline-start" />
+          Back to Matches
+        </Link>
+      </Button>
+
+      {!Number.isFinite(matchId) ? (
+        <ErrorState error={new Error(`"${id}" is not a valid match id.`)} />
+      ) : match.isPending ? (
+        <LoadingState />
+      ) : match.isError ? (
+        <ErrorState error={match.error} onRetry={() => void match.refetch()} />
+      ) : (
+        <>
+          <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+            <PageHeader title={`vs ${opponentName}`} description={match.data.match_date} />
+            <div className="flex items-center gap-2">
+              <MatchResult match={match.data} />
+              {match.data.status === 'scheduled' ? (
+                <Button variant="outline" size="sm" asChild>
+                  <Link to={`/matches/${match.data.id}/complete`}>
+                    <ClipboardCheck aria-hidden="true" data-icon="inline-start" />
+                    Complete with score
+                  </Link>
+                </Button>
+              ) : (
+                <Button variant="outline" size="sm" asChild>
+                  <Link to={`/matches/${match.data.id}/edit`}>
+                    <Pencil aria-hidden="true" data-icon="inline-start" />
+                    Edit
+                  </Link>
+                </Button>
+              )}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" disabled={deleteMatch.isPending}>
+                    <Trash2 aria-hidden="true" data-icon="inline-start" />
+                    Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete this match?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This permanently removes the match and its set scores. This can&apos;t be
+                      undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      disabled={deleteMatch.isPending}
+                      onClick={() => {
+                        deleteMatch.mutate(match.data.id, { onSuccess: () => navigate('/matches') })
+                      }}
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
+
+          <MatchHeaderCard match={match.data} opponentName={opponentName} />
+
+          <h2 className="mb-3 cn-font-heading text-lg font-semibold">Set by set</h2>
+          <SetBreakdown sets={match.data.sets} />
+        </>
+      )}
+    </>
+  )
 }

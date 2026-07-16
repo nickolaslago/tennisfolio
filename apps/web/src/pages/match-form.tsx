@@ -230,7 +230,7 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
       ? mutation.error
       : null
 
-  const backTo = '/matches'
+  const backTo = isComplete ? `/matches/${props.match.id}` : '/matches'
 
   const setField = <K extends keyof MatchFormState>(key: K, value: MatchFormState[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -312,9 +312,12 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
     )
   }
 
-  const title = isComplete ? 'Complete match' : 'Log a match'
+  const isEditingPlayed = isComplete && props.match.status === 'played'
+  const title = isComplete ? (isEditingPlayed ? 'Edit match' : 'Complete match') : 'Log a match'
   const description = isComplete
-    ? 'Add the score to turn this scheduled match into a played result.'
+    ? isEditingPlayed
+      ? 'Update the score or details — sets and result are re-derived automatically.'
+      : 'Add the score to turn this scheduled match into a played result.'
     : 'Capture a whole match — opponent, sets, and the details — from one screen.'
 
   return (
@@ -322,7 +325,7 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
       <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
         <Link to={backTo}>
           <ChevronLeft aria-hidden="true" data-icon="inline-start" />
-          Back to Matches
+          {isComplete ? 'Back to match' : 'Back to Matches'}
         </Link>
       </Button>
 
@@ -650,7 +653,7 @@ function SavedMatchPanel({
           </Button>
         ) : null}
         <Button variant="outline" asChild>
-          <Link to="/matches">Back to Matches</Link>
+          <Link to={`/matches/${match.id}`}>Back to match</Link>
         </Button>
       </div>
     </>
