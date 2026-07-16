@@ -205,7 +205,7 @@ export function MatchesPage() {
       <Button variant="outline" size="sm" asChild>
         <Link to={`/matches/${match.id}/complete`}>
           <ClipboardCheck aria-hidden="true" data-icon="inline-start" />
-          Complete with score
+          Set score
         </Link>
       </Button>
     ) : null
@@ -666,7 +666,7 @@ export function MatchDetailPage() {
                 <Button variant="outline" size="sm" asChild>
                   <Link to={`/matches/${match.data.id}/complete`}>
                     <ClipboardCheck aria-hidden="true" data-icon="inline-start" />
-                    Complete with score
+                    Set score
                   </Link>
                 </Button>
               ) : (

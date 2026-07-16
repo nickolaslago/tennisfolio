@@ -668,7 +668,7 @@ function SavedMatchPanel({
           <Button variant={onLogAnother ? 'outline' : 'default'} asChild>
             <Link to={`/matches/${match.id}/complete`}>
               <Trophy aria-hidden="true" data-icon="inline-start" />
-              Complete with score
+              Set score
             </Link>
           </Button>
         ) : null}
