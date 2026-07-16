@@ -77,3 +77,16 @@ cd apps/api && uv run uvicorn app.main:app --reload
 # Web — http://localhost:5173
 cd apps/web && pnpm install && pnpm dev
 ```
+
+## CI
+
+Every PR runs `.github/workflows/ci.yml`: `ruff` + `pytest` for `apps/api`, `eslint` + a
+`tsc`/Vite build for `apps/web`, and `vitest` for `packages/core` as parallel jobs (each with
+pnpm store / `uv` cache), followed by an `e2e` job that builds and boots the full `docker
+compose up` stack and runs the Playwright smoke suite in `e2e/` against it (opponent → club →
+match-by-score → derived result → table/card view toggle).
+
+To make the green pipeline required before merging, turn on branch protection for `main` in
+**Settings → Branches → Add branch protection rule**: require the `api`, `web`, `core`, and
+`e2e` status checks to pass (and "Require branches to be up to date before merging") before a
+PR can be merged.
