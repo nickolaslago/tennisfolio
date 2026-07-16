@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { AppShell } from '@/components/layout/app-shell'
 import { ClubDetailPage, ClubFormPage, ClubsPage } from '@/pages/clubs'
 import { HomePage } from '@/pages/home'
+import { MatchFormPage } from '@/pages/match-form'
 import { MatchDetailPage, MatchesPage } from '@/pages/matches'
 import { NotFoundPage } from '@/pages/not-found'
 import { OpponentDetailPage, OpponentFormPage, OpponentsPage } from '@/pages/opponents'
@@ -14,6 +15,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: 'matches', element: <MatchesPage /> },
+      { path: 'matches/new', element: <MatchFormPage /> },
+      { path: 'matches/:id/complete', element: <MatchFormPage /> },
       { path: 'matches/:id', element: <MatchDetailPage /> },
       { path: 'opponents', element: <OpponentsPage /> },
       { path: 'opponents/new', element: <OpponentFormPage /> },
