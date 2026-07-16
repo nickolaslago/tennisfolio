@@ -58,10 +58,33 @@ class TestParseValidScores:
         assert [s.result for s in sets] == ["Win", "Loss", "Win"]
         assert [s.tiebreak for s in sets] == [False, False, False]
 
+    def test_two_set_straight_win(self) -> None:
+        # 2-0: a best-of-three won without a decider.
+        sets = parse_score("6-4 6-3")
+        assert [s.result for s in sets] == ["Win", "Win"]
+        assert compute_match_result(sets) == "Win"
+
+    def test_two_set_straight_loss(self) -> None:
+        # 0-2: a best-of-three lost without a decider.
+        sets = parse_score("4-6 3-6")
+        assert [s.result for s in sets] == ["Loss", "Loss"]
+        assert compute_match_result(sets) == "Loss"
+
     def test_three_set_sweep_is_valid(self) -> None:
         # 3-0 in three recorded sets: a best-of-five straight-sets win.
         sets = parse_score("6-4 6-3 6-2")
         assert compute_match_result(sets) == "Win"
+
+    def test_four_set_early_clinch(self) -> None:
+        # 3-1: a best-of-five decided in four sets.
+        sets = parse_score("6-4 3-6 6-3 6-4")
+        assert [s.result for s in sets] == ["Win", "Loss", "Win", "Win"]
+        assert compute_match_result(sets) == "Win"
+
+    def test_four_set_early_clinch_loss(self) -> None:
+        # 1-3: a best-of-five lost in four sets.
+        sets = parse_score("6-4 3-6 3-6 4-6")
+        assert compute_match_result(sets) == "Loss"
 
     def test_five_set_match(self) -> None:
         sets = parse_score("6-4 4-6 6-3 4-6 6-4")
@@ -108,8 +131,10 @@ class TestRoundTrip:
             "7-5",
             "7-6",
             "10-7",
+            "6-4 6-3",
             "6-4 3-6 10-7",
             "6-4 4-6 7-5",
+            "6-4 3-6 6-3 6-4",
             "6-4 4-6 6-3 4-6 6-4",
             "6-4 4-6 6-3 4-6 10-8",
         ],
@@ -129,13 +154,15 @@ class TestRejections:
         with pytest.raises(InvalidScoreError, match="at least one set"):
             parse_score("   ")
 
-    def test_even_set_count_two(self) -> None:
-        with pytest.raises(InvalidScoreError, match="cannot decide a winner"):
-            parse_score("6-4 6-3")
+    def test_incomplete_two_set_match(self) -> None:
+        # 1-1 in two sets: nobody has clinched a best-of-three yet.
+        with pytest.raises(InvalidScoreError, match="is won by taking"):
+            parse_score("6-4 3-6")
 
-    def test_even_set_count_four(self) -> None:
-        with pytest.raises(InvalidScoreError, match="cannot decide a winner"):
-            parse_score("6-4 6-3 3-6 6-2")
+    def test_incomplete_four_set_match(self) -> None:
+        # 2-2 in four sets: a best-of-five is undecided at two sets apiece.
+        with pytest.raises(InvalidScoreError, match="is won by taking"):
+            parse_score("6-4 3-6 6-3 3-6")
 
     def test_too_many_sets(self) -> None:
         with pytest.raises(InvalidScoreError, match="at most 5 sets"):
