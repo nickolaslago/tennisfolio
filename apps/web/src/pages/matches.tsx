@@ -1,4 +1,4 @@
-import { ClipboardCheck, SlidersHorizontal, Trash2, X } from 'lucide-react'
+import { ClipboardCheck, Plus, SlidersHorizontal, Trash2, X } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
@@ -174,14 +174,11 @@ export function MatchesPage() {
 
   const completeButton = (match: Match) =>
     match.status === 'scheduled' ? (
-      <Button
-        variant="outline"
-        size="sm"
-        disabled
-        title="Match entry form is coming in DAT-89"
-      >
-        <ClipboardCheck aria-hidden="true" data-icon="inline-start" />
-        Complete with score
+      <Button variant="outline" size="sm" asChild>
+        <Link to={`/matches/${match.id}/complete`}>
+          <ClipboardCheck aria-hidden="true" data-icon="inline-start" />
+          Complete with score
+        </Link>
       </Button>
     ) : null
 
@@ -406,7 +403,13 @@ export function MatchesPage() {
         )}
         defaultSort={{ columnId: 'date', direction: 'desc' }}
         emptyTitle="No matches found"
-        emptyDescription="No matches match these filters yet — try adjusting them, or check back once you've logged some matches."
+        emptyDescription="No matches match these filters yet — try adjusting them, or log your first match."
+        createAction={{
+          label: 'Log match',
+          emptyLabel: 'Log your first match',
+          to: '/matches/new',
+          icon: Plus,
+        }}
         renderCard={(m) => (
           <Card className="h-full">
             <CardContent className="flex flex-col gap-3">
