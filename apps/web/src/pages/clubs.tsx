@@ -2,6 +2,7 @@ import { ChevronLeft, MapPinPlus, Pencil, Trash2 } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 
+import { CountryCombobox } from '@/components/data/country-combobox'
 import { EntityIcon } from '@/components/data/entity-icon'
 import { EntityIconPicker } from '@/components/data/entity-icon-picker'
 import { EntityList, type EntityColumn } from '@/components/data/entity-list'
@@ -557,10 +558,10 @@ function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
               </FormField>
 
               <FormField id="country" label="Country" optional error={errors.country}>
-                <Input
+                <CountryCombobox
                   id="country"
-                  value={form.country}
-                  onChange={(e) => setForm({ ...form, country: e.target.value })}
+                  value={form.country || null}
+                  onChange={(country) => setForm({ ...form, country: country ?? '' })}
                   aria-invalid={Boolean(errors.country)}
                 />
               </FormField>
