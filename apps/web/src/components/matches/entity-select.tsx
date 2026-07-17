@@ -1,4 +1,5 @@
 import { Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { EntityIcon } from '@/components/data/entity-icon'
 import { Button } from '@/components/ui/button'
@@ -50,6 +51,7 @@ export function EntitySelect({
   ariaInvalid?: boolean
   ariaDescribedby?: string
 }) {
+  const { t } = useTranslation()
   // An unmatched value keeps the trigger showing its placeholder; when a
   // `noneLabel` row exists, map the empty selection onto it so it reads back.
   const radixValue = value === '' ? (noneLabel ? NONE_VALUE : undefined) : value
@@ -99,8 +101,8 @@ export function EntitySelect({
           variant="outline"
           size="icon"
           className="shrink-0"
-          aria-label={createLabel ?? 'Add new'}
-          title={createLabel ?? 'Add new'}
+          aria-label={createLabel ?? t('common.addNew')}
+          title={createLabel ?? t('common.addNew')}
           onClick={onCreateNew}
         >
           <Plus aria-hidden="true" />

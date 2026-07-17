@@ -11,6 +11,7 @@
     "clear": "Clear",
     "cancel": "Cancel",
     "close": "Close",
+    "addNew": "Add new",
     "rowActions": {
       "actionsFor": "Actions for {{label}}",
       "edit": "Edit",
@@ -104,6 +105,162 @@
       },
       "tournamentActive": "Active",
       "tournamentUpcoming": "Upcoming"
+    }
+  },
+  "matches": {
+    "pageTitle": "Matches",
+    "pageDescription": "Every match you've played, with scores and derived results — plus what's on the schedule.",
+    "opponentFallback": "Opponent #{{id}}",
+    "setScore": "Set score",
+    "logMatch": "Log match",
+    "logFirstMatch": "Log your first match",
+    "deleteDescription": "This permanently removes the match and its set scores. This can't be undone.",
+    "filters": {
+      "heading": "Filters",
+      "allOpponents": "All opponents",
+      "allClubs": "All clubs",
+      "allTournaments": "All tournaments",
+      "allSurfaces": "All surfaces",
+      "dateFromLabel": "From",
+      "dateToLabel": "To",
+      "clearFilters": "Clear filters"
+    },
+    "tabs": {
+      "all": "All",
+      "played": "Played",
+      "scheduled": "Scheduled"
+    },
+    "columns": {
+      "date": "Date",
+      "opponent": "Opponent",
+      "club": "Club",
+      "tournament": "Tournament",
+      "surface": "Surface",
+      "result": "Result"
+    },
+    "rowOptions": {
+      "matchLabel": "match on {{date}}"
+    },
+    "emptyState": {
+      "title": "No matches found",
+      "description": "No matches match these filters yet — try adjusting them, or log your first match."
+    },
+    "opponentQuickCreate": {
+      "title": "New opponent",
+      "description": "Add just enough to log the match — you can fill in the rest later.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "lastNameRequired": "Last name is required.",
+      "adding": "Adding…",
+      "addOpponent": "Add opponent"
+    },
+    "clubQuickCreate": {
+      "title": "New club",
+      "description": "Add just enough to log the match — the surface pre-fills once you pick this club.",
+      "name": "Name",
+      "city": "City",
+      "nameRequired": "Name is required.",
+      "adding": "Adding…",
+      "addClub": "Add club"
+    },
+    "detail": {
+      "backToMatches": "Back to Matches",
+      "pageTitleFallback": "Match",
+      "vsOpponent": "vs {{opponent}}",
+      "invalidId": "\"{{id}}\" is not a valid match id.",
+      "deleteConfirmTitle": "Delete this match?",
+      "setBySet": "Set by set",
+      "noSets": "No sets recorded — complete this match with a score to see the set-by-set breakdown.",
+      "duration": "Duration",
+      "durationValue": "{{minutes}} min",
+      "notes": "Notes",
+      "yes": "Yes",
+      "setColumns": {
+        "set": "Set",
+        "games": "Games",
+        "tiebreak": "Tiebreak"
+      }
+    }
+  },
+  "matchForm": {
+    "pageTitleLog": "Log match",
+    "invalidId": "\"{{id}}\" is not a valid match id.",
+    "backToMatch": "Back to match",
+    "backToMatches": "Back to Matches",
+    "opponentFallback": "Opponent #{{id}}",
+    "titles": {
+      "complete": "Complete match",
+      "edit": "Edit match",
+      "log": "Log a match"
+    },
+    "descriptions": {
+      "edit": "Update the score or details — sets and result are re-derived automatically.",
+      "complete": "Add the score to turn this scheduled match into a played result.",
+      "log": "Capture a whole match — opponent, sets, and the details — from one screen."
+    },
+    "sections": {
+      "whereAndWhat": "Where & what",
+      "details": "Details"
+    },
+    "fields": {
+      "opponentPlaceholder": "Select opponent",
+      "newOpponent": "New opponent",
+      "scheduleToggle": "Schedule for later — save without a score",
+      "scheduleModeNotice": "This match will be saved to your schedule. Add the score later from the Matches page to see the result.",
+      "scoringType": "Scoring type",
+      "setLabel": "Set {{n}}",
+      "setGamesWonLabel": "Set {{n}} games won",
+      "setGamesLostLabel": "Set {{n}} games lost",
+      "setOptional": "optional",
+      "pointsLabel": "Points",
+      "pointsWonLabel": "Points won",
+      "pointsLostLabel": "Points lost",
+      "scoreHintDefault": "Your games first — fill each set you played.",
+      "clubPlaceholder": "Select club",
+      "noClub": "No club",
+      "newClub": "New club",
+      "surfacePlaceholder": "Select surface",
+      "friendlyNoTournament": "Friendly (no tournament)",
+      "stage": "Stage",
+      "stageHint": "Only for tournaments — e.g. QF, SF, F",
+      "stagePlaceholder": "e.g. QF",
+      "duration": "Duration",
+      "durationHint": "In minutes",
+      "durationPlaceholder": "e.g. 90",
+      "notes": "Notes",
+      "notesPlaceholder": "How it went, what to work on…"
+    },
+    "scorePreview": {
+      "prefix": "Reads as a",
+      "summary_one": "{{formatted}} · {{count}} set",
+      "summary_other": "{{formatted}} · {{count}} sets"
+    },
+    "actions": {
+      "saving": "Saving…",
+      "saveScore": "Save score",
+      "scheduleMatch": "Schedule match",
+      "saveMatch": "Save match"
+    },
+    "validation": {
+      "pickOpponent": "Pick an opponent.",
+      "pickDate": "Pick a date.",
+      "durationWhole": "Duration must be a whole number of minutes.",
+      "fillBothNumbers": "Fill both numbers for each {{unit}}, or clear it.",
+      "trailingOnly": "Only the trailing sets can be left empty.",
+      "enterScoreOrSchedule": "Enter a score, or switch to schedule mode.",
+      "invalidScore": "Invalid score.",
+      "units": {
+        "set": "set",
+        "score": "score"
+      }
+    },
+    "savedPanel": {
+      "scheduledTitle": "Match scheduled",
+      "savedTitle": "Match saved",
+      "scheduledDescription": "Saved to your schedule — add the score whenever it's played.",
+      "savedDescription": "Here's the result, derived from the score you entered.",
+      "vsOpponentAndDate": "vs {{opponent}} · {{date}}",
+      "logAnother": "Log another match"
     }
   }
 }

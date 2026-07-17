@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 import {
   AlertDialog,
@@ -128,8 +129,9 @@ function toId(value: string): number | undefined {
 }
 
 function MatchResult({ match }: { match: Match }) {
+  const { t } = useTranslation()
   if (!match.score || !match.result) {
-    return <span className="text-highlight">Scheduled</span>
+    return <span className="text-highlight">{t('matches.tabs.scheduled')}</span>
   }
   return (
     <span className="inline-flex items-center gap-1.5">
@@ -142,7 +144,8 @@ function MatchResult({ match }: { match: Match }) {
 }
 
 export function MatchesPage() {
-  useDocumentTitle('Matches')
+  const { t } = useTranslation()
+  useDocumentTitle(t('matches.pageTitle'))
 
   const { filters, setParam, clearFilters, hasActiveFilters } = useMatchFilters()
 
@@ -199,7 +202,7 @@ export function MatchesPage() {
 
   const opponentName = (id: number) => {
     const opponent = opponentsById.get(id)
-    if (!opponent) return `Opponent #${id}`
+    if (!opponent) return t('matches.opponentFallback', { id })
     return opponent.name ? `${opponent.name} ${opponent.last_name}` : opponent.last_name
   }
   const clubName = (id: number | null) => (id === null ? null : (clubsById.get(id)?.name ?? null))
@@ -208,13 +211,13 @@ export function MatchesPage() {
 
   const rowOptions = (match: Match) => (
     <RowOptionsMenu
-      label={`match on ${match.match_date}`}
+      label={t('matches.rowOptions.matchLabel', { date: match.match_date })}
       editTo={`/matches/${match.id}/edit`}
       duplicateTo="/matches/new"
       duplicateState={{ duplicate: match }}
       onDelete={() => deleteMatch.mutate(match.id)}
       deletePending={deleteMatch.isPending}
-      deleteDescription="This permanently removes the match and its set scores. This can't be undone."
+      deleteDescription={t('matches.deleteDescription')}
     />
   )
 
@@ -223,7 +226,7 @@ export function MatchesPage() {
       <Button variant="outline" size="sm" asChild>
         <Link to={`/matches/${match.id}/complete`}>
           <ClipboardCheck aria-hidden="true" data-icon="inline-start" />
-          Set score
+          {t('matches.setScore')}
         </Link>
       </Button>
     ) : null
@@ -231,7 +234,7 @@ export function MatchesPage() {
   const columns: EntityColumn<Match>[] = [
     {
       id: 'date',
-      header: 'Date',
+      header: t('matches.columns.date'),
       sortValue: (m) => m.match_date,
       cell: (m) => (
         <Link to={`/matches/${m.id}`} className="font-medium hover:underline">
@@ -241,7 +244,7 @@ export function MatchesPage() {
     },
     {
       id: 'opponent',
-      header: 'Opponent',
+      header: t('matches.columns.opponent'),
       sortValue: (m) => opponentName(m.opponent_id).toLowerCase(),
       cell: (m) => (
         <Link to={`/opponents/${m.opponent_id}`} className="hover:underline">
@@ -251,7 +254,7 @@ export function MatchesPage() {
     },
     {
       id: 'club',
-      header: 'Club',
+      header: t('matches.columns.club'),
       sortValue: (m) => clubName(m.club_id),
       cell: (m) =>
         m.club_id === null ? (
@@ -264,7 +267,7 @@ export function MatchesPage() {
     },
     {
       id: 'tournament',
-      header: 'Tournament',
+      header: t('matches.columns.tournament'),
       sortValue: (m) => tournamentName(m.tournament_id),
       cell: (m) =>
         m.tournament_id === null ? (
@@ -277,13 +280,13 @@ export function MatchesPage() {
     },
     {
       id: 'surface',
-      header: 'Surface',
+      header: t('matches.columns.surface'),
       sortValue: (m) => m.surface,
       cell: (m) => m.surface ?? '—',
     },
     {
       id: 'result',
-      header: 'Result',
+      header: t('matches.columns.result'),
       sortValue: (m) => m.result ?? '',
       cell: (m) => <MatchResult match={m} />,
     },
@@ -291,29 +294,26 @@ export function MatchesPage() {
 
   return (
     <>
-      <PageHeader
-        title="Matches"
-        description="Every match you've played, with scores and derived results — plus what's on the schedule."
-      />
+      <PageHeader title={t('matches.pageTitle')} description={t('matches.pageDescription')} />
 
       <Card className="mb-6">
         <CardContent>
           <div className="mb-3 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
             <SlidersHorizontal className="size-4" aria-hidden="true" />
-            Filters
+            {t('matches.filters.heading')}
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="filter-opponent">Opponent</Label>
+              <Label htmlFor="filter-opponent">{t('matches.columns.opponent')}</Label>
               <Select
                 value={filters.opponentId || ALL_VALUE}
                 onValueChange={(value) => setParam('opponent_id', value === ALL_VALUE ? '' : value)}
               >
                 <SelectTrigger id="filter-opponent" className="w-full">
-                  <SelectValue placeholder="All opponents" />
+                  <SelectValue placeholder={t('matches.filters.allOpponents')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL_VALUE}>All opponents</SelectItem>
+                  <SelectItem value={ALL_VALUE}>{t('matches.filters.allOpponents')}</SelectItem>
                   {opponentFilterOptions.map((o) => (
                     <SelectItem key={o.id} value={String(o.id)}>
                       {o.name ? `${o.name} ${o.last_name}` : o.last_name}
@@ -324,16 +324,16 @@ export function MatchesPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="filter-club">Club</Label>
+              <Label htmlFor="filter-club">{t('matches.columns.club')}</Label>
               <Select
                 value={filters.clubId || ALL_VALUE}
                 onValueChange={(value) => setParam('club_id', value === ALL_VALUE ? '' : value)}
               >
                 <SelectTrigger id="filter-club" className="w-full">
-                  <SelectValue placeholder="All clubs" />
+                  <SelectValue placeholder={t('matches.filters.allClubs')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL_VALUE}>All clubs</SelectItem>
+                  <SelectItem value={ALL_VALUE}>{t('matches.filters.allClubs')}</SelectItem>
                   {clubFilterOptions.map((c) => (
                     <SelectItem key={c.id} value={String(c.id)}>
                       {c.name}
@@ -344,7 +344,7 @@ export function MatchesPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="filter-tournament">Tournament</Label>
+              <Label htmlFor="filter-tournament">{t('matches.columns.tournament')}</Label>
               <Select
                 value={filters.tournamentId || ALL_VALUE}
                 onValueChange={(value) =>
@@ -352,10 +352,10 @@ export function MatchesPage() {
                 }
               >
                 <SelectTrigger id="filter-tournament" className="w-full">
-                  <SelectValue placeholder="All tournaments" />
+                  <SelectValue placeholder={t('matches.filters.allTournaments')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL_VALUE}>All tournaments</SelectItem>
+                  <SelectItem value={ALL_VALUE}>{t('matches.filters.allTournaments')}</SelectItem>
                   {tournamentFilterOptions.map((t) => (
                     <SelectItem key={t.id} value={String(t.id)}>
                       {t.name}
@@ -366,16 +366,16 @@ export function MatchesPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="filter-surface">Surface</Label>
+              <Label htmlFor="filter-surface">{t('matches.columns.surface')}</Label>
               <Select
                 value={filters.surface || ALL_VALUE}
                 onValueChange={(value) => setParam('surface', value === ALL_VALUE ? '' : value)}
               >
                 <SelectTrigger id="filter-surface" className="w-full">
-                  <SelectValue placeholder="All surfaces" />
+                  <SelectValue placeholder={t('matches.filters.allSurfaces')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL_VALUE}>All surfaces</SelectItem>
+                  <SelectItem value={ALL_VALUE}>{t('matches.filters.allSurfaces')}</SelectItem>
                   {SURFACE_OPTIONS.map((surface) => (
                     <SelectItem key={surface} value={surface}>
                       {surface}
@@ -386,7 +386,7 @@ export function MatchesPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="filter-date-from">From</Label>
+              <Label htmlFor="filter-date-from">{t('matches.filters.dateFromLabel')}</Label>
               <Input
                 id="filter-date-from"
                 type="date"
@@ -397,7 +397,7 @@ export function MatchesPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="filter-date-to">To</Label>
+              <Label htmlFor="filter-date-to">{t('matches.filters.dateToLabel')}</Label>
               <Input
                 id="filter-date-to"
                 type="date"
@@ -412,7 +412,7 @@ export function MatchesPage() {
             <div className="mt-4 flex justify-end">
               <Button variant="ghost" size="sm" onClick={clearFilters}>
                 <X aria-hidden="true" data-icon="inline-start" />
-                Clear filters
+                {t('matches.filters.clearFilters')}
               </Button>
             </div>
           ) : null}
@@ -425,9 +425,9 @@ export function MatchesPage() {
         className="mb-4"
       >
         <TabsList>
-          <TabsTrigger value={ALL_VALUE}>All</TabsTrigger>
-          <TabsTrigger value="played">Played</TabsTrigger>
-          <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
+          <TabsTrigger value={ALL_VALUE}>{t('matches.tabs.all')}</TabsTrigger>
+          <TabsTrigger value="played">{t('matches.tabs.played')}</TabsTrigger>
+          <TabsTrigger value="scheduled">{t('matches.tabs.scheduled')}</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -446,11 +446,11 @@ export function MatchesPage() {
           </div>
         )}
         defaultSort={{ columnId: 'date', direction: 'desc' }}
-        emptyTitle="No matches found"
-        emptyDescription="No matches match these filters yet — try adjusting them, or log your first match."
+        emptyTitle={t('matches.emptyState.title')}
+        emptyDescription={t('matches.emptyState.description')}
         createAction={{
-          label: 'Log match',
-          emptyLabel: 'Log your first match',
+          label: t('matches.logMatch'),
+          emptyLabel: t('matches.logFirstMatch'),
           to: '/matches/new',
           icon: Plus,
         }}
@@ -468,7 +468,7 @@ export function MatchesPage() {
               </div>
               <dl className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <dt className="text-muted-foreground">Opponent</dt>
+                  <dt className="text-muted-foreground">{t('matches.columns.opponent')}</dt>
                   <dd>
                     <Link to={`/opponents/${m.opponent_id}`} className="hover:underline">
                       {opponentName(m.opponent_id)}
@@ -476,7 +476,7 @@ export function MatchesPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Club</dt>
+                  <dt className="text-muted-foreground">{t('matches.columns.club')}</dt>
                   <dd>
                     {m.club_id === null ? (
                       '—'
@@ -488,7 +488,7 @@ export function MatchesPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Tournament</dt>
+                  <dt className="text-muted-foreground">{t('matches.columns.tournament')}</dt>
                   <dd>
                     {m.tournament_id === null ? (
                       '—'
@@ -500,11 +500,11 @@ export function MatchesPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Surface</dt>
+                  <dt className="text-muted-foreground">{t('matches.columns.surface')}</dt>
                   <dd>{m.surface ?? '—'}</dd>
                 </div>
                 <div className="col-span-2">
-                  <dt className="text-muted-foreground">Result</dt>
+                  <dt className="text-muted-foreground">{t('matches.columns.result')}</dt>
                   <dd>
                     <MatchResult match={m} />
                   </dd>
@@ -526,6 +526,7 @@ function opponentFullName(opponent: { name: string | null; last_name: string }) 
 }
 
 function MatchHeaderCard({ match, opponentName }: { match: Match; opponentName: string }) {
+  const { t } = useTranslation()
   const club = useClub(match.club_id ?? NaN)
   const tournament = useTournament(match.tournament_id ?? NaN)
 
@@ -534,7 +535,7 @@ function MatchHeaderCard({ match, opponentName }: { match: Match; opponentName: 
       <CardContent>
         <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
           <div>
-            <dt className="text-muted-foreground">Opponent</dt>
+            <dt className="text-muted-foreground">{t('matches.columns.opponent')}</dt>
             <dd>
               <Link to={`/opponents/${match.opponent_id}`} className="font-medium hover:underline">
                 {opponentName}
@@ -542,11 +543,11 @@ function MatchHeaderCard({ match, opponentName }: { match: Match; opponentName: 
             </dd>
           </div>
           <div>
-            <dt className="text-muted-foreground">Date</dt>
+            <dt className="text-muted-foreground">{t('matches.columns.date')}</dt>
             <dd>{match.match_date}</dd>
           </div>
           <div>
-            <dt className="text-muted-foreground">Club</dt>
+            <dt className="text-muted-foreground">{t('matches.columns.club')}</dt>
             <dd>
               {match.club_id === null ? (
                 '—'
@@ -558,7 +559,7 @@ function MatchHeaderCard({ match, opponentName }: { match: Match; opponentName: 
             </dd>
           </div>
           <div>
-            <dt className="text-muted-foreground">Tournament</dt>
+            <dt className="text-muted-foreground">{t('matches.columns.tournament')}</dt>
             <dd>
               {match.tournament_id === null ? (
                 '—'
@@ -575,15 +576,19 @@ function MatchHeaderCard({ match, opponentName }: { match: Match; opponentName: 
             </dd>
           </div>
           <div>
-            <dt className="text-muted-foreground">Surface</dt>
+            <dt className="text-muted-foreground">{t('matches.columns.surface')}</dt>
             <dd>{match.surface ?? '—'}</dd>
           </div>
           <div>
-            <dt className="text-muted-foreground">Duration</dt>
-            <dd>{match.duration_min !== null ? `${match.duration_min} min` : '—'}</dd>
+            <dt className="text-muted-foreground">{t('matches.detail.duration')}</dt>
+            <dd>
+              {match.duration_min !== null
+                ? t('matches.detail.durationValue', { minutes: match.duration_min })
+                : '—'}
+            </dd>
           </div>
           <div className="col-span-2 sm:col-span-4">
-            <dt className="text-muted-foreground">Notes</dt>
+            <dt className="text-muted-foreground">{t('matches.detail.notes')}</dt>
             <dd>{match.notes ?? '—'}</dd>
           </div>
         </dl>
@@ -593,13 +598,12 @@ function MatchHeaderCard({ match, opponentName }: { match: Match; opponentName: 
 }
 
 function SetBreakdown({ sets }: { sets: SetRead[] }) {
+  const { t } = useTranslation()
   if (sets.length === 0) {
     return (
       <Card>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
-            No sets recorded — complete this match with a score to see the set-by-set breakdown.
-          </p>
+          <p className="text-sm text-muted-foreground">{t('matches.detail.noSets')}</p>
         </CardContent>
       </Card>
     )
@@ -611,10 +615,10 @@ function SetBreakdown({ sets }: { sets: SetRead[] }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Set</TableHead>
-              <TableHead>Games</TableHead>
-              <TableHead>Tiebreak</TableHead>
-              <TableHead>Result</TableHead>
+              <TableHead>{t('matches.detail.setColumns.set')}</TableHead>
+              <TableHead>{t('matches.detail.setColumns.games')}</TableHead>
+              <TableHead>{t('matches.detail.setColumns.tiebreak')}</TableHead>
+              <TableHead>{t('matches.columns.result')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -624,7 +628,7 @@ function SetBreakdown({ sets }: { sets: SetRead[] }) {
                 <TableCell className="font-medium">
                   {set.games_won}–{set.games_lost}
                 </TableCell>
-                <TableCell>{set.tiebreak ? 'Yes' : '—'}</TableCell>
+                <TableCell>{set.tiebreak ? t('matches.detail.yes') : '—'}</TableCell>
                 <TableCell>
                   <span
                     className={
@@ -644,6 +648,7 @@ function SetBreakdown({ sets }: { sets: SetRead[] }) {
 }
 
 export function MatchDetailPage() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const matchId = Number(id)
   const match = useMatch(matchId)
@@ -654,22 +659,26 @@ export function MatchDetailPage() {
   const opponentName = match.data
     ? opponent.data
       ? opponentFullName(opponent.data)
-      : `Opponent #${match.data.opponent_id}`
+      : t('matches.opponentFallback', { id: match.data.opponent_id })
     : ''
 
-  useDocumentTitle(match.data ? `vs ${opponentName}` : 'Match')
+  useDocumentTitle(
+    match.data
+      ? t('matches.detail.vsOpponent', { opponent: opponentName })
+      : t('matches.detail.pageTitleFallback'),
+  )
 
   return (
     <>
       <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
         <Link to="/matches">
           <ChevronLeft aria-hidden="true" data-icon="inline-start" />
-          Back to Matches
+          {t('matches.detail.backToMatches')}
         </Link>
       </Button>
 
       {!Number.isFinite(matchId) ? (
-        <ErrorState error={new Error(`"${id}" is not a valid match id.`)} />
+        <ErrorState error={new Error(t('matches.detail.invalidId', { id }))} />
       ) : match.isPending ? (
         <LoadingState />
       ) : match.isError ? (
@@ -677,21 +686,24 @@ export function MatchDetailPage() {
       ) : (
         <>
           <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-            <PageHeader title={`vs ${opponentName}`} description={match.data.match_date} />
+            <PageHeader
+              title={t('matches.detail.vsOpponent', { opponent: opponentName })}
+              description={match.data.match_date}
+            />
             <div className="flex items-center gap-2">
               <MatchResult match={match.data} />
               {match.data.status === 'scheduled' ? (
                 <Button variant="outline" size="sm" asChild>
                   <Link to={`/matches/${match.data.id}/complete`}>
                     <ClipboardCheck aria-hidden="true" data-icon="inline-start" />
-                    Set score
+                    {t('matches.setScore')}
                   </Link>
                 </Button>
               ) : (
                 <Button variant="outline" size="sm" asChild>
                   <Link to={`/matches/${match.data.id}/edit`}>
                     <Pencil aria-hidden="true" data-icon="inline-start" />
-                    Edit
+                    {t('common.rowActions.edit')}
                   </Link>
                 </Button>
               )}
@@ -699,26 +711,25 @@ export function MatchDetailPage() {
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive" size="sm" disabled={deleteMatch.isPending}>
                     <Trash2 aria-hidden="true" data-icon="inline-start" />
-                    Delete
+                    {t('common.rowActions.delete')}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Delete this match?</AlertDialogTitle>
+                    <AlertDialogTitle>{t('matches.detail.deleteConfirmTitle')}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This permanently removes the match and its set scores. This can&apos;t be
-                      undone.
+                      {t('matches.deleteDescription')}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
                     <AlertDialogAction
                       disabled={deleteMatch.isPending}
                       onClick={() => {
                         deleteMatch.mutate(match.data.id, { onSuccess: () => navigate('/matches') })
                       }}
                     >
-                      Delete
+                      {t('common.rowActions.delete')}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -732,7 +743,9 @@ export function MatchDetailPage() {
             <OpponentHeadToHead opponentId={match.data.opponent_id} />
           </div>
 
-          <h2 className="mb-3 cn-font-heading text-lg font-semibold">Set by set</h2>
+          <h2 className="mb-3 cn-font-heading text-lg font-semibold">
+            {t('matches.detail.setBySet')}
+          </h2>
           <SetBreakdown sets={match.data.sets} />
         </>
       )}
