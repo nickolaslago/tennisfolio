@@ -67,3 +67,18 @@ class GamesRatio(BaseModel):
 class MatchesPerMonth(BaseModel):
     period: str
     matches: int
+
+
+class StandingsRow(BaseModel):
+    """One opponent's row in a Ranking League standings table, derived from matches."""
+
+    opponent_id: int
+    opponent_name: str
+    played: int
+    wins: int
+    losses: int
+    win_rate: float | None
+    sets_won: int
+    sets_lost: int
+    games_won: int
+    games_lost: int

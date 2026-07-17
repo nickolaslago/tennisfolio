@@ -32,6 +32,7 @@ from app.schemas.stats import (
     OpponentWinRate,
     PeriodWinRate,
     RecordStat,
+    StandingsRow,
     StreakStats,
     SurfaceWinRate,
     TournamentWinRate,
@@ -361,6 +362,51 @@ def games_ratio(db: Session, filters: StatsFilters) -> GamesRatio:
     ).one()
     ratio = row.games_won / row.games_lost if row.games_lost else None
     return GamesRatio(games_won=row.games_won, games_lost=row.games_lost, ratio=ratio)
+
+
+def tournament_standings(db: Session, tournament_id: int) -> list[StandingsRow]:
+    """Per-opponent standings within a tournament: record, sets and games, derived from matches.
+
+    Ranked by wins, then set difference, then game difference — the usual
+    tie-break order for a round-robin/ranking-league table.
+    """
+    subq = _played_matches(StatsFilters(tournament_id=tournament_id)).subquery()
+    matches, wins = _win_rate_columns(subq)
+    rows = db.execute(
+        select(
+            Opponent.id.label("opponent_id"),
+            Opponent.name.label("name"),
+            Opponent.last_name.label("last_name"),
+            matches.label("played"),
+            wins.label("wins"),
+            func.coalesce(func.sum(subq.c.sets_won), 0).label("sets_won"),
+            func.coalesce(func.sum(subq.c.sets_lost), 0).label("sets_lost"),
+            func.coalesce(func.sum(subq.c.games_won), 0).label("games_won"),
+            func.coalesce(func.sum(subq.c.games_lost), 0).label("games_lost"),
+        )
+        .select_from(subq)
+        .join(Opponent, Opponent.id == subq.c.opponent_id)
+        .group_by(Opponent.id, Opponent.name, Opponent.last_name)
+    ).all()
+
+    def sort_key(row):
+        wins_taken = row.wins or 0
+        set_diff = row.sets_won - row.sets_lost
+        game_diff = row.games_won - row.games_lost
+        return (-wins_taken, -set_diff, -game_diff, row.last_name)
+
+    return [
+        StandingsRow(
+            opponent_id=row.opponent_id,
+            opponent_name=f"{row.name} {row.last_name}" if row.name else row.last_name,
+            sets_won=row.sets_won,
+            sets_lost=row.sets_lost,
+            games_won=row.games_won,
+            games_lost=row.games_lost,
+            **_record_kwargs(row.played, row.wins or 0),
+        )
+        for row in sorted(rows, key=sort_key)
+    ]
 
 
 def matches_per_month(db: Session, filters: StatsFilters) -> list[MatchesPerMonth]:

@@ -17,7 +17,10 @@ export const queryKeys = {
   opponents: entityKeys('opponents'),
   clubs: entityKeys('clubs'),
   matches: entityKeys('matches'),
-  tournaments: entityKeys('tournaments'),
+  tournaments: {
+    ...entityKeys('tournaments'),
+    standings: (id: number) => ['tournaments', 'standings', id] as const,
+  },
   stats: {
     winRate: (params: Record<string, unknown> = {}) => ['stats', 'win-rate', params] as const,
     winRateBySurface: (params: Record<string, unknown> = {}) =>

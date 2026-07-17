@@ -36,12 +36,14 @@ import {
   useDeleteTournament,
   useTournament,
   useTournaments,
+  useTournamentStandings,
   useUpdateTournament,
 } from '@/hooks/use-tournaments'
 import { useClub, useClubs } from '@/hooks/use-clubs'
 import { useLastOrganiser } from '@/hooks/use-last-organiser'
 import { useMatches } from '@/hooks/use-matches'
 import type { Match } from '@/lib/api/matches'
+import type { StandingsRow } from '@/lib/api/tournaments'
 import { useDocumentTitle } from '@/lib/use-document-title'
 
 function dateRange(tournament: Tournament) {
@@ -283,6 +285,72 @@ function MatchesTable({ matches }: { matches: Match[] }) {
   )
 }
 
+function StandingsTable({ rows }: { rows: StandingsRow[] }) {
+  return (
+    <Card>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Opponent</TableHead>
+              <TableHead>W</TableHead>
+              <TableHead>L</TableHead>
+              <TableHead>Win %</TableHead>
+              <TableHead>Sets</TableHead>
+              <TableHead>Games</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row) => (
+              <TableRow key={row.opponent_id}>
+                <TableCell className="font-medium">
+                  <Link to={`/opponents/${row.opponent_id}`} className="hover:underline">
+                    {row.opponent_name}
+                  </Link>
+                </TableCell>
+                <TableCell>{row.wins}</TableCell>
+                <TableCell>{row.losses}</TableCell>
+                <TableCell>
+                  {row.win_rate === null ? '—' : `${Math.round(row.win_rate * 100)}%`}
+                </TableCell>
+                <TableCell>
+                  {row.sets_won}–{row.sets_lost}
+                </TableCell>
+                <TableCell>
+                  {row.games_won}–{row.games_lost}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  )
+}
+
+function TournamentStandings({ tournamentId }: { tournamentId: number }) {
+  const standings = useTournamentStandings(tournamentId)
+
+  return (
+    <div className="flex flex-col gap-4">
+      <h2 className="cn-font-heading text-lg font-semibold">Standings</h2>
+
+      {standings.isPending ? (
+        <LoadingState />
+      ) : standings.isError ? (
+        <ErrorState error={standings.error} onRetry={() => void standings.refetch()} />
+      ) : standings.data.length === 0 ? (
+        <EmptyState
+          title="No standings yet"
+          description="Play a match in this league to see the standings table."
+        />
+      ) : (
+        <StandingsTable rows={standings.data} />
+      )}
+    </div>
+  )
+}
+
 function TournamentMatches({ tournament }: { tournament: Tournament }) {
   const matches = useMatches({ tournament_id: tournament.id })
   const [filter, setFilter] = useState<ResultFilter>('all')
@@ -463,6 +531,12 @@ export function TournamentDetailPage() {
               </dl>
             </CardContent>
           </Card>
+
+          {tournament.data.tournament_type === 'Ranking League' ? (
+            <div className="mb-6">
+              <TournamentStandings tournamentId={tournament.data.id} />
+            </div>
+          ) : null}
 
           <TournamentMatches tournament={tournament.data} />
         </>

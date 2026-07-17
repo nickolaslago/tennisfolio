@@ -9,6 +9,7 @@ import { EntityList, type EntityColumn } from '@/components/data/entity-list'
 import { FormBanner, FormField } from '@/components/data/entity-form'
 import { EmptyState, ErrorState, LoadingState } from '@/components/data/query-state'
 import { RowOptionsMenu } from '@/components/data/row-options-menu'
+import { OpponentHeadToHead } from '@/components/opponents/head-to-head'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -206,7 +207,7 @@ function OpponentMatches({ opponentId }: { opponentId: number }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="cn-font-heading text-lg font-semibold">Head-to-head</h2>
+        <h2 className="cn-font-heading text-lg font-semibold">Matches</h2>
         {matches.isPending || matches.isError ? null : (
           <p className="text-sm text-muted-foreground">
             {wins}–{losses} ({items.length} match{items.length === 1 ? '' : 'es'})
@@ -361,6 +362,10 @@ export function OpponentDetailPage() {
               </dl>
             </CardContent>
           </Card>
+
+          <div className="mb-6">
+            <OpponentHeadToHead opponentId={opponent.data.id} />
+          </div>
 
           <OpponentMatches opponentId={opponent.data.id} />
         </>
