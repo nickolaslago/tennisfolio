@@ -331,5 +331,59 @@
       "resultWinShort": "W",
       "resultLossShort": "L"
     }
+  },
+  "clubs": {
+    "pageTitle": "Clubs",
+    "pageDescription": "The clubs and courts where your matches happen.",
+    "deleteDescription": "This permanently removes the club. This can't be undone.",
+    "filterPlaceholder": "Filter clubs…",
+    "addClub": "Add club",
+    "addFirstClub": "Add your first club",
+    "columns": {
+      "name": "Name",
+      "city": "City",
+      "country": "Country",
+      "surface": "Surface",
+      "environment": "Environment"
+    },
+    "emptyState": {
+      "title": "No clubs yet",
+      "description": "Add the clubs and courts where you play to start tracking records by venue."
+    },
+    "matches": {
+      "heading": "Matches at this club",
+      "recordSummary_one": "{{wins}}–{{losses}} ({{count}} match)",
+      "recordSummary_other": "{{wins}}–{{losses}} ({{count}} matches)",
+      "recordBySurface": "Record by surface",
+      "filterByResultLabel": "Filter by result",
+      "noFilterMatches": "No matches for this filter.",
+      "columns": {
+        "score": "Score"
+      },
+      "filters": {
+        "all": "All",
+        "wins": "Wins",
+        "losses": "Losses"
+      },
+      "emptyState": {
+        "title": "No matches yet",
+        "description": "Matches played at this club will show up here."
+      }
+    },
+    "detail": {
+      "backToClubs": "Back to Clubs",
+      "pageTitleFallback": "Club",
+      "invalidId": "\"{{id}}\" is not a valid club id."
+    },
+    "form": {
+      "backToClub": "Back to club",
+      "editTitle": "Edit club",
+      "nameRequired": "Name is required.",
+      "icon": "Icon",
+      "environmentPlaceholder": "Select environment",
+      "environmentIndoor": "Indoor",
+      "environmentOutdoor": "Outdoor",
+      "saveChanges": "Save changes"
+    }
   }
 }

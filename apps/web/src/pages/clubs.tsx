@@ -1,6 +1,8 @@
 import { ChevronLeft, MapPinPlus, Pencil, Trash2 } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 
 import { CountryCombobox } from '@/components/data/country-combobox'
 import { EntityIcon } from '@/components/data/entity-icon'
@@ -36,7 +38,8 @@ import type { Match } from '@/lib/api/matches'
 import { useDocumentTitle } from '@/lib/use-document-title'
 
 export function ClubsPage() {
-  useDocumentTitle('Clubs')
+  const { t } = useTranslation()
+  useDocumentTitle(t('clubs.pageTitle'))
   const clubs = useClubs()
   const deleteClub = useDeleteClub()
 
@@ -48,14 +51,14 @@ export function ClubsPage() {
       duplicateState={{ duplicate: club }}
       onDelete={() => deleteClub.mutate(club.id)}
       deletePending={deleteClub.isPending}
-      deleteDescription="This permanently removes the club. This can't be undone."
+      deleteDescription={t('clubs.deleteDescription')}
     />
   )
 
   const columns: EntityColumn<Club>[] = [
     {
       id: 'name',
-      header: 'Name',
+      header: t('clubs.columns.name'),
       sortValue: (c) => c.name.toLowerCase(),
       cell: (c) => (
         <Link
@@ -69,25 +72,25 @@ export function ClubsPage() {
     },
     {
       id: 'city',
-      header: 'City',
+      header: t('clubs.columns.city'),
       sortValue: (c) => c.city,
       cell: (c) => c.city ?? '—',
     },
     {
       id: 'country',
-      header: 'Country',
+      header: t('clubs.columns.country'),
       sortValue: (c) => c.country,
       cell: (c) => c.country ?? '—',
     },
     {
       id: 'surface',
-      header: 'Surface',
+      header: t('clubs.columns.surface'),
       sortValue: (c) => c.surface,
       cell: (c) => c.surface ?? '—',
     },
     {
       id: 'environment',
-      header: 'Environment',
+      header: t('clubs.columns.environment'),
       sortValue: (c) => c.environment,
       cell: (c) => c.environment ?? '—',
     },
@@ -95,7 +98,7 @@ export function ClubsPage() {
 
   return (
     <>
-      <PageHeader title="Clubs" description="The clubs and courts where your matches happen." />
+      <PageHeader title={t('clubs.pageTitle')} description={t('clubs.pageDescription')} />
       <EntityList
         entityKey="clubs"
         items={clubs.data?.items ?? []}
@@ -108,13 +111,13 @@ export function ClubsPage() {
         getSearchText={(c) =>
           `${c.name} ${c.city ?? ''} ${c.country ?? ''} ${c.surface ?? ''} ${c.environment ?? ''}`
         }
-        searchPlaceholder="Filter clubs…"
+        searchPlaceholder={t('clubs.filterPlaceholder')}
         defaultSort={{ columnId: 'name', direction: 'asc' }}
-        emptyTitle="No clubs yet"
-        emptyDescription="Add the clubs and courts where you play to start tracking records by venue."
+        emptyTitle={t('clubs.emptyState.title')}
+        emptyDescription={t('clubs.emptyState.description')}
         createAction={{
-          label: 'Add club',
-          emptyLabel: 'Add your first club',
+          label: t('clubs.addClub'),
+          emptyLabel: t('clubs.addFirstClub'),
           to: '/clubs/new',
           icon: MapPinPlus,
         }}
@@ -133,19 +136,19 @@ export function ClubsPage() {
               </div>
               <dl className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <dt className="text-muted-foreground">City</dt>
+                  <dt className="text-muted-foreground">{t('clubs.columns.city')}</dt>
                   <dd>{c.city ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Country</dt>
+                  <dt className="text-muted-foreground">{t('clubs.columns.country')}</dt>
                   <dd>{c.country ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Surface</dt>
+                  <dt className="text-muted-foreground">{t('clubs.columns.surface')}</dt>
                   <dd>{c.surface ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Environment</dt>
+                  <dt className="text-muted-foreground">{t('clubs.columns.environment')}</dt>
                   <dd>{c.environment ?? '—'}</dd>
                 </div>
               </dl>
@@ -161,14 +164,15 @@ type ResultFilter = 'all' | 'wins' | 'losses'
 
 const SURFACES: Surface[] = ['Hard', 'Clay', 'Grass', 'Carpet']
 
-function matchResultLabel(match: Match) {
-  if (!match.result) return 'Scheduled'
-  return match.result === 'Win' ? 'Win' : 'Loss'
-}
-
 function ClubMatches({ clubId }: { clubId: number }) {
+  const { t } = useTranslation()
   const matches = useMatches({ club_id: clubId })
   const [filter, setFilter] = useState<ResultFilter>('all')
+
+  const matchResultLabel = (match: Match) => {
+    if (!match.result) return t('matches.tabs.scheduled')
+    return match.result === 'Win' ? 'Win' : 'Loss'
+  }
 
   const items = matches.data?.items ?? []
   const filtered = items.filter((match) => {
@@ -193,7 +197,7 @@ function ClubMatches({ clubId }: { clubId: number }) {
   const columns: EntityColumn<Match>[] = [
     {
       id: 'date',
-      header: 'Date',
+      header: t('matches.columns.date'),
       sortValue: (m) => m.match_date,
       cell: (m) => (
         <Link to={`/matches/${m.id}`} className="font-medium hover:underline">
@@ -203,18 +207,18 @@ function ClubMatches({ clubId }: { clubId: number }) {
     },
     {
       id: 'score',
-      header: 'Score',
+      header: t('clubs.matches.columns.score'),
       cell: (m) => m.score ?? '—',
     },
     {
       id: 'result',
-      header: 'Result',
+      header: t('matches.columns.result'),
       sortValue: (m) => m.result ?? '',
       cell: (m) => matchResultLabel(m),
     },
     {
       id: 'surface',
-      header: 'Surface',
+      header: t('matches.columns.surface'),
       sortValue: (m) => m.surface,
       cell: (m) => m.surface ?? '—',
     },
@@ -223,10 +227,10 @@ function ClubMatches({ clubId }: { clubId: number }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="cn-font-heading text-lg font-semibold">Matches at this club</h2>
+        <h2 className="cn-font-heading text-lg font-semibold">{t('clubs.matches.heading')}</h2>
         {matches.isPending || matches.isError ? null : (
           <p className="text-sm text-muted-foreground">
-            {wins}–{losses} ({items.length} match{items.length === 1 ? '' : 'es'})
+            {t('clubs.matches.recordSummary', { wins, losses, count: items.length })}
           </p>
         )}
       </div>
@@ -237,14 +241,16 @@ function ClubMatches({ clubId }: { clubId: number }) {
         <ErrorState error={matches.error} onRetry={() => void matches.refetch()} />
       ) : items.length === 0 ? (
         <EmptyState
-          title="No matches yet"
-          description="Matches played at this club will show up here."
+          title={t('clubs.matches.emptyState.title')}
+          description={t('clubs.matches.emptyState.description')}
         />
       ) : (
         <>
           {surfaceRecords.length > 0 ? (
             <div className="flex flex-col gap-2">
-              <h3 className="text-sm font-medium text-muted-foreground">Record by surface</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">
+                {t('clubs.matches.recordBySurface')}
+              </h3>
               <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {surfaceRecords.map((record) => (
                   <div key={record.surface} className="rounded-lg border p-3">
@@ -258,12 +264,16 @@ function ClubMatches({ clubId }: { clubId: number }) {
             </div>
           ) : null}
 
-          <div role="group" aria-label="Filter by result" className="flex gap-2">
+          <div
+            role="group"
+            aria-label={t('clubs.matches.filterByResultLabel')}
+            className="flex gap-2"
+          >
             {(
               [
-                { value: 'all', label: 'All' },
-                { value: 'wins', label: 'Wins' },
-                { value: 'losses', label: 'Losses' },
+                { value: 'all', label: t('clubs.matches.filters.all') },
+                { value: 'wins', label: t('clubs.matches.filters.wins') },
+                { value: 'losses', label: t('clubs.matches.filters.losses') },
               ] as const
             ).map((option) => (
               <Button
@@ -281,7 +291,7 @@ function ClubMatches({ clubId }: { clubId: number }) {
 
           {filtered.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              No matches for this filter.
+              {t('clubs.matches.noFilterMatches')}
             </p>
           ) : (
             <Card>
@@ -314,24 +324,25 @@ function ClubMatches({ clubId }: { clubId: number }) {
 }
 
 export function ClubDetailPage() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const clubId = Number(id)
   const club = useClub(clubId)
   const deleteClub = useDeleteClub()
   const navigate = useNavigate()
-  useDocumentTitle(club.data ? club.data.name : 'Club')
+  useDocumentTitle(club.data ? club.data.name : t('clubs.detail.pageTitleFallback'))
 
   return (
     <>
       <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
         <Link to="/clubs">
           <ChevronLeft aria-hidden="true" data-icon="inline-start" />
-          Back to Clubs
+          {t('clubs.detail.backToClubs')}
         </Link>
       </Button>
 
       {!Number.isFinite(clubId) ? (
-        <ErrorState error={new Error(`"${id}" is not a valid club id.`)} />
+        <ErrorState error={new Error(t('clubs.detail.invalidId', { id }))} />
       ) : club.isPending ? (
         <LoadingState />
       ) : club.isError ? (
@@ -348,7 +359,7 @@ export function ClubDetailPage() {
               <Button variant="outline" size="sm" asChild>
                 <Link to={`/clubs/${club.data.id}/edit`}>
                   <Pencil aria-hidden="true" data-icon="inline-start" />
-                  Edit
+                  {t('common.rowActions.edit')}
                 </Link>
               </Button>
               <Button
@@ -362,7 +373,7 @@ export function ClubDetailPage() {
                 }}
               >
                 <Trash2 aria-hidden="true" data-icon="inline-start" />
-                Delete
+                {t('common.rowActions.delete')}
               </Button>
             </div>
           </div>
@@ -370,19 +381,19 @@ export function ClubDetailPage() {
             <CardContent>
               <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
                 <div>
-                  <dt className="text-muted-foreground">City</dt>
+                  <dt className="text-muted-foreground">{t('clubs.columns.city')}</dt>
                   <dd>{club.data.city ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Country</dt>
+                  <dt className="text-muted-foreground">{t('clubs.columns.country')}</dt>
                   <dd>{club.data.country ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Surface</dt>
+                  <dt className="text-muted-foreground">{t('clubs.columns.surface')}</dt>
                   <dd>{club.data.surface ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Environment</dt>
+                  <dt className="text-muted-foreground">{t('clubs.columns.environment')}</dt>
                   <dd>{club.data.environment ?? '—'}</dd>
                 </div>
               </dl>
@@ -398,10 +409,12 @@ export function ClubDetailPage() {
 
 const SURFACE_OPTIONS: Surface[] = ['Hard', 'Clay', 'Grass', 'Carpet']
 
-const ENVIRONMENT_OPTIONS: { value: Environment; label: string }[] = [
-  { value: 'Indoor', label: 'Indoor' },
-  { value: 'Outdoor', label: 'Outdoor' },
-]
+function environmentOptions(t: TFunction): { value: Environment; label: string }[] {
+  return [
+    { value: 'Indoor', label: t('clubs.form.environmentIndoor') },
+    { value: 'Outdoor', label: t('clubs.form.environmentOutdoor') },
+  ]
+}
 
 interface ClubFormState {
   name: string
@@ -443,25 +456,26 @@ function toPayload(form: ClubFormState): ClubCreate {
   }
 }
 
-function validate(form: ClubFormState): Record<string, string> {
+function validate(form: ClubFormState, t: TFunction): Record<string, string> {
   const errors: Record<string, string> = {}
-  if (!form.name.trim()) errors.name = 'Name is required.'
+  if (!form.name.trim()) errors.name = t('clubs.form.nameRequired')
   return errors
 }
 
 export function ClubFormPage() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const isEdit = id !== undefined
   const clubId = Number(id)
 
-  useDocumentTitle(isEdit ? 'Edit club' : 'Add club')
+  useDocumentTitle(isEdit ? t('clubs.form.editTitle') : t('clubs.addClub'))
 
   const club = useClub(isEdit ? clubId : NaN)
 
   if (!isEdit) return <ClubForm mode="create" />
 
   if (!Number.isFinite(clubId)) {
-    return <ErrorState error={new Error(`"${id}" is not a valid club id.`)} />
+    return <ErrorState error={new Error(t('clubs.detail.invalidId', { id }))} />
   }
   if (club.isPending) return <LoadingState />
   if (club.isError) {
@@ -471,6 +485,7 @@ export function ClubFormPage() {
 }
 
 function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
+  const { t } = useTranslation()
   const isEdit = props.mode === 'edit'
   const clubId = isEdit ? props.club.id : NaN
   const navigate = useNavigate()
@@ -488,7 +503,7 @@ function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
   const [touched, setTouched] = useState(false)
 
   const mutation = isEdit ? updateClub : createClub
-  const clientErrors = validate(form)
+  const clientErrors = validate(form, t)
   const serverErrors = fieldErrorsFromApiError(mutation.error)
   const errors = touched ? { ...serverErrors, ...clientErrors } : serverErrors
   const bannerMessage =
@@ -518,13 +533,13 @@ function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
       <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
         <Link to={backTo}>
           <ChevronLeft aria-hidden="true" data-icon="inline-start" />
-          {isEdit ? 'Back to club' : 'Back to Clubs'}
+          {isEdit ? t('clubs.form.backToClub') : t('clubs.detail.backToClubs')}
         </Link>
       </Button>
 
       <PageHeader
-        title={isEdit ? 'Edit club' : 'Add club'}
-        description="The clubs and courts where your matches happen."
+        title={isEdit ? t('clubs.form.editTitle') : t('clubs.addClub')}
+        description={t('clubs.pageDescription')}
       />
 
       <Card>
@@ -532,12 +547,17 @@ function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
           <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
             <FormBanner error={bannerMessage} />
 
-            <FormField id="icon" label="Icon" optional>
+            <FormField id="icon" label={t('clubs.form.icon')} optional>
               <EntityIconPicker value={form.icon} onChange={(icon) => setForm({ ...form, icon })} />
             </FormField>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField id="name" label="Name" error={errors.name} className="sm:col-span-2">
+              <FormField
+                id="name"
+                label={t('clubs.columns.name')}
+                error={errors.name}
+                className="sm:col-span-2"
+              >
                 <Input
                   id="name"
                   value={form.name}
@@ -548,7 +568,7 @@ function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
                 />
               </FormField>
 
-              <FormField id="city" label="City" optional error={errors.city}>
+              <FormField id="city" label={t('clubs.columns.city')} optional error={errors.city}>
                 <Input
                   id="city"
                   value={form.city}
@@ -557,7 +577,12 @@ function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
                 />
               </FormField>
 
-              <FormField id="country" label="Country" optional error={errors.country}>
+              <FormField
+                id="country"
+                label={t('clubs.columns.country')}
+                optional
+                error={errors.country}
+              >
                 <CountryCombobox
                   id="country"
                   value={form.country || null}
@@ -566,13 +591,18 @@ function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
                 />
               </FormField>
 
-              <FormField id="surface" label="Surface" optional error={errors.surface}>
+              <FormField
+                id="surface"
+                label={t('clubs.columns.surface')}
+                optional
+                error={errors.surface}
+              >
                 <Select
                   value={form.surface}
                   onValueChange={(value) => setForm({ ...form, surface: value as Surface })}
                 >
                   <SelectTrigger id="surface" className="w-full">
-                    <SelectValue placeholder="Select surface" />
+                    <SelectValue placeholder={t('matchForm.fields.surfacePlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {SURFACE_OPTIONS.map((option) => (
@@ -584,16 +614,21 @@ function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
                 </Select>
               </FormField>
 
-              <FormField id="environment" label="Environment" optional error={errors.environment}>
+              <FormField
+                id="environment"
+                label={t('clubs.columns.environment')}
+                optional
+                error={errors.environment}
+              >
                 <Select
                   value={form.environment}
                   onValueChange={(value) => setForm({ ...form, environment: value as Environment })}
                 >
                   <SelectTrigger id="environment" className="w-full">
-                    <SelectValue placeholder="Select environment" />
+                    <SelectValue placeholder={t('clubs.form.environmentPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {ENVIRONMENT_OPTIONS.map((option) => (
+                    {environmentOptions(t).map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
@@ -605,10 +640,10 @@ function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
 
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" asChild>
-                <Link to={backTo}>Cancel</Link>
+                <Link to={backTo}>{t('common.cancel')}</Link>
               </Button>
               <Button type="submit" disabled={mutation.isPending}>
-                {isEdit ? 'Save changes' : 'Add club'}
+                {isEdit ? t('clubs.form.saveChanges') : t('clubs.addClub')}
               </Button>
             </div>
           </form>
