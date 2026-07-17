@@ -1,4 +1,4 @@
-import { Download, Home, MapPin, Swords, Trophy, Users, type LucideIcon } from 'lucide-react'
+import { Home, MapPin, Settings, Swords, Trophy, Users, type LucideIcon } from 'lucide-react'
 
 export interface NavItem {
   labelKey: string
@@ -14,5 +14,15 @@ export const navItems: NavItem[] = [
   { labelKey: 'nav.opponents', to: '/opponents', icon: Users },
   { labelKey: 'nav.clubs', to: '/clubs', icon: MapPin },
   { labelKey: 'nav.tournaments', to: '/tournaments', icon: Trophy },
-  { labelKey: 'nav.export', to: '/export', icon: Download },
 ]
+
+/**
+ * Settings lives outside the main scrollable nav: pinned to the bottom of the
+ * desktop sidebar, and reachable on mobile via a top-right icon on Home instead
+ * of a bottom tab.
+ */
+export const settingsNavItem: NavItem = {
+  labelKey: 'nav.settings',
+  to: '/settings',
+  icon: Settings,
+}

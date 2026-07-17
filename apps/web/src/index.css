@@ -125,51 +125,57 @@
 }
 
 .dark {
-  /* Dark mode is NOT part of DAT-79. This block is a stub carried over from
-       the shadcn scaffold (neutral greys) so the `dark` variant still compiles.
-       To ship dark mode later, re-point these semantic tokens at a dark
-       Roland-Garros palette exactly the way :root does above. */
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Dark Roland-Garros palette — same brand colours as :root, re-pointed for a
+       dark surface. Clay/court/ochre are brightened where they sit on dark
+       backgrounds so they keep AA contrast against --rg-slate-950. */
+  --rg-slate-950: #101c24; /* below the raw :root palette — dark mode base */
+  --rg-slate-900: #1c2d37; /* == --rg-slate — raised surfaces (cards, popovers) */
+  --rg-slate-800: #24363f; /* muted / hover surfaces */
+  --rg-slate-700: #324752; /* borders */
+  --rg-clay-bright: #e2694f; /* Clay Terracotta, brightened for dark bg */
+  --rg-court-bright: #2e9e5b; /* Classic Court Green, brightened for dark bg */
 
-  /* brand tokens — stub dark values so the utilities still resolve */
-  --surface: oklch(0.205 0 0);
-  --surface-foreground: oklch(0.985 0 0);
-  --win: #2e9e5b;
+  --background: var(--rg-slate-950);
+  --foreground: var(--rg-baseline);
+  --card: var(--rg-slate-900);
+  --card-foreground: var(--rg-baseline);
+  --popover: var(--rg-slate-900);
+  --popover-foreground: var(--rg-baseline);
+  --primary: var(--rg-baseline);
+  --primary-foreground: var(--rg-slate-900);
+  --secondary: var(--rg-court-bright);
+  --secondary-foreground: #0b140f;
+  --muted: var(--rg-slate-800);
+  --muted-foreground: #9aa7ad;
+  --accent: #3a2620; /* dark clay wash — subtle hover surface (menus) */
+  --accent-foreground: var(--rg-baseline);
+  --destructive: var(--rg-clay-bright);
+  --border: var(--rg-slate-700);
+  --input: var(--rg-slate-700);
+  --ring: var(--rg-ochre);
+  --chart-1: var(--rg-clay-bright);
+  --chart-2: var(--rg-court-bright);
+  --chart-3: var(--rg-ochre);
+  --chart-4: var(--rg-baseline);
+  --chart-5: #9aa7ad;
+  --sidebar: var(--rg-slate-900);
+  --sidebar-foreground: var(--rg-baseline);
+  --sidebar-primary: var(--rg-baseline);
+  --sidebar-primary-foreground: var(--rg-slate-900);
+  --sidebar-accent: var(--rg-slate-800);
+  --sidebar-accent-foreground: var(--rg-baseline);
+  --sidebar-border: var(--rg-slate-700);
+  --sidebar-ring: var(--rg-ochre);
+
+  /* brand tokens */
+  --surface: var(--rg-slate-950);
+  --surface-foreground: var(--rg-baseline);
+  --win: var(--rg-court-bright);
   --win-foreground: #0b140f;
-  --loss: #e2694f;
+  --loss: var(--rg-clay-bright);
   --loss-foreground: #1a0b08;
-  --highlight: #e3783b;
-  --highlight-foreground: #1c2d37;
+  --highlight: var(--rg-ochre);
+  --highlight-foreground: var(--rg-slate-900);
 }
 
 @layer base {
