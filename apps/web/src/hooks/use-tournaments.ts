@@ -19,6 +19,14 @@ export function useTournament(id: number) {
   })
 }
 
+export function useTournamentStandings(id: number) {
+  return useQuery({
+    queryKey: queryKeys.tournaments.standings(id),
+    queryFn: ({ signal }) => tournamentsApi.getTournamentStandings(id, signal),
+    enabled: Number.isFinite(id),
+  })
+}
+
 export function useCreateTournament() {
   const queryClient = useQueryClient()
   return useMutation({

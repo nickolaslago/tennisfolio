@@ -24,6 +24,7 @@ import {
 import { EntityList, type EntityColumn } from '@/components/data/entity-list'
 import { ErrorState, LoadingState } from '@/components/data/query-state'
 import { RowOptionsMenu } from '@/components/data/row-options-menu'
+import { OpponentHeadToHead } from '@/components/opponents/head-to-head'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -709,6 +710,10 @@ export function MatchDetailPage() {
           </div>
 
           <MatchHeaderCard match={match.data} opponentName={opponentName} />
+
+          <div className="mb-6">
+            <OpponentHeadToHead opponentId={match.data.opponent_id} />
+          </div>
 
           <h2 className="mb-3 cn-font-heading text-lg font-semibold">Set by set</h2>
           <SetBreakdown sets={match.data.sets} />

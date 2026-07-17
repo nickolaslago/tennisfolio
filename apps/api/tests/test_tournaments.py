@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -332,3 +333,102 @@ def test_create_tournament_rejects_invalid_icon(client: TestClient, icon: str) -
         json={"name": "Winter Open", "tournament_type": "Knockout Tournament", "icon": icon},
     )
     assert response.status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# Standings
+# ---------------------------------------------------------------------------
+
+
+def _opponent(client: TestClient, last_name: str, name: str | None = None) -> int:
+    payload: dict[str, Any] = {"last_name": last_name}
+    if name is not None:
+        payload["name"] = name
+    return client.post("/opponents", json=payload).json()["id"]
+
+
+def _match(client: TestClient, opponent_id: int, match_date: str, score: str, **overrides: Any):
+    payload: dict[str, Any] = {
+        "match_date": match_date,
+        "opponent_id": opponent_id,
+        "score": score,
+        **overrides,
+    }
+    response = client.post("/matches", json=payload)
+    assert response.status_code == 201, response.text
+    return response.json()
+
+
+def test_get_tournament_standings_not_found(client: TestClient) -> None:
+    response = client.get("/tournaments/999/standings")
+    assert response.status_code == 404
+
+
+def test_tournament_standings_empty(client: TestClient) -> None:
+    tournament = client.post(
+        "/tournaments", json={"name": "Winter League", "tournament_type": "Ranking League"}
+    ).json()
+    response = client.get(f"/tournaments/{tournament['id']}/standings")
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_tournament_standings_aggregates_per_opponent(client: TestClient) -> None:
+    tournament = client.post(
+        "/tournaments", json={"name": "Winter League", "tournament_type": "Ranking League"}
+    ).json()["id"]
+    nadal = _opponent(client, "Nadal", "Rafael")
+    federer = _opponent(client, "Federer", "Roger")
+
+    # vs Nadal: two matches, 1 win (6-4 6-4) and 1 loss (4-6 4-6).
+    _match(client, nadal, "2026-01-01", "6-4 6-4", tournament_id=tournament)
+    _match(client, nadal, "2026-01-08", "4-6 4-6", tournament_id=tournament)
+    # vs Federer: one win, straight sets.
+    _match(client, federer, "2026-01-15", "6-2 6-3", tournament_id=tournament)
+    # A friendly against Nadal outside the tournament must not be counted.
+    _match(client, nadal, "2026-02-01", "6-0 6-0")
+
+    body = client.get(f"/tournaments/{tournament}/standings").json()
+    by_opponent = {row["opponent_id"]: row for row in body}
+
+    assert by_opponent[nadal] == {
+        "opponent_id": nadal,
+        "opponent_name": "Rafael Nadal",
+        "played": 2,
+        "wins": 1,
+        "losses": 1,
+        "win_rate": 0.5,
+        "sets_won": 2,
+        "sets_lost": 2,
+        "games_won": 20,
+        "games_lost": 20,
+    }
+    assert by_opponent[federer] == {
+        "opponent_id": federer,
+        "opponent_name": "Roger Federer",
+        "played": 1,
+        "wins": 1,
+        "losses": 0,
+        "win_rate": 1.0,
+        "sets_won": 2,
+        "sets_lost": 0,
+        "games_won": 12,
+        "games_lost": 5,
+    }
+
+    # Federer (1-0, 100%) ranks above Nadal (1-1, 50%).
+    assert [row["opponent_id"] for row in body] == [federer, nadal]
+
+
+def test_tournament_standings_excludes_scheduled_matches(client: TestClient) -> None:
+    tournament = client.post(
+        "/tournaments", json={"name": "Winter League", "tournament_type": "Ranking League"}
+    ).json()["id"]
+    nadal = _opponent(client, "Nadal")
+    client.post(
+        "/matches",
+        json={"match_date": "2026-01-01", "opponent_id": nadal, "tournament_id": tournament},
+    )
+
+    body = client.get(f"/tournaments/{tournament}/standings").json()
+    assert body == []

@@ -3,11 +3,13 @@
 from fastapi import APIRouter, Query, status
 from sqlalchemy import func, select
 
+from app import stats as stats_service
 from app.db import DbSession
 from app.models import Club, Tournament
 from app.models.enums import TournamentType
 from app.routers.common import get_or_404
 from app.schemas.common import Page
+from app.schemas.stats import StandingsRow
 from app.schemas.tournament import TournamentCreate, TournamentRead, TournamentUpdate
 
 router = APIRouter(prefix="/tournaments", tags=["tournaments"])
@@ -52,6 +54,13 @@ def list_tournaments(
 @router.get("/{tournament_id}", response_model=TournamentRead)
 def get_tournament(tournament_id: int, db: DbSession) -> Tournament:
     return get_or_404(db, Tournament, tournament_id, "Tournament")
+
+
+@router.get("/{tournament_id}/standings", response_model=list[StandingsRow])
+def get_tournament_standings(tournament_id: int, db: DbSession) -> list[StandingsRow]:
+    """Per-opponent standings for the tournament, derived on read from its matches."""
+    get_or_404(db, Tournament, tournament_id, "Tournament")
+    return stats_service.tournament_standings(db, tournament_id)
 
 
 @router.patch("/{tournament_id}", response_model=TournamentRead)

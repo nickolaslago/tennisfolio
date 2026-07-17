@@ -39,12 +39,30 @@ export interface TournamentListParams extends ListParams {
   tournament_type?: TournamentType
 }
 
+/** One opponent's row in a Ranking League standings table — mirrors StandingsRow. */
+export interface StandingsRow {
+  opponent_id: number
+  opponent_name: string
+  played: number
+  wins: number
+  losses: number
+  win_rate: number | null
+  sets_won: number
+  sets_lost: number
+  games_won: number
+  games_lost: number
+}
+
 export function listTournaments(params: TournamentListParams = {}, signal?: AbortSignal) {
   return http.get<Page<Tournament>>('/tournaments', { params, signal })
 }
 
 export function getTournament(id: number, signal?: AbortSignal) {
   return http.get<Tournament>(`/tournaments/${id}`, { signal })
+}
+
+export function getTournamentStandings(id: number, signal?: AbortSignal) {
+  return http.get<StandingsRow[]>(`/tournaments/${id}/standings`, { signal })
 }
 
 export function createTournament(payload: TournamentCreate) {
