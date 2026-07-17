@@ -51,6 +51,7 @@ import { useDeleteMatch, useMatch, useMatches } from '@/hooks/use-matches'
 import { useOpponent, useOpponents } from '@/hooks/use-opponents'
 import { useTournament, useTournaments } from '@/hooks/use-tournaments'
 import type { Match, MatchListParams, MatchStatus, SetRead, Surface } from '@/lib/api/matches'
+import { sortByLabel } from '@/lib/sort-options'
 import { useDocumentTitle } from '@/lib/use-document-title'
 
 const SURFACE_OPTIONS: Surface[] = ['Hard', 'Clay', 'Grass', 'Carpet']
@@ -180,6 +181,22 @@ export function MatchesPage() {
     [tournaments.data],
   )
 
+  const opponentFilterOptions = useMemo(
+    () =>
+      sortByLabel(opponents.data?.items ?? [], (o) =>
+        o.name ? `${o.name} ${o.last_name}` : o.last_name,
+      ),
+    [opponents.data],
+  )
+  const clubFilterOptions = useMemo(
+    () => sortByLabel(clubs.data?.items ?? [], (c) => c.name),
+    [clubs.data],
+  )
+  const tournamentFilterOptions = useMemo(
+    () => sortByLabel(tournaments.data?.items ?? [], (t) => t.name),
+    [tournaments.data],
+  )
+
   const opponentName = (id: number) => {
     const opponent = opponentsById.get(id)
     if (!opponent) return `Opponent #${id}`
@@ -297,7 +314,7 @@ export function MatchesPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={ALL_VALUE}>All opponents</SelectItem>
-                  {(opponents.data?.items ?? []).map((o) => (
+                  {opponentFilterOptions.map((o) => (
                     <SelectItem key={o.id} value={String(o.id)}>
                       {o.name ? `${o.name} ${o.last_name}` : o.last_name}
                     </SelectItem>
@@ -317,7 +334,7 @@ export function MatchesPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={ALL_VALUE}>All clubs</SelectItem>
-                  {(clubs.data?.items ?? []).map((c) => (
+                  {clubFilterOptions.map((c) => (
                     <SelectItem key={c.id} value={String(c.id)}>
                       {c.name}
                     </SelectItem>
@@ -339,7 +356,7 @@ export function MatchesPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={ALL_VALUE}>All tournaments</SelectItem>
-                  {(tournaments.data?.items ?? []).map((t) => (
+                  {tournamentFilterOptions.map((t) => (
                     <SelectItem key={t.id} value={String(t.id)}>
                       {t.name}
                     </SelectItem>

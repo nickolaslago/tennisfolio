@@ -39,6 +39,7 @@ import type { Club } from '@/lib/api/clubs'
 import { fieldErrorsFromApiError } from '@/lib/api/form-errors'
 import type { Match, MatchCreate, MatchUpdate, Surface } from '@/lib/api/matches'
 import type { Opponent } from '@/lib/api/opponents'
+import { sortByLabel } from '@/lib/sort-options'
 import { useDocumentTitle } from '@/lib/use-document-title'
 
 const SURFACE_OPTIONS: Surface[] = ['Hard', 'Clay', 'Grass', 'Carpet']
@@ -136,7 +137,10 @@ function opponentLabel(opponent: Opponent): string {
   return opponent.name ? `${opponent.name} ${opponent.last_name}` : opponent.last_name
 }
 
-/** Merge server-fetched rows with any just-created locally, deduped by id, into select options. */
+/**
+ * Merge server-fetched rows with any just-created locally, deduped by id, into
+ * select options sorted alphabetically by label.
+ */
 function toOptions<T extends { id: number; icon: string | null }>(
   fetched: T[],
   extra: T[],
@@ -144,11 +148,12 @@ function toOptions<T extends { id: number; icon: string | null }>(
 ): EntitySelectOption[] {
   const byId = new Map<number, T>()
   for (const item of [...fetched, ...extra]) byId.set(item.id, item)
-  return Array.from(byId.values()).map((item) => ({
+  const options = Array.from(byId.values()).map((item) => ({
     value: String(item.id),
     label: label(item),
     icon: item.icon,
   }))
+  return sortByLabel(options, (option) => option.label)
 }
 
 interface MatchFormState {
