@@ -1,5 +1,6 @@
 import { AlertCircle } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Label } from '@/components/ui/label'
 import { ApiError } from '@/lib/api/errors'
@@ -23,11 +24,15 @@ export function FormField({
   className?: string
   children: ReactNode
 }) {
+  const { t } = useTranslation()
+
   return (
     <div className={cn('flex flex-col gap-1.5', className)}>
       <Label htmlFor={id}>
         {label}
-        {optional ? <span className="font-normal text-muted-foreground">(optional)</span> : null}
+        {optional ? (
+          <span className="font-normal text-muted-foreground">{t('common.optional')}</span>
+        ) : null}
       </Label>
       {children}
       {error ? (
@@ -43,13 +48,14 @@ export function FormField({
 
 /** Top-level banner for submit errors that aren't tied to a single field (network, 409s, etc.). */
 export function FormBanner({ error }: { error: unknown }) {
+  const { t } = useTranslation()
   if (!error) return null
   const message =
     error instanceof ApiError
       ? error.message
       : error instanceof Error
         ? error.message
-        : 'Something went wrong.'
+        : t('common.somethingWentWrong')
 
   return (
     <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">

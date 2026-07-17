@@ -1,4 +1,5 @@
 import { type FormEvent, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { FormBanner, FormField } from '@/components/data/entity-form'
 import { Button } from '@/components/ui/button'
@@ -30,14 +31,13 @@ export function OpponentQuickCreate({
   onOpenChange: (open: boolean) => void
   onCreated: (opponent: Opponent) => void
 }) {
+  const { t } = useTranslation()
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New opponent</DialogTitle>
-          <DialogDescription>
-            Add just enough to log the match — you can fill in the rest later.
-          </DialogDescription>
+          <DialogTitle>{t('matches.opponentQuickCreate.title')}</DialogTitle>
+          <DialogDescription>{t('matches.opponentQuickCreate.description')}</DialogDescription>
         </DialogHeader>
         {/* Body lives in its own component so its state resets each time the
             dialog is reopened (it unmounts on close) — no reset effect needed. */}
@@ -56,6 +56,7 @@ function OpponentQuickCreateForm({
   onCreated: (opponent: Opponent) => void
   onCancel: () => void
 }) {
+  const { t } = useTranslation()
   const createOpponent = useCreateOpponent()
   const [lastName, setLastName] = useState('')
   const [firstName, setFirstName] = useState('')
@@ -64,7 +65,9 @@ function OpponentQuickCreateForm({
   const missingLastName = !lastName.trim()
   const serverErrors = fieldErrorsFromApiError(createOpponent.error)
   const lastNameError =
-    touched && missingLastName ? 'Last name is required.' : serverErrors.last_name
+    touched && missingLastName
+      ? t('matches.opponentQuickCreate.lastNameRequired')
+      : serverErrors.last_name
   const bannerMessage =
     createOpponent.isError && Object.keys(serverErrors).length === 0 ? createOpponent.error : null
 
@@ -83,7 +86,11 @@ function OpponentQuickCreateForm({
     <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
       <FormBanner error={bannerMessage} />
 
-      <FormField id="quick-opponent-first-name" label="First name" optional>
+      <FormField
+        id="quick-opponent-first-name"
+        label={t('matches.opponentQuickCreate.firstName')}
+        optional
+      >
         <Input
           id="quick-opponent-first-name"
           value={firstName}
@@ -92,7 +99,11 @@ function OpponentQuickCreateForm({
         />
       </FormField>
 
-      <FormField id="quick-opponent-last-name" label="Last name" error={lastNameError}>
+      <FormField
+        id="quick-opponent-last-name"
+        label={t('matches.opponentQuickCreate.lastName')}
+        error={lastNameError}
+      >
         <Input
           id="quick-opponent-last-name"
           value={lastName}
@@ -105,10 +116,12 @@ function OpponentQuickCreateForm({
 
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button type="submit" disabled={createOpponent.isPending}>
-          {createOpponent.isPending ? 'Adding…' : 'Add opponent'}
+          {createOpponent.isPending
+            ? t('matches.opponentQuickCreate.adding')
+            : t('matches.opponentQuickCreate.addOpponent')}
         </Button>
       </DialogFooter>
     </form>

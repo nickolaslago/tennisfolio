@@ -1,5 +1,6 @@
 import { Download, FileJson, FileSpreadsheet } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
@@ -10,7 +11,8 @@ import { useDocumentTitle } from '@/lib/use-document-title'
 type DownloadKind = 'csv' | 'json'
 
 export function ExportPage() {
-  useDocumentTitle('Export')
+  const { t } = useTranslation()
+  useDocumentTitle(t('export.pageTitle'))
   const [pending, setPending] = useState<DownloadKind | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -20,7 +22,7 @@ export function ExportPage() {
     try {
       await (kind === 'csv' ? downloadCsvExport() : downloadJsonExport())
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Download failed.')
+      setError(err instanceof Error ? err.message : t('export.downloadFailed'))
     } finally {
       setPending(null)
     }
@@ -28,10 +30,7 @@ export function ExportPage() {
 
   return (
     <>
-      <PageHeader
-        title="Export"
-        description="Download every match, opponent, club and tournament you've recorded — no lock-in, take your data with you any time."
-      />
+      <PageHeader title={t('export.pageTitle')} description={t('export.pageDescription')} />
 
       {error ? (
         <div
@@ -47,17 +46,14 @@ export function ExportPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileSpreadsheet aria-hidden="true" className="size-4" />
-              CSV (zipped)
+              {t('export.csv.title')}
             </CardTitle>
-            <CardDescription>
-              Five CSV files — clubs, opponents, tournaments, matches, sets — zipped together. Uses
-              the same column layout the seed importer accepts, so it can be re-imported as-is.
-            </CardDescription>
+            <CardDescription>{t('export.csv.description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={() => void handleDownload('csv')} disabled={pending !== null}>
               <Download aria-hidden="true" data-icon="inline-start" />
-              {pending === 'csv' ? 'Preparing…' : 'Download CSV'}
+              {pending === 'csv' ? t('export.preparing') : t('export.csv.download')}
             </Button>
           </CardContent>
         </Card>
@@ -66,12 +62,9 @@ export function ExportPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileJson aria-hidden="true" className="size-4" />
-              JSON
+              {t('export.json.title')}
             </CardTitle>
-            <CardDescription>
-              A single JSON file with every table, matches nested with their sets. Best for
-              scripting or feeding into another tool.
-            </CardDescription>
+            <CardDescription>{t('export.json.description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Button
@@ -80,14 +73,14 @@ export function ExportPage() {
               disabled={pending !== null}
             >
               <Download aria-hidden="true" data-icon="inline-start" />
-              {pending === 'json' ? 'Preparing…' : 'Download JSON'}
+              {pending === 'json' ? t('export.preparing') : t('export.json.download')}
             </Button>
           </CardContent>
         </Card>
       </div>
 
       <p className="mt-6 text-sm text-muted-foreground">
-        See{' '}
+        {t('export.footerPrefix')}{' '}
         <a
           href="https://github.com/nickolaslago/tennisfolio/blob/main/docs/data-export.md"
           target="_blank"
@@ -96,7 +89,7 @@ export function ExportPage() {
         >
           docs/data-export.md
         </a>{' '}
-        for the full schema of both formats.
+        {t('export.footerSuffix')}
       </p>
     </>
   )

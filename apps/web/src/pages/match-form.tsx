@@ -11,6 +11,8 @@ import {
 import { CalendarClock, CheckCircle2, ChevronLeft, PlusCircle, Trophy } from 'lucide-react'
 import { type FormEvent, useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 
 import { FormBanner, FormField } from '@/components/data/entity-form'
 import { ErrorState, LoadingState } from '@/components/data/query-state'
@@ -107,8 +109,15 @@ type StructuredScore = { score: string } | { error: string }
  * or a gap before a filled set). The result string is still handed to
  * {@link parseScore} for the real tennis validation.
  */
-function readStructuredScore(option: ScoreFormatOption, pairs: ScorePair[]): StructuredScore {
-  const unit = option.kind === 'sets' ? 'set' : 'score'
+function readStructuredScore(
+  option: ScoreFormatOption,
+  pairs: ScorePair[],
+  t: TFunction,
+): StructuredScore {
+  const unit =
+    option.kind === 'sets'
+      ? t('matchForm.validation.units.set')
+      : t('matchForm.validation.units.score')
   const tokens: string[] = []
   let sawEmpty = false
   for (const pair of pairs.slice(0, option.pairs)) {
@@ -119,10 +128,10 @@ function readStructuredScore(option: ScoreFormatOption, pairs: ScorePair[]): Str
       continue
     }
     if (won === '' || lost === '') {
-      return { error: `Fill both numbers for each ${unit}, or clear it.` }
+      return { error: t('matchForm.validation.fillBothNumbers', { unit }) }
     }
     if (sawEmpty) {
-      return { error: 'Only the trailing sets can be left empty.' }
+      return { error: t('matchForm.validation.trailingOnly') }
     }
     tokens.push(`${won}-${lost}`)
   }
@@ -207,7 +216,7 @@ type ScorePreview =
   | { state: 'valid'; result: 'Win' | 'Loss'; formatted: string; setCount: number }
   | { state: 'error'; message: string }
 
-function previewScore(score: string): ScorePreview {
+function previewScore(score: string, t: TFunction): ScorePreview {
   if (!score.trim()) return { state: 'empty' }
   try {
     const sets = parseScore(score)
@@ -220,24 +229,26 @@ function previewScore(score: string): ScorePreview {
   } catch (error) {
     return {
       state: 'error',
-      message: error instanceof InvalidScoreError ? error.message : 'Invalid score.',
+      message:
+        error instanceof InvalidScoreError ? error.message : t('matchForm.validation.invalidScore'),
     }
   }
 }
 
 export function MatchFormPage() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const isComplete = id !== undefined
   const matchId = Number(id)
 
-  useDocumentTitle(isComplete ? 'Complete match' : 'Log match')
+  useDocumentTitle(isComplete ? t('matchForm.titles.complete') : t('matchForm.pageTitleLog'))
 
   const match = useMatch(isComplete ? matchId : NaN)
 
   if (!isComplete) return <MatchForm mode="create" />
 
   if (!Number.isFinite(matchId)) {
-    return <ErrorState error={new Error(`"${id}" is not a valid match id.`)} />
+    return <ErrorState error={new Error(t('matchForm.invalidId', { id }))} />
   }
   if (match.isPending) return <LoadingState />
   if (match.isError) {
@@ -247,6 +258,7 @@ export function MatchFormPage() {
 }
 
 function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match }) {
+  const { t } = useTranslation()
   const isComplete = props.mode === 'complete'
   const location = useLocation()
   const duplicateFrom = isComplete
@@ -303,21 +315,22 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
 
   const scheduleMode = !isComplete && form.scheduleMode
   const scoreFormatOption = formatOptionFor(form.scoreFormat)
-  const structuredScore = readStructuredScore(scoreFormatOption, form.scorePairs)
+  const structuredScore = readStructuredScore(scoreFormatOption, form.scorePairs, t)
   const scoreString = 'score' in structuredScore ? structuredScore.score : ''
   const structuredError = 'error' in structuredScore ? structuredScore.error : undefined
-  const preview = previewScore(scoreString)
+  const preview = previewScore(scoreString, t)
 
   // Client validation, keyed by API field name so server errors merge cleanly.
   const clientErrors: Record<string, string> = {}
-  if (!form.opponentId) clientErrors.opponent_id = 'Pick an opponent.'
-  if (!form.matchDate) clientErrors.match_date = 'Pick a date.'
+  if (!form.opponentId) clientErrors.opponent_id = t('matchForm.validation.pickOpponent')
+  if (!form.matchDate) clientErrors.match_date = t('matchForm.validation.pickDate')
   if (form.durationMin && (!/^\d+$/.test(form.durationMin) || Number(form.durationMin) < 1)) {
-    clientErrors.duration_min = 'Duration must be a whole number of minutes.'
+    clientErrors.duration_min = t('matchForm.validation.durationWhole')
   }
   if (!scheduleMode) {
     if (structuredError) clientErrors.score = structuredError
-    else if (!scoreString.trim()) clientErrors.score = 'Enter a score, or switch to schedule mode.'
+    else if (!scoreString.trim())
+      clientErrors.score = t('matchForm.validation.enterScoreOrSchedule')
     else if (preview.state === 'error') clientErrors.score = preview.message
   }
 
@@ -338,7 +351,8 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
   }
   // The score error may show before a submit attempt — as soon as a field is
   // left with unparseable content (parse-as-you-type feedback).
-  const liveScoreError = structuredError ?? (preview.state === 'error' ? preview.message : undefined)
+  const liveScoreError =
+    structuredError ?? (preview.state === 'error' ? preview.message : undefined)
   const scoreError =
     fieldErrors.score ?? (scoreBlurred && !scheduleMode ? liveScoreError : undefined)
 
@@ -355,7 +369,9 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
   const setScorePair = (index: number, side: 'won' | 'lost', value: string) =>
     setForm((prev) => ({
       ...prev,
-      scorePairs: prev.scorePairs.map((pair, i) => (i === index ? { ...pair, [side]: value } : pair)),
+      scorePairs: prev.scorePairs.map((pair, i) =>
+        i === index ? { ...pair, [side]: value } : pair,
+      ),
     }))
 
   const handleClubChange = (value: string) => {
@@ -428,7 +444,9 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
       <SavedMatchPanel
         match={savedMatch}
         opponentName={
-          savedOpponent ? opponentLabel(savedOpponent) : `Opponent #${savedMatch.opponent_id}`
+          savedOpponent
+            ? opponentLabel(savedOpponent)
+            : t('matchForm.opponentFallback', { id: savedMatch.opponent_id })
         }
         onLogAnother={isComplete ? undefined : handleLogAnother}
       />
@@ -436,19 +454,23 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
   }
 
   const isEditingPlayed = isComplete && props.match.status === 'played'
-  const title = isComplete ? (isEditingPlayed ? 'Edit match' : 'Complete match') : 'Log a match'
+  const title = isComplete
+    ? isEditingPlayed
+      ? t('matchForm.titles.edit')
+      : t('matchForm.titles.complete')
+    : t('matchForm.titles.log')
   const description = isComplete
     ? isEditingPlayed
-      ? 'Update the score or details — sets and result are re-derived automatically.'
-      : 'Add the score to turn this scheduled match into a played result.'
-    : 'Capture a whole match — opponent, sets, and the details — from one screen.'
+      ? t('matchForm.descriptions.edit')
+      : t('matchForm.descriptions.complete')
+    : t('matchForm.descriptions.log')
 
   return (
     <>
       <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
         <Link to={backTo}>
           <ChevronLeft aria-hidden="true" data-icon="inline-start" />
-          {isComplete ? 'Back to match' : 'Back to Matches'}
+          {isComplete ? t('matchForm.backToMatch') : t('matchForm.backToMatches')}
         </Link>
       </Button>
 
@@ -462,22 +484,30 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
             {/* Essentials — opponent, date, and the score (or schedule toggle). */}
             <div className="flex flex-col gap-4">
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormField id="opponent" label="Opponent" error={fieldErrors.opponent_id}>
+                <FormField
+                  id="opponent"
+                  label={t('matches.columns.opponent')}
+                  error={fieldErrors.opponent_id}
+                >
                   <EntitySelect
                     id="opponent"
                     value={form.opponentId}
                     onValueChange={(value) => setField('opponentId', value)}
                     options={opponentOptions}
-                    placeholder="Select opponent"
+                    placeholder={t('matchForm.fields.opponentPlaceholder')}
                     onCreateNew={() => setOpponentDialogOpen(true)}
-                    createLabel="New opponent"
+                    createLabel={t('matchForm.fields.newOpponent')}
                     autoFocus={!isComplete}
                     ariaInvalid={Boolean(fieldErrors.opponent_id)}
                     ariaDescribedby={fieldErrors.opponent_id ? 'opponent-error' : undefined}
                   />
                 </FormField>
 
-                <FormField id="match_date" label="Date" error={fieldErrors.match_date}>
+                <FormField
+                  id="match_date"
+                  label={t('matches.columns.date')}
+                  error={fieldErrors.match_date}
+                >
                   <Input
                     id="match_date"
                     type="date"
@@ -500,19 +530,18 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
                     onChange={(e) => setField('scheduleMode', e.target.checked)}
                   />
                   <CalendarClock className="size-4 text-muted-foreground" aria-hidden="true" />
-                  Schedule for later — save without a score
+                  {t('matchForm.fields.scheduleToggle')}
                 </label>
               ) : null}
 
               {scheduleMode ? (
                 <div className="rounded-lg border border-dashed px-3 py-2.5 text-sm text-muted-foreground">
-                  This match will be saved to your schedule. Add the score later from the Matches
-                  page to see the result.
+                  {t('matchForm.fields.scheduleModeNotice')}
                 </div>
               ) : (
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="score-format">Scoring type</Label>
+                    <Label htmlFor="score-format">{t('matchForm.fields.scoringType')}</Label>
                     <Select
                       value={form.scoreFormat}
                       onValueChange={(value) => setField('scoreFormat', value as ScoreFormat)}
@@ -532,25 +561,27 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
 
                   <div className="flex flex-col gap-2">
                     {scoreFormatOption.kind === 'sets' ? (
-                      form.scorePairs.slice(0, scoreFormatOption.pairs).map((pair, index) => (
-                        <ScorePairRow
-                          key={index}
-                          rowLabel={`Set ${index + 1}`}
-                          wonLabel={`Set ${index + 1} games won`}
-                          lostLabel={`Set ${index + 1} games lost`}
-                          optional={scoreFormatOption.pairs > 1 && index > 0}
-                          pair={pair}
-                          invalid={Boolean(scoreError)}
-                          describedBy={scoreError ? 'score-error' : 'score-hint'}
-                          onChange={(side, value) => setScorePair(index, side, value)}
-                          onBlur={() => setScoreBlurred(true)}
-                        />
-                      ))
+                      form.scorePairs
+                        .slice(0, scoreFormatOption.pairs)
+                        .map((pair, index) => (
+                          <ScorePairRow
+                            key={index}
+                            rowLabel={t('matchForm.fields.setLabel', { n: index + 1 })}
+                            wonLabel={t('matchForm.fields.setGamesWonLabel', { n: index + 1 })}
+                            lostLabel={t('matchForm.fields.setGamesLostLabel', { n: index + 1 })}
+                            optional={scoreFormatOption.pairs > 1 && index > 0}
+                            pair={pair}
+                            invalid={Boolean(scoreError)}
+                            describedBy={scoreError ? 'score-error' : 'score-hint'}
+                            onChange={(side, value) => setScorePair(index, side, value)}
+                            onBlur={() => setScoreBlurred(true)}
+                          />
+                        ))
                     ) : (
                       <ScorePairRow
-                        rowLabel="Points"
-                        wonLabel="Points won"
-                        lostLabel="Points lost"
+                        rowLabel={t('matchForm.fields.pointsLabel')}
+                        wonLabel={t('matchForm.fields.pointsWonLabel')}
+                        lostLabel={t('matchForm.fields.pointsLostLabel')}
                         pair={form.scorePairs[0]}
                         invalid={Boolean(scoreError)}
                         describedBy={scoreError ? 'score-error' : 'score-hint'}
@@ -566,7 +597,7 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
                     </p>
                   ) : preview.state === 'valid' ? (
                     <p id="score-hint" className="text-xs text-muted-foreground">
-                      Reads as a{' '}
+                      {t('matchForm.scorePreview.prefix')}{' '}
                       <span
                         className={
                           preview.result === 'Win'
@@ -576,12 +607,15 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
                       >
                         {preview.result}
                       </span>{' '}
-                      · {preview.formatted} · {preview.setCount} set
-                      {preview.setCount === 1 ? '' : 's'}
+                      ·{' '}
+                      {t('matchForm.scorePreview.summary', {
+                        count: preview.setCount,
+                        formatted: preview.formatted,
+                      })}
                     </p>
                   ) : (
                     <p id="score-hint" className="text-xs text-muted-foreground">
-                      Your games first — fill each set you played.
+                      {t('matchForm.fields.scoreHintDefault')}
                     </p>
                   )}
                 </div>
@@ -591,29 +625,39 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
             {/* Context — club, surface, tournament, stage. */}
             <div className="flex flex-col gap-3">
               <h2 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                Where &amp; what
+                {t('matchForm.sections.whereAndWhat')}
               </h2>
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormField id="club" label="Club" optional error={fieldErrors.club_id}>
+                <FormField
+                  id="club"
+                  label={t('matches.columns.club')}
+                  optional
+                  error={fieldErrors.club_id}
+                >
                   <EntitySelect
                     id="club"
                     value={form.clubId}
                     onValueChange={handleClubChange}
                     options={clubOptions}
-                    placeholder="Select club"
-                    noneLabel="No club"
+                    placeholder={t('matchForm.fields.clubPlaceholder')}
+                    noneLabel={t('matchForm.fields.noClub')}
                     onCreateNew={() => setClubDialogOpen(true)}
-                    createLabel="New club"
+                    createLabel={t('matchForm.fields.newClub')}
                   />
                 </FormField>
 
-                <FormField id="surface" label="Surface" optional error={fieldErrors.surface}>
+                <FormField
+                  id="surface"
+                  label={t('matches.columns.surface')}
+                  optional
+                  error={fieldErrors.surface}
+                >
                   <Select
                     value={form.surface || undefined}
                     onValueChange={(value) => setField('surface', value as Surface)}
                   >
                     <SelectTrigger id="surface" className="w-full">
-                      <SelectValue placeholder="Select surface" />
+                      <SelectValue placeholder={t('matchForm.fields.surfacePlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       {SURFACE_OPTIONS.map((option) => (
@@ -627,7 +671,7 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
 
                 <FormField
                   id="tournament"
-                  label="Tournament"
+                  label={t('matches.columns.tournament')}
                   optional
                   error={fieldErrors.tournament_id}
                 >
@@ -636,23 +680,23 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
                     value={form.tournamentId}
                     onValueChange={(value) => setField('tournamentId', value)}
                     options={tournamentOptions}
-                    placeholder="Friendly (no tournament)"
-                    noneLabel="Friendly (no tournament)"
+                    placeholder={t('matchForm.fields.friendlyNoTournament')}
+                    noneLabel={t('matchForm.fields.friendlyNoTournament')}
                   />
                 </FormField>
 
                 <FormField
                   id="stage"
-                  label="Stage"
+                  label={t('matchForm.fields.stage')}
                   optional
                   error={fieldErrors.stage}
-                  hint="Only for tournaments — e.g. QF, SF, F"
+                  hint={t('matchForm.fields.stageHint')}
                 >
                   <Input
                     id="stage"
                     value={form.stage}
                     onChange={(e) => setField('stage', e.target.value)}
-                    placeholder="e.g. QF"
+                    placeholder={t('matchForm.fields.stagePlaceholder')}
                     disabled={!form.tournamentId}
                     aria-invalid={Boolean(fieldErrors.stage)}
                   />
@@ -663,15 +707,15 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
             {/* Details — duration, notes. */}
             <div className="flex flex-col gap-3">
               <h2 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                Details
+                {t('matchForm.sections.details')}
               </h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 <FormField
                   id="duration_min"
-                  label="Duration"
+                  label={t('matchForm.fields.duration')}
                   optional
                   error={fieldErrors.duration_min}
-                  hint="In minutes"
+                  hint={t('matchForm.fields.durationHint')}
                 >
                   <Input
                     id="duration_min"
@@ -681,36 +725,41 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
                     inputMode="numeric"
                     value={form.durationMin}
                     onChange={(e) => setField('durationMin', e.target.value)}
-                    placeholder="e.g. 90"
+                    placeholder={t('matchForm.fields.durationPlaceholder')}
                     aria-invalid={Boolean(fieldErrors.duration_min)}
                     aria-describedby={fieldErrors.duration_min ? 'duration_min-error' : undefined}
                   />
                 </FormField>
               </div>
 
-              <FormField id="notes" label="Notes" optional error={fieldErrors.notes}>
+              <FormField
+                id="notes"
+                label={t('matchForm.fields.notes')}
+                optional
+                error={fieldErrors.notes}
+              >
                 <Textarea
                   id="notes"
                   value={form.notes}
                   onChange={(e) => setField('notes', e.target.value)}
                   rows={3}
-                  placeholder="How it went, what to work on…"
+                  placeholder={t('matchForm.fields.notesPlaceholder')}
                 />
               </FormField>
             </div>
 
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" asChild>
-                <Link to={backTo}>Cancel</Link>
+                <Link to={backTo}>{t('common.cancel')}</Link>
               </Button>
               <Button type="submit" disabled={mutation.isPending}>
                 {mutation.isPending
-                  ? 'Saving…'
+                  ? t('matchForm.actions.saving')
                   : isComplete
-                    ? 'Save score'
+                    ? t('matchForm.actions.saveScore')
                     : scheduleMode
-                      ? 'Schedule match'
-                      : 'Save match'}
+                      ? t('matchForm.actions.scheduleMatch')
+                      : t('matchForm.actions.saveMatch')}
               </Button>
             </div>
           </form>
@@ -753,6 +802,7 @@ function ScorePairRow({
   onChange: (side: 'won' | 'lost', value: string) => void
   onBlur: () => void
 }) {
+  const { t } = useTranslation()
   // Games/points are one or two digits — keep the fields strictly numeric.
   const sanitize = (value: string) => value.replace(/\D/g, '').slice(0, 2)
   return (
@@ -783,7 +833,9 @@ function ScorePairRow({
         aria-invalid={invalid}
         aria-describedby={describedBy}
       />
-      {optional ? <span className="text-xs text-muted-foreground">optional</span> : null}
+      {optional ? (
+        <span className="text-xs text-muted-foreground">{t('matchForm.fields.setOptional')}</span>
+      ) : null}
     </div>
   )
 }
@@ -798,16 +850,21 @@ function SavedMatchPanel({
   opponentName: string
   onLogAnother?: () => void
 }) {
+  const { t } = useTranslation()
   const isScheduled = match.status === 'scheduled'
 
   return (
     <>
       <PageHeader
-        title={isScheduled ? 'Match scheduled' : 'Match saved'}
+        title={
+          isScheduled
+            ? t('matchForm.savedPanel.scheduledTitle')
+            : t('matchForm.savedPanel.savedTitle')
+        }
         description={
           isScheduled
-            ? 'Saved to your schedule — add the score whenever it’s played.'
-            : 'Here’s the result, derived from the score you entered.'
+            ? t('matchForm.savedPanel.scheduledDescription')
+            : t('matchForm.savedPanel.savedDescription')
         }
       />
 
@@ -827,7 +884,7 @@ function SavedMatchPanel({
             <div className="flex flex-col gap-0.5">
               {isScheduled ? (
                 <span className="cn-font-heading text-xl font-semibold text-highlight">
-                  Scheduled
+                  {t('matches.tabs.scheduled')}
                 </span>
               ) : (
                 <span
@@ -842,7 +899,10 @@ function SavedMatchPanel({
                 </span>
               )}
               <span className="text-sm text-muted-foreground">
-                vs {opponentName} · {match.match_date}
+                {t('matchForm.savedPanel.vsOpponentAndDate', {
+                  opponent: opponentName,
+                  date: match.match_date,
+                })}
               </span>
             </div>
           </div>
@@ -871,19 +931,19 @@ function SavedMatchPanel({
         {onLogAnother ? (
           <Button onClick={onLogAnother}>
             <PlusCircle aria-hidden="true" data-icon="inline-start" />
-            Log another match
+            {t('matchForm.savedPanel.logAnother')}
           </Button>
         ) : null}
         {isScheduled ? (
           <Button variant={onLogAnother ? 'outline' : 'default'} asChild>
             <Link to={`/matches/${match.id}/complete`}>
               <Trophy aria-hidden="true" data-icon="inline-start" />
-              Set score
+              {t('matches.setScore')}
             </Link>
           </Button>
         ) : null}
         <Button variant="outline" asChild>
-          <Link to={`/matches/${match.id}`}>Back to match</Link>
+          <Link to={`/matches/${match.id}`}>{t('matchForm.backToMatch')}</Link>
         </Button>
       </div>
     </>

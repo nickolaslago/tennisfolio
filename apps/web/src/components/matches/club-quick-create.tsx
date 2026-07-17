@@ -1,4 +1,5 @@
 import { type FormEvent, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { FormBanner, FormField } from '@/components/data/entity-form'
 import { Button } from '@/components/ui/button'
@@ -38,14 +39,13 @@ export function ClubQuickCreate({
   onOpenChange: (open: boolean) => void
   onCreated: (club: Club) => void
 }) {
+  const { t } = useTranslation()
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New club</DialogTitle>
-          <DialogDescription>
-            Add just enough to log the match — the surface pre-fills once you pick this club.
-          </DialogDescription>
+          <DialogTitle>{t('matches.clubQuickCreate.title')}</DialogTitle>
+          <DialogDescription>{t('matches.clubQuickCreate.description')}</DialogDescription>
         </DialogHeader>
         {/* Body remounts on each open, so its state starts fresh — no reset effect. */}
         {open ? (
@@ -63,6 +63,7 @@ function ClubQuickCreateForm({
   onCreated: (club: Club) => void
   onCancel: () => void
 }) {
+  const { t } = useTranslation()
   const createClub = useCreateClub()
   const [name, setName] = useState('')
   const [city, setCity] = useState('')
@@ -71,7 +72,8 @@ function ClubQuickCreateForm({
 
   const missingName = !name.trim()
   const serverErrors = fieldErrorsFromApiError(createClub.error)
-  const nameError = touched && missingName ? 'Name is required.' : serverErrors.name
+  const nameError =
+    touched && missingName ? t('matches.clubQuickCreate.nameRequired') : serverErrors.name
   const bannerMessage =
     createClub.isError && Object.keys(serverErrors).length === 0 ? createClub.error : null
 
@@ -90,7 +92,7 @@ function ClubQuickCreateForm({
     <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
       <FormBanner error={bannerMessage} />
 
-      <FormField id="quick-club-name" label="Name" error={nameError}>
+      <FormField id="quick-club-name" label={t('matches.clubQuickCreate.name')} error={nameError}>
         <Input
           id="quick-club-name"
           value={name}
@@ -103,10 +105,13 @@ function ClubQuickCreateForm({
       </FormField>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField id="quick-club-surface" label="Surface" optional>
-          <Select value={surface || undefined} onValueChange={(value) => setSurface(value as Surface)}>
+        <FormField id="quick-club-surface" label={t('matches.columns.surface')} optional>
+          <Select
+            value={surface || undefined}
+            onValueChange={(value) => setSurface(value as Surface)}
+          >
             <SelectTrigger id="quick-club-surface" className="w-full">
-              <SelectValue placeholder="Select surface" />
+              <SelectValue placeholder={t('matchForm.fields.surfacePlaceholder')} />
             </SelectTrigger>
             <SelectContent>
               {SURFACE_OPTIONS.map((option) => (
@@ -118,17 +123,19 @@ function ClubQuickCreateForm({
           </Select>
         </FormField>
 
-        <FormField id="quick-club-city" label="City" optional>
+        <FormField id="quick-club-city" label={t('matches.clubQuickCreate.city')} optional>
           <Input id="quick-club-city" value={city} onChange={(e) => setCity(e.target.value)} />
         </FormField>
       </div>
 
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button type="submit" disabled={createClub.isPending}>
-          {createClub.isPending ? 'Adding…' : 'Add club'}
+          {createClub.isPending
+            ? t('matches.clubQuickCreate.adding')
+            : t('matches.clubQuickCreate.addClub')}
         </Button>
       </DialogFooter>
     </form>

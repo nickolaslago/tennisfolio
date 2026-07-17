@@ -2,6 +2,8 @@ import { TOURNAMENT_FORMAT_OPTIONS, isTournamentFormat } from '@tennisfolio/core
 import { ChevronLeft, Pencil, Trash2, Trophy } from 'lucide-react'
 import { type FormEvent, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 
 import { EntityIcon } from '@/components/data/entity-icon'
 import { EntityIconPicker } from '@/components/data/entity-icon-picker'
@@ -53,7 +55,8 @@ function dateRange(tournament: Tournament) {
 }
 
 export function TournamentsPage() {
-  useDocumentTitle('Tournaments')
+  const { t: translate } = useTranslation()
+  useDocumentTitle(translate('tournaments.pageTitle'))
   const tournaments = useTournaments()
   const clubs = useClubs()
   const deleteTournament = useDeleteTournament()
@@ -71,14 +74,14 @@ export function TournamentsPage() {
       duplicateState={{ duplicate: tournament }}
       onDelete={() => deleteTournament.mutate(tournament.id)}
       deletePending={deleteTournament.isPending}
-      deleteDescription="This permanently removes the tournament. This can't be undone."
+      deleteDescription={translate('tournaments.deleteDescription')}
     />
   )
 
   const columns: EntityColumn<Tournament>[] = [
     {
       id: 'name',
-      header: 'Name',
+      header: translate('tournaments.columns.name'),
       sortValue: (t) => t.name.toLowerCase(),
       cell: (t) => (
         <Link
@@ -92,31 +95,31 @@ export function TournamentsPage() {
     },
     {
       id: 'season',
-      header: 'Season',
+      header: translate('tournaments.columns.season'),
       sortValue: (t) => t.season,
       cell: (t) => t.season ?? '—',
     },
     {
       id: 'tournament_type',
-      header: 'Type',
+      header: translate('tournaments.columns.type'),
       sortValue: (t) => t.tournament_type,
       cell: (t) => t.tournament_type,
     },
     {
       id: 'organiser',
-      header: 'Organiser',
+      header: translate('tournaments.columns.organiser'),
       sortValue: (t) => t.organiser ?? '',
       cell: (t) => t.organiser ?? '—',
     },
     {
       id: 'club',
-      header: 'Host club',
+      header: translate('tournaments.columns.hostClub'),
       sortValue: (t) => clubName(t.club_id),
       cell: (t) => clubName(t.club_id) ?? '—',
     },
     {
       id: 'dates',
-      header: 'Dates',
+      header: translate('tournaments.columns.dates'),
       sortValue: (t) => t.start_date,
       cell: (t) => dateRange(t),
     },
@@ -125,8 +128,8 @@ export function TournamentsPage() {
   return (
     <>
       <PageHeader
-        title="Tournaments"
-        description="Tournaments and leagues you've entered, past and upcoming."
+        title={translate('tournaments.pageTitle')}
+        description={translate('tournaments.pageDescription')}
       />
       <EntityList
         entityKey="tournaments"
@@ -142,13 +145,13 @@ export function TournamentsPage() {
             clubName(t.club_id) ?? ''
           }`
         }
-        searchPlaceholder="Filter tournaments…"
+        searchPlaceholder={translate('tournaments.filterPlaceholder')}
         defaultSort={{ columnId: 'name', direction: 'asc' }}
-        emptyTitle="No tournaments yet"
-        emptyDescription="Add the tournaments and leagues you've entered to start tracking matches by stage."
+        emptyTitle={translate('tournaments.emptyState.title')}
+        emptyDescription={translate('tournaments.emptyState.description')}
         createAction={{
-          label: 'Add tournament',
-          emptyLabel: 'Add your first tournament',
+          label: translate('tournaments.addTournament'),
+          emptyLabel: translate('tournaments.addFirstTournament'),
           to: '/tournaments/new',
           icon: Trophy,
         }}
@@ -167,23 +170,31 @@ export function TournamentsPage() {
               </div>
               <dl className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <dt className="text-muted-foreground">Season</dt>
+                  <dt className="text-muted-foreground">
+                    {translate('tournaments.columns.season')}
+                  </dt>
                   <dd>{t.season ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Type</dt>
+                  <dt className="text-muted-foreground">{translate('tournaments.columns.type')}</dt>
                   <dd>{t.tournament_type}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Organiser</dt>
+                  <dt className="text-muted-foreground">
+                    {translate('tournaments.columns.organiser')}
+                  </dt>
                   <dd>{t.organiser ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Host club</dt>
+                  <dt className="text-muted-foreground">
+                    {translate('tournaments.columns.hostClub')}
+                  </dt>
                   <dd>{clubName(t.club_id) ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Dates</dt>
+                  <dt className="text-muted-foreground">
+                    {translate('tournaments.columns.dates')}
+                  </dt>
                   <dd>{dateRange(t)}</dd>
                 </div>
               </dl>
@@ -200,12 +211,7 @@ type ResultFilter = 'all' | 'wins' | 'losses'
 /** Display order for knockout stages; anything else found on a match falls back after these. */
 const KNOCKOUT_STAGE_ORDER = ['R16', 'QF', 'SF', 'F']
 
-function matchResultLabel(match: Match) {
-  if (!match.result) return 'Scheduled'
-  return match.result === 'Win' ? 'Win' : 'Loss'
-}
-
-function groupByStage(matches: Match[]): { stage: string; matches: Match[] }[] {
+function groupByStage(matches: Match[], t: TFunction): { stage: string; matches: Match[] }[] {
   const known = KNOCKOUT_STAGE_ORDER.filter((stage) => matches.some((m) => m.stage === stage)).map(
     (stage) => ({ stage, matches: matches.filter((m) => m.stage === stage) }),
   )
@@ -225,15 +231,24 @@ function groupByStage(matches: Match[]): { stage: string; matches: Match[] }[] {
   return [
     ...known,
     ...other,
-    ...(unspecified.length > 0 ? [{ stage: 'Unspecified', matches: unspecified }] : []),
+    ...(unspecified.length > 0
+      ? [{ stage: t('tournaments.matches.unspecifiedStage'), matches: unspecified }]
+      : []),
   ]
 }
 
 function MatchesTable({ matches }: { matches: Match[] }) {
+  const { t } = useTranslation()
+
+  const matchResultLabel = (match: Match) => {
+    if (!match.result) return t('matches.tabs.scheduled')
+    return match.result === 'Win' ? 'Win' : 'Loss'
+  }
+
   const columns: EntityColumn<Match>[] = [
     {
       id: 'date',
-      header: 'Date',
+      header: t('matches.columns.date'),
       sortValue: (m) => m.match_date,
       cell: (m) => (
         <Link to={`/matches/${m.id}`} className="font-medium hover:underline">
@@ -243,18 +258,18 @@ function MatchesTable({ matches }: { matches: Match[] }) {
     },
     {
       id: 'score',
-      header: 'Score',
+      header: t('tournaments.matches.columns.score'),
       cell: (m) => m.score ?? '—',
     },
     {
       id: 'result',
-      header: 'Result',
+      header: t('matches.columns.result'),
       sortValue: (m) => m.result ?? '',
       cell: (m) => matchResultLabel(m),
     },
     {
       id: 'surface',
-      header: 'Surface',
+      header: t('matches.columns.surface'),
       sortValue: (m) => m.surface,
       cell: (m) => m.surface ?? '—',
     },
@@ -287,18 +302,19 @@ function MatchesTable({ matches }: { matches: Match[] }) {
 }
 
 function StandingsTable({ rows }: { rows: StandingsRow[] }) {
+  const { t } = useTranslation()
   return (
     <Card>
       <CardContent className="p-0">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Opponent</TableHead>
-              <TableHead>W</TableHead>
-              <TableHead>L</TableHead>
-              <TableHead>Win %</TableHead>
-              <TableHead>Sets</TableHead>
-              <TableHead>Games</TableHead>
+              <TableHead>{t('tournaments.standings.columns.opponent')}</TableHead>
+              <TableHead>{t('tournaments.standings.columns.wins')}</TableHead>
+              <TableHead>{t('tournaments.standings.columns.losses')}</TableHead>
+              <TableHead>{t('tournaments.standings.columns.winPct')}</TableHead>
+              <TableHead>{t('tournaments.standings.columns.sets')}</TableHead>
+              <TableHead>{t('tournaments.standings.columns.games')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -330,11 +346,14 @@ function StandingsTable({ rows }: { rows: StandingsRow[] }) {
 }
 
 function TournamentStandings({ tournamentId }: { tournamentId: number }) {
+  const { t } = useTranslation()
   const standings = useTournamentStandings(tournamentId)
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="cn-font-heading text-lg font-semibold">Standings</h2>
+      <h2 className="cn-font-heading text-lg font-semibold">
+        {t('tournaments.standings.heading')}
+      </h2>
 
       {standings.isPending ? (
         <LoadingState />
@@ -342,8 +361,8 @@ function TournamentStandings({ tournamentId }: { tournamentId: number }) {
         <ErrorState error={standings.error} onRetry={() => void standings.refetch()} />
       ) : standings.data.length === 0 ? (
         <EmptyState
-          title="No standings yet"
-          description="Play a match in this league to see the standings table."
+          title={t('tournaments.standings.emptyState.title')}
+          description={t('tournaments.standings.emptyState.description')}
         />
       ) : (
         <StandingsTable rows={standings.data} />
@@ -353,6 +372,7 @@ function TournamentStandings({ tournamentId }: { tournamentId: number }) {
 }
 
 function TournamentMatches({ tournament }: { tournament: Tournament }) {
+  const { t } = useTranslation()
   const matches = useMatches({ tournament_id: tournament.id })
   const [filter, setFilter] = useState<ResultFilter>('all')
 
@@ -367,15 +387,17 @@ function TournamentMatches({ tournament }: { tournament: Tournament }) {
   const losses = items.filter((m) => m.result === 'Loss').length
 
   const isKnockout = tournament.tournament_type === 'Knockout Tournament'
-  const groups = isKnockout ? groupByStage(filtered) : null
+  const groups = isKnockout ? groupByStage(filtered, t) : null
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="cn-font-heading text-lg font-semibold">Matches</h2>
+        <h2 className="cn-font-heading text-lg font-semibold">
+          {t('tournaments.matches.heading')}
+        </h2>
         {matches.isPending || matches.isError ? null : (
           <p className="text-sm text-muted-foreground">
-            {wins}–{losses} ({items.length} match{items.length === 1 ? '' : 'es'})
+            {t('tournaments.matches.recordSummary', { wins, losses, count: items.length })}
           </p>
         )}
       </div>
@@ -386,17 +408,21 @@ function TournamentMatches({ tournament }: { tournament: Tournament }) {
         <ErrorState error={matches.error} onRetry={() => void matches.refetch()} />
       ) : items.length === 0 ? (
         <EmptyState
-          title="No matches yet"
-          description="Matches played in this tournament will show up here."
+          title={t('tournaments.matches.emptyState.title')}
+          description={t('tournaments.matches.emptyState.description')}
         />
       ) : (
         <>
-          <div role="group" aria-label="Filter by result" className="flex gap-2">
+          <div
+            role="group"
+            aria-label={t('tournaments.matches.filterByResultLabel')}
+            className="flex gap-2"
+          >
             {(
               [
-                { value: 'all', label: 'All' },
-                { value: 'wins', label: 'Wins' },
-                { value: 'losses', label: 'Losses' },
+                { value: 'all', label: t('tournaments.matches.filters.all') },
+                { value: 'wins', label: t('tournaments.matches.filters.wins') },
+                { value: 'losses', label: t('tournaments.matches.filters.losses') },
               ] as const
             ).map((option) => (
               <Button
@@ -414,7 +440,7 @@ function TournamentMatches({ tournament }: { tournament: Tournament }) {
 
           {filtered.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              No matches for this filter.
+              {t('tournaments.matches.noFilterMatches')}
             </p>
           ) : groups ? (
             <div className="flex flex-col gap-6">
@@ -435,25 +461,28 @@ function TournamentMatches({ tournament }: { tournament: Tournament }) {
 }
 
 export function TournamentDetailPage() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const tournamentId = Number(id)
   const tournament = useTournament(tournamentId)
   const club = useClub(tournament.data?.club_id ?? NaN)
   const deleteTournament = useDeleteTournament()
   const navigate = useNavigate()
-  useDocumentTitle(tournament.data ? tournament.data.name : 'Tournament')
+  useDocumentTitle(
+    tournament.data ? tournament.data.name : t('tournaments.detail.pageTitleFallback'),
+  )
 
   return (
     <>
       <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
         <Link to="/tournaments">
           <ChevronLeft aria-hidden="true" data-icon="inline-start" />
-          Back to Tournaments
+          {t('tournaments.detail.backToTournaments')}
         </Link>
       </Button>
 
       {!Number.isFinite(tournamentId) ? (
-        <ErrorState error={new Error(`"${id}" is not a valid tournament id.`)} />
+        <ErrorState error={new Error(t('tournaments.detail.invalidId', { id }))} />
       ) : tournament.isPending ? (
         <LoadingState />
       ) : tournament.isError ? (
@@ -470,7 +499,7 @@ export function TournamentDetailPage() {
               <Button variant="outline" size="sm" asChild>
                 <Link to={`/tournaments/${tournament.data.id}/edit`}>
                   <Pencil aria-hidden="true" data-icon="inline-start" />
-                  Edit
+                  {t('common.rowActions.edit')}
                 </Link>
               </Button>
               <Button
@@ -484,7 +513,7 @@ export function TournamentDetailPage() {
                 }}
               >
                 <Trash2 aria-hidden="true" data-icon="inline-start" />
-                Delete
+                {t('common.rowActions.delete')}
               </Button>
             </div>
           </div>
@@ -492,23 +521,23 @@ export function TournamentDetailPage() {
             <CardContent>
               <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
                 <div>
-                  <dt className="text-muted-foreground">Season</dt>
+                  <dt className="text-muted-foreground">{t('tournaments.columns.season')}</dt>
                   <dd>{tournament.data.season ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Type</dt>
+                  <dt className="text-muted-foreground">{t('tournaments.columns.type')}</dt>
                   <dd>{tournament.data.tournament_type}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Format</dt>
+                  <dt className="text-muted-foreground">{t('tournaments.detail.format')}</dt>
                   <dd>{tournament.data.format ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Organiser</dt>
+                  <dt className="text-muted-foreground">{t('tournaments.columns.organiser')}</dt>
                   <dd>{tournament.data.organiser ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Host club</dt>
+                  <dt className="text-muted-foreground">{t('tournaments.columns.hostClub')}</dt>
                   <dd>
                     {tournament.data.club_id === null ? (
                       '—'
@@ -522,11 +551,11 @@ export function TournamentDetailPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Dates</dt>
+                  <dt className="text-muted-foreground">{t('tournaments.columns.dates')}</dt>
                   <dd>{dateRange(tournament.data)}</dd>
                 </div>
                 <div className="col-span-2 sm:col-span-3">
-                  <dt className="text-muted-foreground">Notes</dt>
+                  <dt className="text-muted-foreground">{t('tournaments.detail.notes')}</dt>
                   <dd>{tournament.data.notes ?? '—'}</dd>
                 </div>
               </dl>
@@ -546,10 +575,12 @@ export function TournamentDetailPage() {
   )
 }
 
-const TOURNAMENT_TYPE_OPTIONS: { value: TournamentType; label: string }[] = [
-  { value: 'Knockout Tournament', label: 'Knockout Tournament' },
-  { value: 'Ranking League', label: 'Ranking League' },
-]
+function tournamentTypeOptions(t: TFunction): { value: TournamentType; label: string }[] {
+  return [
+    { value: 'Knockout Tournament', label: t('tournaments.form.typeKnockout') },
+    { value: 'Ranking League', label: t('tournaments.form.typeRanking') },
+  ]
+}
 
 /** Sentinel select value for "no host club" — Radix Select item values can't be an empty string. */
 const NO_CLUB_VALUE = 'none'
@@ -613,29 +644,30 @@ function toPayload(form: TournamentFormState): TournamentCreate {
   }
 }
 
-function validate(form: TournamentFormState): Record<string, string> {
+function validate(form: TournamentFormState, t: TFunction): Record<string, string> {
   const errors: Record<string, string> = {}
-  if (!form.name.trim()) errors.name = 'Name is required.'
-  if (!form.tournament_type) errors.tournament_type = 'Tournament type is required.'
+  if (!form.name.trim()) errors.name = t('tournaments.form.nameRequired')
+  if (!form.tournament_type) errors.tournament_type = t('tournaments.form.typeRequired')
   if (form.start_date && form.end_date && form.start_date > form.end_date) {
-    errors.end_date = 'End date must be on or after the start date.'
+    errors.end_date = t('tournaments.form.endDateAfterStart')
   }
   return errors
 }
 
 export function TournamentFormPage() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const isEdit = id !== undefined
   const tournamentId = Number(id)
 
-  useDocumentTitle(isEdit ? 'Edit tournament' : 'Add tournament')
+  useDocumentTitle(isEdit ? t('tournaments.form.editTitle') : t('tournaments.addTournament'))
 
   const tournament = useTournament(isEdit ? tournamentId : NaN)
 
   if (!isEdit) return <TournamentForm mode="create" />
 
   if (!Number.isFinite(tournamentId)) {
-    return <ErrorState error={new Error(`"${id}" is not a valid tournament id.`)} />
+    return <ErrorState error={new Error(t('tournaments.detail.invalidId', { id }))} />
   }
   if (tournament.isPending) return <LoadingState />
   if (tournament.isError) {
@@ -645,6 +677,7 @@ export function TournamentFormPage() {
 }
 
 function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: Tournament }) {
+  const { t } = useTranslation()
   const isEdit = props.mode === 'edit'
   const tournamentId = isEdit ? props.tournament.id : NaN
   const navigate = useNavigate()
@@ -675,7 +708,7 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
   const [touched, setTouched] = useState(false)
 
   const mutation = isEdit ? updateTournament : createTournament
-  const clientErrors = validate(form)
+  const clientErrors = validate(form, t)
   const serverErrors = fieldErrorsFromApiError(mutation.error)
   const errors = touched ? { ...serverErrors, ...clientErrors } : serverErrors
   const bannerMessage =
@@ -711,13 +744,15 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
       <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
         <Link to={backTo}>
           <ChevronLeft aria-hidden="true" data-icon="inline-start" />
-          {isEdit ? 'Back to tournament' : 'Back to Tournaments'}
+          {isEdit
+            ? t('tournaments.form.backToTournament')
+            : t('tournaments.detail.backToTournaments')}
         </Link>
       </Button>
 
       <PageHeader
-        title={isEdit ? 'Edit tournament' : 'Add tournament'}
-        description="Tournaments and leagues you've entered, past and upcoming."
+        title={isEdit ? t('tournaments.form.editTitle') : t('tournaments.addTournament')}
+        description={t('tournaments.pageDescription')}
       />
 
       <Card>
@@ -725,12 +760,17 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
           <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
             <FormBanner error={bannerMessage} />
 
-            <FormField id="icon" label="Icon" optional>
+            <FormField id="icon" label={t('tournaments.form.icon')} optional>
               <EntityIconPicker value={form.icon} onChange={(icon) => setForm({ ...form, icon })} />
             </FormField>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField id="name" label="Name" error={errors.name} className="sm:col-span-2">
+              <FormField
+                id="name"
+                label={t('tournaments.columns.name')}
+                error={errors.name}
+                className="sm:col-span-2"
+              >
                 <Input
                   id="name"
                   value={form.name}
@@ -741,19 +781,24 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
                 />
               </FormField>
 
-              <FormField id="season" label="Season" optional error={errors.season}>
+              <FormField
+                id="season"
+                label={t('tournaments.columns.season')}
+                optional
+                error={errors.season}
+              >
                 <Input
                   id="season"
                   value={form.season}
                   onChange={(e) => setForm({ ...form, season: e.target.value })}
                   aria-invalid={Boolean(errors.season)}
-                  placeholder="e.g. 2026"
+                  placeholder={t('tournaments.form.seasonPlaceholder')}
                 />
               </FormField>
 
               <FormField
                 id="tournament_type"
-                label="Tournament type"
+                label={t('tournaments.form.typeLabel')}
                 error={errors.tournament_type}
               >
                 <Select
@@ -767,10 +812,10 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
                     className="w-full"
                     aria-invalid={Boolean(errors.tournament_type)}
                   >
-                    <SelectValue placeholder="Select tournament type" />
+                    <SelectValue placeholder={t('tournaments.form.typePlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {TOURNAMENT_TYPE_OPTIONS.map((option) => (
+                    {tournamentTypeOptions(t).map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
@@ -779,7 +824,12 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
                 </Select>
               </FormField>
 
-              <FormField id="format" label="Format" optional error={errors.format}>
+              <FormField
+                id="format"
+                label={t('tournaments.form.formatLabel')}
+                optional
+                error={errors.format}
+              >
                 <Select
                   value={customFormat ? CUSTOM_FORMAT_VALUE : form.format}
                   onValueChange={(value) => {
@@ -797,7 +847,7 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
                     className="w-full"
                     aria-invalid={Boolean(errors.format)}
                   >
-                    <SelectValue placeholder="Select format" />
+                    <SelectValue placeholder={t('tournaments.form.formatPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {TOURNAMENT_FORMAT_OPTIONS.map((option) => (
@@ -805,7 +855,9 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
                         {option}
                       </SelectItem>
                     ))}
-                    <SelectItem value={CUSTOM_FORMAT_VALUE}>Custom</SelectItem>
+                    <SelectItem value={CUSTOM_FORMAT_VALUE}>
+                      {t('tournaments.form.formatCustom')}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 {customFormat && (
@@ -814,23 +866,33 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
                     className="mt-2"
                     value={form.format}
                     onChange={(e) => setForm({ ...form, format: e.target.value })}
-                    aria-label="Custom format"
-                    placeholder="e.g. Round robin, then knockout"
+                    aria-label={t('tournaments.form.customFormatLabel')}
+                    placeholder={t('tournaments.form.customFormatPlaceholder')}
                   />
                 )}
               </FormField>
 
-              <FormField id="organiser" label="Organiser" optional error={errors.organiser}>
+              <FormField
+                id="organiser"
+                label={t('tournaments.columns.organiser')}
+                optional
+                error={errors.organiser}
+              >
                 <Input
                   id="organiser"
                   value={form.organiser}
                   onChange={(e) => setForm({ ...form, organiser: e.target.value })}
                   aria-invalid={Boolean(errors.organiser)}
-                  placeholder="e.g. Riverside Tennis Club"
+                  placeholder={t('tournaments.form.organiserPlaceholder')}
                 />
               </FormField>
 
-              <FormField id="club_id" label="Host club" optional error={errors.club_id}>
+              <FormField
+                id="club_id"
+                label={t('tournaments.columns.hostClub')}
+                optional
+                error={errors.club_id}
+              >
                 <Select
                   value={form.club_id || NO_CLUB_VALUE}
                   onValueChange={(value) =>
@@ -838,10 +900,12 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
                   }
                 >
                   <SelectTrigger id="club_id" className="w-full">
-                    <SelectValue placeholder="Select host club" />
+                    <SelectValue placeholder={t('tournaments.form.hostClubPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={NO_CLUB_VALUE}>No host club</SelectItem>
+                    <SelectItem value={NO_CLUB_VALUE}>
+                      {t('tournaments.form.noHostClub')}
+                    </SelectItem>
                     {clubOptions.map((c) => (
                       <SelectItem key={c.id} value={String(c.id)}>
                         {c.name}
@@ -851,7 +915,12 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
                 </Select>
               </FormField>
 
-              <FormField id="start_date" label="Start date" optional error={errors.start_date}>
+              <FormField
+                id="start_date"
+                label={t('tournaments.form.startDate')}
+                optional
+                error={errors.start_date}
+              >
                 <Input
                   id="start_date"
                   type="date"
@@ -861,7 +930,12 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
                 />
               </FormField>
 
-              <FormField id="end_date" label="End date" optional error={errors.end_date}>
+              <FormField
+                id="end_date"
+                label={t('tournaments.form.endDate')}
+                optional
+                error={errors.end_date}
+              >
                 <Input
                   id="end_date"
                   type="date"
@@ -872,7 +946,13 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
               </FormField>
             </div>
 
-            <FormField id="notes" label="Notes" optional error={errors.notes} className="w-full">
+            <FormField
+              id="notes"
+              label={t('tournaments.detail.notes')}
+              optional
+              error={errors.notes}
+              className="w-full"
+            >
               <Textarea
                 id="notes"
                 value={form.notes}
@@ -884,10 +964,10 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
 
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" asChild>
-                <Link to={backTo}>Cancel</Link>
+                <Link to={backTo}>{t('common.cancel')}</Link>
               </Button>
               <Button type="submit" disabled={mutation.isPending}>
-                {isEdit ? 'Save changes' : 'Add tournament'}
+                {isEdit ? t('tournaments.form.saveChanges') : t('tournaments.addTournament')}
               </Button>
             </div>
           </form>

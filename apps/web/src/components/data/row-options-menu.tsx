@@ -1,6 +1,7 @@
 import { MoreHorizontal } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 import {
   AlertDialog,
@@ -43,12 +44,17 @@ export function RowOptionsMenu({
   deleteDescription,
 }: RowOptionsMenuProps) {
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const { t } = useTranslation()
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon-sm" aria-label={`Actions for ${label}`}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t('common.rowActions.actionsFor', { label })}
+          >
             <MoreHorizontal aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
@@ -61,15 +67,15 @@ export function RowOptionsMenu({
           }}
         >
           <DropdownMenuItem asChild>
-            <Link to={editTo}>Edit</Link>
+            <Link to={editTo}>{t('common.rowActions.edit')}</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link to={duplicateTo} state={duplicateState}>
-              Duplicate
+              {t('common.rowActions.duplicate')}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem variant="destructive" onSelect={() => setConfirmOpen(true)}>
-            Delete
+            {t('common.rowActions.delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -77,11 +83,13 @@ export function RowOptionsMenu({
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {label}?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t('common.rowActions.deleteConfirmTitle', { label })}
+            </AlertDialogTitle>
             <AlertDialogDescription>{deleteDescription}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               disabled={deletePending}
               onClick={() => {
@@ -89,7 +97,7 @@ export function RowOptionsMenu({
                 setConfirmOpen(false)
               }}
             >
-              Delete
+              {t('common.rowActions.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
