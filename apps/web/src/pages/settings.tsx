@@ -5,15 +5,27 @@ import {
   Monitor,
   Moon,
   Sun,
+  Upload,
   type LucideIcon,
 } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { useState, type ChangeEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PageHeader } from '@/components/layout/page-header'
 import { TimezoneCombobox } from '@/components/settings/timezone-combobox'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
@@ -26,6 +38,7 @@ import {
 import { useTheme, type Theme } from '@/hooks/use-theme'
 import { useTimezone } from '@/hooks/use-timezone'
 import { downloadCsvExport, downloadJsonExport } from '@/lib/api/export'
+import { importData, type ImportResult } from '@/lib/api/import'
 import { useDocumentTitle } from '@/lib/use-document-title'
 import i18n from '@/i18n'
 
@@ -132,6 +145,128 @@ function AppearanceSection() {
   )
 }
 
+function ImportSubsection() {
+  const { t } = useTranslation()
+  // The file input is remounted (via this key) to clear its selected file —
+  // it's a plain function component (not forwardRef), so a ref can't reach
+  // its DOM node to reset `.value` directly.
+  const [fileInputKey, setFileInputKey] = useState(0)
+  const [file, setFile] = useState<File | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [result, setResult] = useState<ImportResult | null>(null)
+
+  const resetFileInput = () => {
+    setFile(null)
+    setFileInputKey((key) => key + 1)
+  }
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const selected = event.target.files?.[0] ?? null
+    setError(null)
+    setResult(null)
+    if (selected) {
+      setFile(selected)
+      setConfirmOpen(true)
+    }
+  }
+
+  const handleConfirm = async () => {
+    if (!file) return
+    setConfirmOpen(false)
+    setPending(true)
+    try {
+      setResult(await importData(file))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('import.importFailed'))
+    } finally {
+      setPending(false)
+      resetFileInput()
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-3 border-t pt-5">
+      <div>
+        <h3 className="flex items-center gap-2 font-medium">
+          <Upload aria-hidden="true" className="size-4" />
+          {t('import.title')}
+        </h3>
+        <p className="text-sm text-muted-foreground">{t('import.description')}</p>
+      </div>
+
+      {error ? (
+        <div
+          role="alert"
+          className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
+          {error}
+        </div>
+      ) : null}
+
+      {result ? (
+        <div
+          role="status"
+          className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm"
+        >
+          <p className="font-medium">{t('import.successTitle')}</p>
+          <p className="text-muted-foreground">
+            {t('import.successSummary', {
+              clubs: result.clubs,
+              opponents: result.opponents,
+              tournaments: result.tournaments,
+              matches: result.matches,
+              sets: result.sets,
+            })}
+          </p>
+          {result.skipped.length > 0 ? (
+            <p className="text-muted-foreground">
+              {t('import.successSkipped', { count: result.skipped.length })}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div className="flex flex-col gap-1.5 sm:max-w-sm">
+        <Label htmlFor="settings-import-file">{t('import.filePickerLabel')}</Label>
+        <Input
+          key={fileInputKey}
+          id="settings-import-file"
+          type="file"
+          accept=".json,.zip,application/json,application/zip"
+          onChange={handleFileChange}
+          disabled={pending}
+        />
+      </div>
+      {pending ? <p className="text-sm text-muted-foreground">{t('import.importing')}</p> : null}
+
+      <AlertDialog
+        open={confirmOpen}
+        onOpenChange={(open) => {
+          setConfirmOpen(open)
+          if (!open) resetFileInput()
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('import.confirmTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('import.confirmDescription', { filename: file?.name ?? '' })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => void handleConfirm()}>
+              {t('import.confirmAction')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  )
+}
+
 type DownloadKind = 'csv' | 'json'
 
 function BackupExportSection() {
@@ -215,6 +350,8 @@ function BackupExportSection() {
         </a>{' '}
         {t('export.footerSuffix')}
       </p>
+
+      <ImportSubsection />
     </SettingsSection>
   )
 }
