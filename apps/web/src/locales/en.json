@@ -77,7 +77,9 @@
     "winRateBySurface": {
       "title": "Win rate by surface",
       "description": "How results vary across the surfaces you've played on.",
-      "empty": "No surface breakdown yet — log matches with a surface to see this."
+      "empty": "No surface breakdown yet — log matches with a surface to see this.",
+      "winRate": "Win rate",
+      "matchesPlayed": "Matches played"
     },
     "resultsDistribution": {
       "title": "Results distribution",
@@ -90,7 +92,9 @@
     "winRateOverTime": {
       "title": "Win rate over time",
       "description": "Monthly win rate across every played match.",
-      "empty": "Play a few matches to see your form trend here."
+      "empty": "Play a few matches to see your form trend here.",
+      "winRate": "Win rate",
+      "matchesPlayed": "Matches played"
     },
     "nextEvents": {
       "upcomingMatches": {
