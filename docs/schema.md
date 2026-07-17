@@ -1,6 +1,6 @@
 # Tennisfolio data model
 
-The API persists five core entities in PostgreSQL. Results and score strings are
+The API persists six core entities in PostgreSQL. Results and score strings are
 **derived, never stored** — see [Derived data](#derived-data-never-stored).
 
 Models live in [`apps/api/src/app/models/`](../apps/api/src/app/models); the schema
@@ -12,8 +12,10 @@ is created by the Alembic migration chain in
 ```mermaid
 erDiagram
     OPPONENTS ||--o{ MATCHES : "played against"
+    CLUBS ||--o{ COURTS : "owns"
     CLUBS ||--o{ MATCHES : "hosted at"
     CLUBS ||--o{ TOURNAMENTS : "hosts"
+    COURTS ||--o{ MATCHES : "played on"
     TOURNAMENTS ||--o{ MATCHES : "part of"
     MATCHES ||--o{ SETS : "broken into"
 
@@ -34,8 +36,16 @@ erDiagram
         int id PK
         string name "indexed, required"
         string city
-        enum surface "Hard | Clay | Grass | Carpet"
-        enum environment "Indoor | Outdoor"
+        string country
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    COURTS {
+        int id PK
+        int club_id FK "required"
+        enum surface "Hard | Clay | Grass | Carpet, required"
+        enum environment "Indoor | Outdoor, required"
         timestamptz created_at
         timestamptz updated_at
     }
@@ -59,9 +69,9 @@ erDiagram
         date match_date "indexed, required"
         int opponent_id FK "required"
         int club_id FK "nullable"
+        int court_id FK "nullable, must belong to club"
         int tournament_id FK "nullable → friendly"
         string stage
-        enum surface "actual surface played"
         int duration_min
         text notes
         enum status "played | scheduled, default played"
@@ -97,9 +107,11 @@ Native PostgreSQL enum types. Human-readable strings are stored (via
 
 | Child → Parent | Column | On delete | Rationale |
 | --- | --- | --- | --- |
+| `courts` → `clubs` | `club_id` (required) | `CASCADE` | A court has no meaning without its club; delete a club's courts with it. |
 | `tournaments` → `clubs` | `club_id` (nullable) | `SET NULL` | The host club is optional; removing a club shouldn't delete its tournaments. |
 | `matches` → `opponents` | `opponent_id` (required) | `RESTRICT` | A match is meaningless without its opponent; block deletes that would orphan matches. |
 | `matches` → `clubs` | `club_id` (nullable) | `SET NULL` | Venue is optional context. |
+| `matches` → `courts` | `court_id` (nullable) | `SET NULL` | The specific court is optional context; a match validates that its court belongs to its club. |
 | `matches` → `tournaments` | `tournament_id` (nullable) | `SET NULL` | A null tournament means a friendly; removing a tournament demotes its matches to friendlies rather than deleting them. |
 | `sets` → `matches` | `match_id` (required) | `CASCADE` | Sets have no meaning without their match; delete them with it. |
 
@@ -107,9 +119,12 @@ Native PostgreSQL enum types. Human-readable strings are stored (via
 
 - **Indexes**: `opponents.last_name`, `clubs.name`, `tournaments.name`,
   `matches.match_date`, and every foreign-key column
-  (`tournaments.club_id`, `matches.opponent_id`, `matches.club_id`,
-  `matches.tournament_id`, `sets.match_id`).
-- **Unique**: `(match_id, set_no)` on `sets` — a match can't have two "set 2"s.
+  (`courts.club_id`, `tournaments.club_id`, `matches.opponent_id`,
+  `matches.club_id`, `matches.court_id`, `matches.tournament_id`,
+  `sets.match_id`).
+- **Unique**: `(match_id, set_no)` on `sets` — a match can't have two "set 2"s;
+  `(club_id, surface, environment)` on `courts` — a club can't have two
+  identical courts.
 - **Audit columns**: every table except `sets` carries `created_at` / `updated_at`
   (`timestamptz`, server-defaulted to `now()`; `updated_at` bumped on update).
 

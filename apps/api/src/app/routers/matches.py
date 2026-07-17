@@ -13,7 +13,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
 from app.db import DbSession
-from app.models import Club, Match, Opponent, Set, Tournament
+from app.models import Club, Court, Match, Opponent, Set, Tournament
 from app.models.enums import MatchStatus, Surface
 from app.routers.common import get_or_404
 from app.schemas.common import Page
@@ -55,6 +55,18 @@ def _check_related_exist(db: DbSession, data: dict) -> None:
         get_or_404(db, Tournament, data["tournament_id"], "Tournament")
 
 
+def _validate_court(db: DbSession, club_id: int | None, court_id: int | None) -> None:
+    """A match's court must exist and belong to the match's own club."""
+    if court_id is None:
+        return
+    court = get_or_404(db, Court, court_id, "Court")
+    if club_id is None or court.club_id != club_id:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Court does not belong to the match's club.",
+        )
+
+
 def _set_rows(scored: list[ScoredSet]) -> list[Set]:
     return [
         Set(
@@ -84,9 +96,10 @@ def _to_read(match: Match) -> MatchRead:
         match_date=match.match_date,
         opponent_id=match.opponent_id,
         club_id=match.club_id,
+        court_id=match.court_id,
         tournament_id=match.tournament_id,
         stage=match.stage,
-        surface=match.surface,
+        surface=match.court.surface if match.court is not None else None,
         duration_min=match.duration_min,
         notes=match.notes,
         status=match.status,
@@ -103,6 +116,7 @@ def _to_read(match: Match) -> MatchRead:
 def create_match(payload: MatchCreate, db: DbSession) -> MatchRead:
     data = payload.model_dump(exclude={"score", "sets"})
     _check_related_exist(db, data)
+    _validate_court(db, data.get("club_id"), data.get("court_id"))
 
     has_result = payload.score is not None or payload.sets is not None
     scored = _parse_sets(payload.score, payload.sets) if has_result else []
@@ -141,7 +155,7 @@ def list_matches(
     if tournament_id is not None:
         stmt = stmt.where(Match.tournament_id == tournament_id)
     if surface is not None:
-        stmt = stmt.where(Match.surface == surface)
+        stmt = stmt.join(Court, Match.court_id == Court.id).where(Court.surface == surface)
     if match_status is not None:
         stmt = stmt.where(Match.status == match_status)
     if date_from is not None:
@@ -151,7 +165,7 @@ def list_matches(
 
     total = db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
     rows = db.scalars(
-        stmt.options(selectinload(Match.sets))
+        stmt.options(selectinload(Match.sets), selectinload(Match.court))
         .order_by(Match.match_date.desc(), Match.id.desc())
         .limit(limit)
         .offset(offset)
@@ -172,6 +186,9 @@ def update_match(match_id: int, payload: MatchUpdate, db: DbSession) -> MatchRea
     data.pop("score", None)
     data.pop("sets", None)
     _check_related_exist(db, data)
+    effective_club_id = data["club_id"] if "club_id" in data else match.club_id
+    effective_court_id = data["court_id"] if "court_id" in data else match.court_id
+    _validate_court(db, effective_club_id, effective_court_id)
 
     if score_touched:
         if payload.score is None and payload.sets is None:

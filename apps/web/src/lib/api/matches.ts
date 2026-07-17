@@ -26,8 +26,10 @@ export interface Match {
   match_date: string
   opponent_id: number
   club_id: number | null
+  court_id: number | null
   tournament_id: number | null
   stage: string | null
+  /** Derived from the match's court (read-only). */
   surface: Surface | null
   duration_min: number | null
   notes: string | null
@@ -44,9 +46,9 @@ export interface MatchCreate {
   match_date: string
   opponent_id: number
   club_id?: number | null
+  court_id?: number | null
   tournament_id?: number | null
   stage?: string | null
-  surface?: Surface | null
   duration_min?: number | null
   notes?: string | null
   score?: string | null

@@ -23,7 +23,7 @@ from typing import Literal
 from sqlalchemy import Select, case, extract, func, literal, select
 from sqlalchemy.orm import Session
 
-from app.models import Club, Match, Opponent, Set, Tournament
+from app.models import Club, Court, Match, Opponent, Set, Tournament
 from app.models.enums import Surface
 from app.schemas.stats import (
     ClubWinRate,
@@ -76,27 +76,33 @@ def _played_matches(filters: StatsFilters) -> Select:
         (sets_agg.c.sets_won > sets_agg.c.sets_lost, literal(WIN)), else_=literal(LOSS)
     )
 
-    stmt = select(
-        Match.id.label("match_id"),
-        Match.match_date.label("match_date"),
-        Match.surface.label("surface"),
-        Match.opponent_id.label("opponent_id"),
-        Match.club_id.label("club_id"),
-        Match.tournament_id.label("tournament_id"),
-        sets_agg.c.sets_won,
-        sets_agg.c.sets_lost,
-        sets_agg.c.games_won,
-        sets_agg.c.games_lost,
-        sets_agg.c.total_sets,
-        result_expr.label("result"),
-    ).join(sets_agg, sets_agg.c.match_id == Match.id)
+    stmt = (
+        select(
+            Match.id.label("match_id"),
+            Match.match_date.label("match_date"),
+            Court.surface.label("surface"),
+            Match.opponent_id.label("opponent_id"),
+            Match.club_id.label("club_id"),
+            Match.tournament_id.label("tournament_id"),
+            sets_agg.c.sets_won,
+            sets_agg.c.sets_lost,
+            sets_agg.c.games_won,
+            sets_agg.c.games_lost,
+            sets_agg.c.total_sets,
+            result_expr.label("result"),
+        )
+        .join(sets_agg, sets_agg.c.match_id == Match.id)
+        # Surface is derived through the court; left join so matches without a
+        # court still count everywhere except the by-surface breakdown.
+        .outerjoin(Court, Match.court_id == Court.id)
+    )
 
     if filters.date_from is not None:
         stmt = stmt.where(Match.match_date >= filters.date_from)
     if filters.date_to is not None:
         stmt = stmt.where(Match.match_date <= filters.date_to)
     if filters.surface is not None:
-        stmt = stmt.where(Match.surface == filters.surface)
+        stmt = stmt.where(Court.surface == filters.surface)
     if filters.opponent_id is not None:
         stmt = stmt.where(Match.opponent_id == filters.opponent_id)
     if filters.club_id is not None:

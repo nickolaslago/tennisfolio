@@ -228,7 +228,11 @@
       "durationHint": "Em minutos",
       "durationPlaceholder": "ex.: 90",
       "notes": "Notas",
-      "notesPlaceholder": "Como foi, o que trabalhar…"
+      "notesPlaceholder": "Como foi, o que trabalhar…",
+      "court": "Quadra",
+      "courtPlaceholder": "Selecione uma quadra",
+      "courtPickClubFirst": "Escolha um clube primeiro",
+      "courtNone": "Este clube ainda não tem quadras."
     },
     "scorePreview": {
       "prefix": "Corresponde a um",
@@ -344,7 +348,8 @@
       "city": "Cidade",
       "country": "País",
       "surface": "Piso",
-      "environment": "Ambiente"
+      "environment": "Ambiente",
+      "courts": "Quadras"
     },
     "emptyState": {
       "title": "Ainda não há clubes",
@@ -383,7 +388,14 @@
       "environmentPlaceholder": "Selecionar ambiente",
       "environmentIndoor": "Coberta",
       "environmentOutdoor": "Descoberta",
-      "saveChanges": "Salvar alterações"
+      "saveChanges": "Salvar alterações",
+      "courts": "Quadras",
+      "courtsHint": "Adicione pelo menos uma quadra. Cada uma deve ter uma combinação única de piso e ambiente.",
+      "courtsRequired": "Adicione pelo menos uma quadra.",
+      "courtIncomplete": "Cada quadra precisa de piso e ambiente.",
+      "courtDuplicate": "Cada quadra deve ter uma combinação única de piso e ambiente.",
+      "addCourt": "Adicionar quadra",
+      "removeCourt": "Remover quadra"
     }
   },
   "tournaments": {

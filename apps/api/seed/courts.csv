@@ -1,0 +1,5 @@
+court_id,club_id,surface,environment
+cou-1,clu-1,Clay,Outdoor
+cou-2,clu-2,Grass,Outdoor
+cou-3,clu-3,Fast,Outdoor
+cou-4,clu-4,Fast,Indoor

@@ -5,14 +5,26 @@ import type { ListParams, Page } from './types'
 export type Surface = 'Hard' | 'Clay' | 'Grass' | 'Carpet'
 export type Environment = 'Indoor' | 'Outdoor'
 
+export interface Court {
+  id: number
+  surface: Surface
+  environment: Environment
+}
+
+/** A court as submitted on club create/update; ``id`` keeps an existing court. */
+export interface CourtInput {
+  id?: number
+  surface: Surface
+  environment: Environment
+}
+
 export interface Club {
   id: number
   name: string
   city: string | null
   country: string | null
-  surface: Surface | null
-  environment: Environment | null
   icon: string | null
+  courts: Court[]
   created_at: string
   updated_at: string
 }
@@ -21,9 +33,8 @@ export interface ClubCreate {
   name: string
   city?: string | null
   country?: string | null
-  surface?: Surface | null
-  environment?: Environment | null
   icon?: string | null
+  courts?: CourtInput[]
 }
 
 export type ClubUpdate = Partial<ClubCreate>

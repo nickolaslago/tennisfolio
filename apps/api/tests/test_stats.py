@@ -19,6 +19,15 @@ def _club(client: TestClient, name: str = "Club A", **overrides: Any) -> int:
     return client.post("/clubs", json={"name": name, **overrides}).json()["id"]
 
 
+def _club_with_courts(
+    client: TestClient, name: str, surfaces: list[str]
+) -> tuple[int, dict[str, int]]:
+    """Create a club with one court per surface; return (club_id, {surface: court_id})."""
+    courts = [{"surface": surface, "environment": "Outdoor"} for surface in surfaces]
+    body = client.post("/clubs", json={"name": name, "courts": courts}).json()
+    return body["id"], {c["surface"]: c["id"] for c in body["courts"]}
+
+
 def _tournament(client: TestClient, name: str = "Club Open", **overrides: Any) -> int:
     payload = {"name": name, "tournament_type": "Knockout Tournament", **overrides}
     return client.post("/tournaments", json=payload).json()["id"]
@@ -46,17 +55,17 @@ def win_rate_fixture(client: TestClient) -> dict[str, int]:
     """4 matches: 3 wins, 1 loss, split across two surfaces and two opponents."""
     nadal = _opponent(client, "Nadal")
     federer = _opponent(client, "Federer")
-    club = _club(client, "Home Club")
+    club, courts = _club_with_courts(client, "Home Club", ["Clay", "Hard"])
     tournament = _tournament(client)
 
-    _match(client, nadal, "2026-01-05", "6-4", surface="Clay", club_id=club)
-    _match(client, nadal, "2026-01-12", "6-3", surface="Clay", club_id=club)
+    _match(client, nadal, "2026-01-05", "6-4", court_id=courts["Clay"], club_id=club)
+    _match(client, nadal, "2026-01-12", "6-3", court_id=courts["Clay"], club_id=club)
     _match(
         client,
         federer,
         "2026-02-10",
         "6-4",
-        surface="Hard",
+        court_id=courts["Hard"],
         club_id=club,
         tournament_id=tournament,
     )
@@ -65,7 +74,7 @@ def win_rate_fixture(client: TestClient) -> dict[str, int]:
         federer,
         "2026-02-20",
         "3-6",
-        surface="Hard",
+        court_id=courts["Hard"],
         club_id=club,
         tournament_id=tournament,
     )

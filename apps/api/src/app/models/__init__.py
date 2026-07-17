@@ -5,6 +5,7 @@ autogenerate and ``create_all`` can see the full schema.
 """
 
 from app.models.club import Club
+from app.models.court import Court
 from app.models.enums import (
     AgeRange,
     Environment,
@@ -21,6 +22,7 @@ from app.models.tournament import Tournament
 __all__ = [
     "AgeRange",
     "Club",
+    "Court",
     "Environment",
     "Handedness",
     "Match",

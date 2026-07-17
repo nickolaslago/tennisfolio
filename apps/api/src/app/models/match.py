@@ -10,11 +10,12 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
-from app.models.base import MATCH_STATUS_ENUM, SURFACE_ENUM, TimestampMixin
-from app.models.enums import MatchStatus, Surface
+from app.models.base import MATCH_STATUS_ENUM, TimestampMixin
+from app.models.enums import MatchStatus
 
 if TYPE_CHECKING:
     from app.models.club import Club
+    from app.models.court import Court
     from app.models.opponent import Opponent
     from app.models.set import Set
     from app.models.tournament import Tournament
@@ -35,9 +36,12 @@ class Match(TimestampMixin, Base):
     tournament_id: Mapped[int | None] = mapped_column(
         ForeignKey("tournaments.id", ondelete="SET NULL"), index=True
     )
+    # The specific court played on, one of the club's courts. The surface is
+    # derived through it (see MatchRead) rather than stored on the match.
+    court_id: Mapped[int | None] = mapped_column(
+        ForeignKey("courts.id", ondelete="SET NULL"), index=True
+    )
     stage: Mapped[str | None] = mapped_column(String(80))
-    # Actual surface played on, which may differ from the club default.
-    surface: Mapped[Surface | None] = mapped_column(SURFACE_ENUM)
     duration_min: Mapped[int | None] = mapped_column(Integer)
     notes: Mapped[str | None] = mapped_column(Text)
     status: Mapped[MatchStatus] = mapped_column(
@@ -48,6 +52,7 @@ class Match(TimestampMixin, Base):
 
     opponent: Mapped[Opponent] = relationship(back_populates="matches")
     club: Mapped[Club | None] = relationship(back_populates="matches")
+    court: Mapped[Court | None] = relationship(back_populates="matches")
     tournament: Mapped[Tournament | None] = relationship(back_populates="matches")
     sets: Mapped[list[Set]] = relationship(
         back_populates="match",

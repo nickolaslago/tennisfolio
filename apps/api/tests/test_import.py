@@ -15,7 +15,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from test_export import _seed_data, _snapshot
 
-from app.models import Club
+from app.models import Club, Court
 
 
 def test_csv_export_import_round_trips_through_the_endpoint(
@@ -36,6 +36,7 @@ def test_csv_export_import_round_trips_through_the_endpoint(
     body = import_response.json()
     assert body["skipped"] == []
     assert body["clubs"] == 2
+    assert body["courts"] == 1
     assert body["opponents"] == 2
     assert body["tournaments"] == 1
     assert body["matches"] == 3
@@ -70,6 +71,7 @@ def test_json_export_import_round_trips_through_the_endpoint(
     body = import_response.json()
     assert body["skipped"] == []
     assert body["clubs"] == 2
+    assert body["courts"] == 1
     assert body["opponents"] == 2
     assert body["tournaments"] == 1
     assert body["matches"] == 3
@@ -94,10 +96,9 @@ def test_import_replaces_rather_than_merges(client: TestClient, db_session: Sess
                 "name": "Fresh Club",
                 "city": None,
                 "country": None,
-                "surface": None,
-                "environment": None,
             }
         ],
+        "courts": [],
         "opponents": [],
         "tournaments": [],
         "matches": [],
@@ -132,7 +133,7 @@ def test_import_rejects_empty_file(client: TestClient) -> None:
 def test_import_rejects_csv_zip_missing_a_file(client: TestClient) -> None:
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w") as zf:
-        zf.writestr("clubs.csv", "club_id,name,city,country,surface,environment\n")
+        zf.writestr("clubs.csv", "club_id,name,city,country\n")
     response = client.post(
         "/import",
         files={"file": ("export.zip", buffer.getvalue(), "application/zip")},
@@ -170,8 +171,15 @@ def test_import_skips_invalid_rows_and_reports_them(
         zf.writestr(
             "clubs.csv",
             _csv(
-                ["club_id", "name", "city", "country", "surface", "environment"],
-                [["clu-1", "Weird Club", "", "", "Volcanic", ""]],
+                ["club_id", "name", "city", "country"],
+                [["clu-1", "Weird Club", "", ""]],
+            ),
+        )
+        zf.writestr(
+            "courts.csv",
+            _csv(
+                ["court_id", "club_id", "surface", "environment"],
+                [["cou-1", "clu-1", "Volcanic", "Outdoor"]],
             ),
         )
         zf.writestr(
@@ -215,9 +223,9 @@ def test_import_skips_invalid_rows_and_reports_them(
                     "match_date",
                     "opponent_id",
                     "club_id",
+                    "court_id",
                     "tournament_id",
                     "stage",
-                    "surface",
                     "duration_min",
                     "status",
                     "notes",
@@ -236,9 +244,12 @@ def test_import_skips_invalid_rows_and_reports_them(
     )
     assert response.status_code == 200
     body = response.json()
-    assert body["clubs"] == 0
+    # The club is valid and imported; the court with the bogus surface is skipped.
+    assert body["clubs"] == 1
+    assert body["courts"] == 0
     assert len(body["skipped"]) == 1
     assert "Volcanic" in body["skipped"][0]
 
     db_session.expire_all()
-    assert db_session.query(Club).count() == 0
+    assert db_session.query(Club).count() == 1
+    assert db_session.query(Court).count() == 0

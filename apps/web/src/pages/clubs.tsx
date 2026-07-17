@@ -1,4 +1,4 @@
-import { ChevronLeft, MapPinPlus, Pencil, Trash2 } from 'lucide-react'
+import { ChevronLeft, MapPinPlus, Pencil, Plus, Trash2 } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -15,6 +15,7 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -31,11 +32,26 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { fieldErrorsFromApiError } from '@/lib/api/form-errors'
-import type { Club, ClubCreate, Environment, Surface } from '@/lib/api/clubs'
+import type { Club, ClubCreate, Court, CourtInput, Environment, Surface } from '@/lib/api/clubs'
 import { useClub, useClubs, useCreateClub, useDeleteClub, useUpdateClub } from '@/hooks/use-clubs'
 import { useMatches } from '@/hooks/use-matches'
 import type { Match } from '@/lib/api/matches'
 import { useDocumentTitle } from '@/lib/use-document-title'
+
+function environmentLabel(environment: Environment, t: TFunction): string {
+  return environment === 'Indoor'
+    ? t('clubs.form.environmentIndoor')
+    : t('clubs.form.environmentOutdoor')
+}
+
+function formatCourt(court: Court, t: TFunction): string {
+  return `${court.surface} · ${environmentLabel(court.environment, t)}`
+}
+
+function courtsSummary(courts: Court[], t: TFunction): string {
+  if (courts.length === 0) return '—'
+  return courts.map((court) => formatCourt(court, t)).join(', ')
+}
 
 export function ClubsPage() {
   const { t } = useTranslation()
@@ -83,16 +99,10 @@ export function ClubsPage() {
       cell: (c) => c.country ?? '—',
     },
     {
-      id: 'surface',
-      header: t('clubs.columns.surface'),
-      sortValue: (c) => c.surface,
-      cell: (c) => c.surface ?? '—',
-    },
-    {
-      id: 'environment',
-      header: t('clubs.columns.environment'),
-      sortValue: (c) => c.environment,
-      cell: (c) => c.environment ?? '—',
+      id: 'courts',
+      header: t('clubs.columns.courts'),
+      sortValue: (c) => c.courts.length,
+      cell: (c) => courtsSummary(c.courts, t),
     },
   ]
 
@@ -109,7 +119,9 @@ export function ClubsPage() {
         columns={columns}
         rowActions={rowOptions}
         getSearchText={(c) =>
-          `${c.name} ${c.city ?? ''} ${c.country ?? ''} ${c.surface ?? ''} ${c.environment ?? ''}`
+          `${c.name} ${c.city ?? ''} ${c.country ?? ''} ${c.courts
+            .map((court) => `${court.surface} ${court.environment}`)
+            .join(' ')}`
         }
         searchPlaceholder={t('clubs.filterPlaceholder')}
         defaultSort={{ columnId: 'name', direction: 'asc' }}
@@ -143,13 +155,9 @@ export function ClubsPage() {
                   <dt className="text-muted-foreground">{t('clubs.columns.country')}</dt>
                   <dd>{c.country ?? '—'}</dd>
                 </div>
-                <div>
-                  <dt className="text-muted-foreground">{t('clubs.columns.surface')}</dt>
-                  <dd>{c.surface ?? '—'}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground">{t('clubs.columns.environment')}</dt>
-                  <dd>{c.environment ?? '—'}</dd>
+                <div className="col-span-2">
+                  <dt className="text-muted-foreground">{t('clubs.columns.courts')}</dt>
+                  <dd>{courtsSummary(c.courts, t)}</dd>
                 </div>
               </dl>
             </CardContent>
@@ -388,13 +396,24 @@ export function ClubDetailPage() {
                   <dt className="text-muted-foreground">{t('clubs.columns.country')}</dt>
                   <dd>{club.data.country ?? '—'}</dd>
                 </div>
-                <div>
-                  <dt className="text-muted-foreground">{t('clubs.columns.surface')}</dt>
-                  <dd>{club.data.surface ?? '—'}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground">{t('clubs.columns.environment')}</dt>
-                  <dd>{club.data.environment ?? '—'}</dd>
+                <div className="col-span-2">
+                  <dt className="text-muted-foreground">{t('clubs.columns.courts')}</dt>
+                  <dd>
+                    {club.data.courts.length === 0 ? (
+                      '—'
+                    ) : (
+                      <ul className="flex flex-wrap gap-2">
+                        {club.data.courts.map((court) => (
+                          <li
+                            key={court.id}
+                            className="rounded-md border px-2 py-0.5 text-xs font-medium"
+                          >
+                            {formatCourt(court, t)}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </dd>
                 </div>
               </dl>
             </CardContent>
@@ -416,22 +435,29 @@ function environmentOptions(t: TFunction): { value: Environment; label: string }
   ]
 }
 
+/** A court row as edited in the form; fields may be blank while being filled in. */
+interface CourtRow {
+  id?: number
+  surface: Surface | ''
+  environment: Environment | ''
+}
+
+const EMPTY_COURT: CourtRow = { surface: '', environment: '' }
+
 interface ClubFormState {
   name: string
   city: string
   country: string
-  surface: Surface | ''
-  environment: Environment | ''
   icon: string | null
+  courts: CourtRow[]
 }
 
 const EMPTY_FORM: ClubFormState = {
   name: '',
   city: '',
   country: '',
-  surface: '',
-  environment: '',
   icon: null,
+  courts: [{ ...EMPTY_COURT }],
 }
 
 function toFormState(club: Club): ClubFormState {
@@ -439,26 +465,56 @@ function toFormState(club: Club): ClubFormState {
     name: club.name,
     city: club.city ?? '',
     country: club.country ?? '',
-    surface: club.surface ?? '',
-    environment: club.environment ?? '',
     icon: club.icon,
+    courts:
+      club.courts.length > 0
+        ? club.courts.map((court) => ({
+            id: court.id,
+            surface: court.surface,
+            environment: court.environment,
+          }))
+        : [{ ...EMPTY_COURT }],
   }
 }
 
 function toPayload(form: ClubFormState): ClubCreate {
+  const courts: CourtInput[] = form.courts
+    .filter((court): court is { id?: number; surface: Surface; environment: Environment } =>
+      Boolean(court.surface && court.environment),
+    )
+    .map((court) => ({ id: court.id, surface: court.surface, environment: court.environment }))
   return {
     name: form.name.trim(),
     city: form.city.trim() || null,
     country: form.country.trim() || null,
-    surface: form.surface || null,
-    environment: form.environment || null,
     icon: form.icon,
+    courts,
   }
 }
 
 function validate(form: ClubFormState, t: TFunction): Record<string, string> {
   const errors: Record<string, string> = {}
   if (!form.name.trim()) errors.name = t('clubs.form.nameRequired')
+
+  const complete = form.courts.filter((court) => court.surface && court.environment)
+  const partial = form.courts.some(
+    (court) => (court.surface && !court.environment) || (!court.surface && court.environment),
+  )
+  if (complete.length === 0) {
+    errors.courts = t('clubs.form.courtsRequired')
+  } else if (partial) {
+    errors.courts = t('clubs.form.courtIncomplete')
+  } else {
+    const seen = new Set<string>()
+    for (const court of complete) {
+      const key = `${court.surface}/${court.environment}`
+      if (seen.has(key)) {
+        errors.courts = t('clubs.form.courtDuplicate')
+        break
+      }
+      seen.add(key)
+    }
+  }
   return errors
 }
 
@@ -591,52 +647,13 @@ function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
                 />
               </FormField>
 
-              <FormField
-                id="surface"
-                label={t('clubs.columns.surface')}
-                optional
-                error={errors.surface}
-              >
-                <Select
-                  value={form.surface}
-                  onValueChange={(value) => setForm({ ...form, surface: value as Surface })}
-                >
-                  <SelectTrigger id="surface" className="w-full">
-                    <SelectValue placeholder={t('matchForm.fields.surfacePlaceholder')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SURFACE_OPTIONS.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormField>
-
-              <FormField
-                id="environment"
-                label={t('clubs.columns.environment')}
-                optional
-                error={errors.environment}
-              >
-                <Select
-                  value={form.environment}
-                  onValueChange={(value) => setForm({ ...form, environment: value as Environment })}
-                >
-                  <SelectTrigger id="environment" className="w-full">
-                    <SelectValue placeholder={t('clubs.form.environmentPlaceholder')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {environmentOptions(t).map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormField>
             </div>
+
+            <CourtsEditor
+              courts={form.courts}
+              error={errors.courts}
+              onChange={(courts) => setForm({ ...form, courts })}
+            />
 
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" asChild>
@@ -650,5 +667,87 @@ function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
         </CardContent>
       </Card>
     </>
+  )
+}
+
+/** Editable list of a club's courts — add/remove rows of (surface, environment). */
+function CourtsEditor({
+  courts,
+  error,
+  onChange,
+}: {
+  courts: CourtRow[]
+  error?: string
+  onChange: (courts: CourtRow[]) => void
+}) {
+  const { t } = useTranslation()
+
+  const update = (index: number, patch: Partial<CourtRow>) =>
+    onChange(courts.map((court, i) => (i === index ? { ...court, ...patch } : court)))
+  const add = () => onChange([...courts, { ...EMPTY_COURT }])
+  const remove = (index: number) => onChange(courts.filter((_, i) => i !== index))
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Label>{t('clubs.form.courts')}</Label>
+      <p className="text-xs text-muted-foreground">{t('clubs.form.courtsHint')}</p>
+
+      <div className="flex flex-col gap-2">
+        {courts.map((court, index) => (
+          <div key={index} className="flex items-center gap-2">
+            <Select
+              value={court.surface || undefined}
+              onValueChange={(value) => update(index, { surface: value as Surface })}
+            >
+              <SelectTrigger className="w-full" aria-label={t('clubs.columns.surface')}>
+                <SelectValue placeholder={t('matchForm.fields.surfacePlaceholder')} />
+              </SelectTrigger>
+              <SelectContent>
+                {SURFACE_OPTIONS.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={court.environment || undefined}
+              onValueChange={(value) => update(index, { environment: value as Environment })}
+            >
+              <SelectTrigger className="w-full" aria-label={t('clubs.columns.environment')}>
+                <SelectValue placeholder={t('clubs.form.environmentPlaceholder')} />
+              </SelectTrigger>
+              <SelectContent>
+                {environmentOptions(t).map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="shrink-0"
+              onClick={() => remove(index)}
+              disabled={courts.length === 1}
+              aria-label={t('clubs.form.removeCourt')}
+            >
+              <Trash2 aria-hidden="true" />
+            </Button>
+          </div>
+        ))}
+      </div>
+
+      {error ? <p className="text-xs text-destructive">{error}</p> : null}
+
+      <Button type="button" variant="outline" size="sm" className="w-fit" onClick={add}>
+        <Plus aria-hidden="true" data-icon="inline-start" />
+        {t('clubs.form.addCourt')}
+      </Button>
+    </div>
   )
 }

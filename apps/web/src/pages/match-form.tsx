@@ -37,14 +37,20 @@ import { useCreateMatch, useMatch, useUpdateMatch } from '@/hooks/use-matches'
 import { useOpponents } from '@/hooks/use-opponents'
 import { useTournaments } from '@/hooks/use-tournaments'
 import { ApiError } from '@/lib/api/errors'
-import type { Club } from '@/lib/api/clubs'
+import type { Club, Court } from '@/lib/api/clubs'
 import { fieldErrorsFromApiError } from '@/lib/api/form-errors'
-import type { Match, MatchCreate, MatchUpdate, Surface } from '@/lib/api/matches'
+import type { Match, MatchCreate, MatchUpdate } from '@/lib/api/matches'
 import type { Opponent } from '@/lib/api/opponents'
 import { sortByLabel } from '@/lib/sort-options'
 import { useDocumentTitle } from '@/lib/use-document-title'
 
-const SURFACE_OPTIONS: Surface[] = ['Hard', 'Clay', 'Grass', 'Carpet']
+function courtLabel(court: Court, t: TFunction): string {
+  const environment =
+    court.environment === 'Indoor'
+      ? t('clubs.form.environmentIndoor')
+      : t('clubs.form.environmentOutdoor')
+  return `${court.surface} · ${environment}`
+}
 
 const DEFAULT_SCORE_FORMAT: ScoreFormat = 'three-sets'
 const MAX_SCORE_PAIRS = 5
@@ -168,9 +174,9 @@ function toOptions<T extends { id: number; icon: string | null }>(
 interface MatchFormState {
   opponentId: string
   clubId: string
+  courtId: string
   tournamentId: string
   stage: string
-  surface: Surface | ''
   matchDate: string
   durationMin: string
   notes: string
@@ -183,9 +189,9 @@ function emptyForm(): MatchFormState {
   return {
     opponentId: '',
     clubId: '',
+    courtId: '',
     tournamentId: '',
     stage: '',
-    surface: '',
     matchDate: todayIso(),
     durationMin: '',
     notes: '',
@@ -199,9 +205,9 @@ function toFormState(match: Match): MatchFormState {
   return {
     opponentId: String(match.opponent_id),
     clubId: match.club_id !== null ? String(match.club_id) : '',
+    courtId: match.court_id !== null ? String(match.court_id) : '',
     tournamentId: match.tournament_id !== null ? String(match.tournament_id) : '',
     stage: match.stage ?? '',
-    surface: match.surface ?? '',
     matchDate: match.match_date,
     durationMin: match.duration_min !== null ? String(match.duration_min) : '',
     notes: match.notes ?? '',
@@ -308,6 +314,8 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
     () => [...(clubs.data?.items ?? []), ...extraClubs],
     [clubs.data, extraClubs],
   )
+  const selectedClub = allClubs.find((c) => String(c.id) === form.clubId)
+  const clubCourts: Court[] = selectedClub?.courts ?? []
   const allOpponents = useMemo(
     () => [...(opponents.data?.items ?? []), ...extraOpponents],
     [opponents.data, extraOpponents],
@@ -376,11 +384,13 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
 
   const handleClubChange = (value: string) => {
     const club = allClubs.find((c) => String(c.id) === value)
+    const courts = club?.courts ?? []
     setForm((prev) => ({
       ...prev,
       clubId: value,
-      // Pre-fill the surface from the club, but never wipe an existing choice.
-      surface: club?.surface ?? prev.surface,
+      // Auto-select when the club has exactly one court; otherwise clear so a
+      // court from the previously selected club can't linger.
+      courtId: courts.length === 1 ? String(courts[0].id) : '',
     }))
   }
 
@@ -395,7 +405,7 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
     setForm((prev) => ({
       ...prev,
       clubId: String(club.id),
-      surface: club.surface ?? prev.surface,
+      courtId: club.courts.length === 1 ? String(club.courts[0].id) : '',
     }))
     setClubDialogOpen(false)
   }
@@ -410,9 +420,9 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
       match_date: form.matchDate,
       opponent_id: Number(form.opponentId),
       club_id: form.clubId ? Number(form.clubId) : null,
+      court_id: form.courtId ? Number(form.courtId) : null,
       tournament_id: form.tournamentId ? Number(form.tournamentId) : null,
       stage: form.stage.trim() || null,
-      surface: form.surface || null,
       duration_min: form.durationMin ? Number(form.durationMin) : null,
       notes: form.notes.trim() || null,
     }
@@ -647,22 +657,30 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
                 </FormField>
 
                 <FormField
-                  id="surface"
-                  label={t('matches.columns.surface')}
+                  id="court"
+                  label={t('matchForm.fields.court')}
                   optional
-                  error={fieldErrors.surface}
+                  error={fieldErrors.court_id}
+                  hint={form.clubId && clubCourts.length === 0 ? t('matchForm.fields.courtNone') : undefined}
                 >
                   <Select
-                    value={form.surface || undefined}
-                    onValueChange={(value) => setField('surface', value as Surface)}
+                    value={form.courtId || undefined}
+                    onValueChange={(value) => setField('courtId', value)}
+                    disabled={!form.clubId || clubCourts.length === 0}
                   >
-                    <SelectTrigger id="surface" className="w-full">
-                      <SelectValue placeholder={t('matchForm.fields.surfacePlaceholder')} />
+                    <SelectTrigger id="court" className="w-full">
+                      <SelectValue
+                        placeholder={
+                          form.clubId
+                            ? t('matchForm.fields.courtPlaceholder')
+                            : t('matchForm.fields.courtPickClubFirst')
+                        }
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                      {SURFACE_OPTIONS.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
+                      {clubCourts.map((court) => (
+                        <SelectItem key={court.id} value={String(court.id)}>
+                          {courtLabel(court, t)}
                         </SelectItem>
                       ))}
                     </SelectContent>

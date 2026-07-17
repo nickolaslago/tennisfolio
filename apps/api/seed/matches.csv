@@ -1,12 +1,12 @@
-match_id,match_date,opponent_id,club_id,tournament_id,stage,surface,duration_min,status,notes
-mat-1,25-05-2026,opp-1,clu-1,tou-2,R32,Clay,125,played,
-mat-2,28-05-2026,opp-6,clu-1,tou-2,R16,Clay,145,played,
-mat-3,02-06-2026,opp-5,clu-1,tou-2,Quarterfinal,Clay,160,played,
-mat-4,30-06-2026,opp-2,clu-2,tou-1,R64,Grass,110,played,
-mat-5,05-07-2026,opp-4,clu-2,tou-1,R32,Grass,95,played,
-mat-6,10-07-2026,opp-8,clu-2,tou-1,R16,Grass,130,played,
-mat-7,15-06-2026,opp-7,clu-4,,Friendly,Fast,90,played,practice match
-mat-8,01-07-2026,opp-3,clu-4,,Friendly,Fast,100,played,
-mat-9,31-08-2026,opp-6,clu-3,tou-3,R64,Fast,,scheduled,
-mat-10,05-09-2026,opp-5,clu-3,tou-3,R16,Fast,,scheduled,
-mat-11,15-11-2026,opp-1,,tou-4,Round Robin,Fast,,scheduled,
+match_id,match_date,opponent_id,club_id,court_id,tournament_id,stage,duration_min,status,notes
+mat-1,25-05-2026,opp-1,clu-1,cou-1,tou-2,R32,125,played,
+mat-2,28-05-2026,opp-6,clu-1,cou-1,tou-2,R16,145,played,
+mat-3,02-06-2026,opp-5,clu-1,cou-1,tou-2,Quarterfinal,160,played,
+mat-4,30-06-2026,opp-2,clu-2,cou-2,tou-1,R64,110,played,
+mat-5,05-07-2026,opp-4,clu-2,cou-2,tou-1,R32,95,played,
+mat-6,10-07-2026,opp-8,clu-2,cou-2,tou-1,R16,130,played,
+mat-7,15-06-2026,opp-7,clu-4,cou-4,,Friendly,90,played,practice match
+mat-8,01-07-2026,opp-3,clu-4,cou-4,,Friendly,100,played,
+mat-9,31-08-2026,opp-6,clu-3,cou-3,tou-3,R64,,scheduled,
+mat-10,05-09-2026,opp-5,clu-3,cou-3,tou-3,R16,,scheduled,
+mat-11,15-11-2026,opp-1,,,tou-4,Round Robin,,scheduled,

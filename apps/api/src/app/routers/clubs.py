@@ -1,20 +1,53 @@
-"""CRUD endpoints for the Club resource."""
+"""CRUD endpoints for the Club resource.
+
+A club owns a set of courts, managed inline here (no standalone courts
+endpoint): create accepts a nested ``courts`` list, and update diffs the
+submitted list against the stored courts — updating by id, adding new ones,
+and deleting any that are no longer present.
+"""
 
 from fastapi import APIRouter, Query, status
 from sqlalchemy import func, select
+from sqlalchemy.orm import selectinload
 
 from app.db import DbSession
-from app.models import Club
+from app.models import Club, Court
 from app.routers.common import get_or_404
 from app.schemas.club import ClubCreate, ClubRead, ClubUpdate
 from app.schemas.common import Page
+from app.schemas.court import CourtInput
 
 router = APIRouter(prefix="/clubs", tags=["clubs"])
 
 
+def _apply_courts(club: Club, courts: list[CourtInput]) -> None:
+    """Diff ``courts`` against ``club.courts``: update by id, add new, drop the rest."""
+    existing = {court.id: court for court in club.courts}
+    keep_ids: set[int] = set()
+
+    for incoming in courts:
+        if incoming.id is not None and incoming.id in existing:
+            court = existing[incoming.id]
+            court.surface = incoming.surface
+            court.environment = incoming.environment
+            keep_ids.add(incoming.id)
+        else:
+            club.courts.append(Court(surface=incoming.surface, environment=incoming.environment))
+
+    for court in list(club.courts):
+        if court.id is not None and court.id not in keep_ids:
+            club.courts.remove(court)
+
+
 @router.post("", response_model=ClubRead, status_code=status.HTTP_201_CREATED)
 def create_club(payload: ClubCreate, db: DbSession) -> Club:
-    club = Club(**payload.model_dump())
+    data = payload.model_dump(exclude={"courts"})
+    club = Club(
+        **data,
+        courts=[
+            Court(surface=court.surface, environment=court.environment) for court in payload.courts
+        ],
+    )
     db.add(club)
     db.commit()
     db.refresh(club)
@@ -33,7 +66,9 @@ def list_clubs(
         stmt = stmt.where(Club.name.ilike(f"%{search}%"))
 
     total = db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
-    rows = db.scalars(stmt.order_by(Club.name).limit(limit).offset(offset)).all()
+    rows = db.scalars(
+        stmt.options(selectinload(Club.courts)).order_by(Club.name).limit(limit).offset(offset)
+    ).all()
     return Page(items=list(rows), total=total, limit=limit, offset=offset)
 
 
@@ -45,9 +80,16 @@ def get_club(club_id: int, db: DbSession) -> Club:
 @router.patch("/{club_id}", response_model=ClubRead)
 def update_club(club_id: int, payload: ClubUpdate, db: DbSession) -> Club:
     club = get_or_404(db, Club, club_id, "Club")
-    for field, value in payload.model_dump(exclude_unset=True).items():
+    data = payload.model_dump(exclude_unset=True, exclude={"courts"})
+    for field, value in data.items():
         setattr(club, field, value)
-    db.commit()
+    if payload.courts is not None:
+        _apply_courts(club, payload.courts)
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
     db.refresh(club)
     return club
 

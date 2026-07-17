@@ -21,7 +21,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.models import Club, Match, Opponent, Set, Tournament
+from app.models import Club, Court, Match, Opponent, Set, Tournament
 from app.models.enums import (
     AgeRange,
     Environment,
@@ -48,12 +48,12 @@ def _load_import_seed() -> ModuleType:
 
 def _seed_data(db: Session) -> None:
     """A little of everything: every column populated, some left null."""
+    clay_court = Court(surface=Surface.CLAY, environment=Environment.OUTDOOR)
     clay_club = Club(
         name="Stade Roland Garros",
         city="Paris",
         country="France",
-        surface=Surface.CLAY,
-        environment=Environment.OUTDOOR,
+        courts=[clay_court],
     )
     bare_club = Club(name="Local Park Courts")
     db.add_all([clay_club, bare_club])
@@ -89,9 +89,9 @@ def _seed_data(db: Session) -> None:
         match_date=date(2026, 5, 25),
         opponent_id=federer.id,
         club_id=clay_club.id,
+        court_id=clay_court.id,
         tournament_id=roland_garros.id,
         stage="R32",
-        surface=Surface.CLAY,
         duration_min=125,
         status=MatchStatus.PLAYED,
         notes="Tight one",
@@ -117,10 +117,8 @@ def _seed_data(db: Session) -> None:
 
 def _snapshot(db: Session) -> dict[str, list[tuple]]:
     """Content of every table, id/timestamp-independent, for before/after comparison."""
-    clubs = {
-        (c.name, c.city, c.country, c.surface, c.environment)
-        for c in db.scalars(select(Club)).all()
-    }
+    clubs = {(c.name, c.city, c.country) for c in db.scalars(select(Club)).all()}
+    courts = {(c.club.name, c.surface, c.environment) for c in db.scalars(select(Court)).all()}
     opponents = {
         (o.last_name, o.name, o.nationality, o.handedness, o.age_range, o.level, o.notes)
         for o in db.scalars(select(Opponent)).all()
@@ -149,7 +147,7 @@ def _snapshot(db: Session) -> dict[str, list[tuple]]:
                 m.club.name if m.club else None,
                 m.tournament.name if m.tournament else None,
                 m.stage,
-                m.surface,
+                m.court.surface if m.court else None,
                 m.duration_min,
                 m.status,
                 m.notes,
@@ -169,6 +167,7 @@ def _snapshot(db: Session) -> dict[str, list[tuple]]:
 
     return {
         "clubs": clubs,
+        "courts": courts,
         "opponents": opponents,
         "tournaments": tournaments,
         "matches": matches,
@@ -179,6 +178,7 @@ def _snapshot(db: Session) -> dict[str, list[tuple]]:
 def _wipe(db: Session) -> None:
     db.execute(delete(Set))
     db.execute(delete(Match))
+    db.execute(delete(Court))
     db.execute(delete(Tournament))
     db.execute(delete(Club))
     db.execute(delete(Opponent))
@@ -201,6 +201,7 @@ def test_csv_export_round_trips_through_the_seed_importer(
     with zipfile.ZipFile(io.BytesIO(response.content)) as zf:
         assert set(zf.namelist()) == {
             "clubs.csv",
+            "courts.csv",
             "opponents.csv",
             "tournaments.csv",
             "matches.csv",
@@ -229,7 +230,7 @@ def test_csv_export_matches_seed_importer_header_layout() -> None:
     import_seed = _load_import_seed()
 
     # Importer relies on these exact keys (see import_clubs/import_opponents/...).
-    assert import_seed.TABLES == ("clubs", "opponents", "tournaments", "matches", "sets")
+    assert import_seed.TABLES == ("clubs", "courts", "opponents", "tournaments", "matches", "sets")
 
 
 def test_json_export_contains_all_tables(client: TestClient, db_session: Session) -> None:
@@ -240,8 +241,16 @@ def test_json_export_contains_all_tables(client: TestClient, db_session: Session
     assert response.headers["content-type"] == "application/json"
 
     payload = json.loads(response.content)
-    assert set(payload.keys()) == {"exported_at", "clubs", "opponents", "tournaments", "matches"}
+    assert set(payload.keys()) == {
+        "exported_at",
+        "clubs",
+        "courts",
+        "opponents",
+        "tournaments",
+        "matches",
+    }
     assert len(payload["clubs"]) == 2
+    assert len(payload["courts"]) == 1
     assert len(payload["opponents"]) == 2
     assert len(payload["tournaments"]) == 1
     assert len(payload["matches"]) == 3
@@ -253,4 +262,6 @@ def test_export_csv_empty_database(client: TestClient) -> None:
     assert response.status_code == 200
     with zipfile.ZipFile(io.BytesIO(response.content)) as zf:
         rows = list(csv.reader(io.StringIO(zf.read("clubs.csv").decode())))
-        assert rows == [["club_id", "name", "city", "country", "surface", "environment"]]
+        assert rows == [["club_id", "name", "city", "country"]]
+        court_rows = list(csv.reader(io.StringIO(zf.read("courts.csv").decode())))
+        assert court_rows == [["court_id", "club_id", "surface", "environment"]]

@@ -1,3 +1,4 @@
+import { Plus, Trash2 } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -12,6 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -20,15 +22,23 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useCreateClub } from '@/hooks/use-clubs'
-import type { Club, Surface } from '@/lib/api/clubs'
+import type { Club, CourtInput, Environment, Surface } from '@/lib/api/clubs'
 import { fieldErrorsFromApiError } from '@/lib/api/form-errors'
 
 const SURFACE_OPTIONS: Surface[] = ['Hard', 'Clay', 'Grass', 'Carpet']
+const ENVIRONMENT_OPTIONS: Environment[] = ['Indoor', 'Outdoor']
+
+interface CourtRow {
+  surface: Surface | ''
+  environment: Environment | ''
+}
+
+const EMPTY_COURT: CourtRow = { surface: '', environment: '' }
 
 /**
- * Inline "＋ new club" quick-create. Capturing the surface here means the match
- * form can pre-fill it the moment the freshly created club is selected. The
- * full club form lives on the Clubs page.
+ * Inline "＋ new club" quick-create. Capturing at least one court here means the
+ * match form can offer it (and auto-select it) the moment the freshly created
+ * club is selected. The full club form lives on the Clubs page.
  */
 export function ClubQuickCreate({
   open,
@@ -56,6 +66,12 @@ export function ClubQuickCreate({
   )
 }
 
+function environmentLabel(environment: Environment, t: ReturnType<typeof useTranslation>['t']) {
+  return environment === 'Indoor'
+    ? t('clubs.form.environmentIndoor')
+    : t('clubs.form.environmentOutdoor')
+}
+
 function ClubQuickCreateForm({
   onCreated,
   onCancel,
@@ -67,23 +83,43 @@ function ClubQuickCreateForm({
   const createClub = useCreateClub()
   const [name, setName] = useState('')
   const [city, setCity] = useState('')
-  const [surface, setSurface] = useState<Surface | ''>('')
+  const [courts, setCourts] = useState<CourtRow[]>([{ ...EMPTY_COURT }])
   const [touched, setTouched] = useState(false)
 
   const missingName = !name.trim()
+  const completeCourts = courts.filter((court) => court.surface && court.environment)
+  const partialCourt = courts.some(
+    (court) => (court.surface && !court.environment) || (!court.surface && court.environment),
+  )
+  const courtsError =
+    completeCourts.length === 0
+      ? t('clubs.form.courtsRequired')
+      : partialCourt
+        ? t('clubs.form.courtIncomplete')
+        : undefined
+
   const serverErrors = fieldErrorsFromApiError(createClub.error)
   const nameError =
     touched && missingName ? t('matches.clubQuickCreate.nameRequired') : serverErrors.name
   const bannerMessage =
     createClub.isError && Object.keys(serverErrors).length === 0 ? createClub.error : null
 
+  const updateCourt = (index: number, patch: Partial<CourtRow>) =>
+    setCourts((prev) => prev.map((court, i) => (i === index ? { ...court, ...patch } : court)))
+  const addCourt = () => setCourts((prev) => [...prev, { ...EMPTY_COURT }])
+  const removeCourt = (index: number) => setCourts((prev) => prev.filter((_, i) => i !== index))
+
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
     setTouched(true)
-    if (missingName) return
+    if (missingName || courtsError) return
 
+    const payload: CourtInput[] = completeCourts.map((court) => ({
+      surface: court.surface as Surface,
+      environment: court.environment as Environment,
+    }))
     createClub.mutate(
-      { name: name.trim(), city: city.trim() || null, surface: surface || null },
+      { name: name.trim(), city: city.trim() || null, courts: payload },
       { onSuccess: (club) => onCreated(club) },
     )
   }
@@ -104,28 +140,66 @@ function ClubQuickCreateForm({
         />
       </FormField>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FormField id="quick-club-surface" label={t('matches.columns.surface')} optional>
-          <Select
-            value={surface || undefined}
-            onValueChange={(value) => setSurface(value as Surface)}
-          >
-            <SelectTrigger id="quick-club-surface" className="w-full">
-              <SelectValue placeholder={t('matchForm.fields.surfacePlaceholder')} />
-            </SelectTrigger>
-            <SelectContent>
-              {SURFACE_OPTIONS.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </FormField>
+      <FormField id="quick-club-city" label={t('matches.clubQuickCreate.city')} optional>
+        <Input id="quick-club-city" value={city} onChange={(e) => setCity(e.target.value)} />
+      </FormField>
 
-        <FormField id="quick-club-city" label={t('matches.clubQuickCreate.city')} optional>
-          <Input id="quick-club-city" value={city} onChange={(e) => setCity(e.target.value)} />
-        </FormField>
+      <div className="flex flex-col gap-2">
+        <Label>{t('clubs.form.courts')}</Label>
+        <div className="flex flex-col gap-2">
+          {courts.map((court, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <Select
+                value={court.surface || undefined}
+                onValueChange={(value) => updateCourt(index, { surface: value as Surface })}
+              >
+                <SelectTrigger className="w-full" aria-label={t('clubs.columns.surface')}>
+                  <SelectValue placeholder={t('matchForm.fields.surfacePlaceholder')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {SURFACE_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={court.environment || undefined}
+                onValueChange={(value) => updateCourt(index, { environment: value as Environment })}
+              >
+                <SelectTrigger className="w-full" aria-label={t('clubs.columns.environment')}>
+                  <SelectValue placeholder={t('clubs.form.environmentPlaceholder')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {ENVIRONMENT_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {environmentLabel(option, t)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="shrink-0"
+                onClick={() => removeCourt(index)}
+                disabled={courts.length === 1}
+                aria-label={t('clubs.form.removeCourt')}
+              >
+                <Trash2 aria-hidden="true" />
+              </Button>
+            </div>
+          ))}
+        </div>
+        {touched && courtsError ? <p className="text-xs text-destructive">{courtsError}</p> : null}
+        <Button type="button" variant="outline" size="sm" className="w-fit" onClick={addCourt}>
+          <Plus aria-hidden="true" data-icon="inline-start" />
+          {t('clubs.form.addCourt')}
+        </Button>
       </div>
 
       <DialogFooter>

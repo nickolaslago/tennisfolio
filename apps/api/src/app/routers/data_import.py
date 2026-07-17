@@ -24,12 +24,13 @@ from fastapi import APIRouter, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.db import DbSession
-from app.models import Club, Match, Opponent, Set, Tournament
+from app.models import Club, Court, Match, Opponent, Set, Tournament
 from app.models.enums import AgeRange, Environment, Handedness, MatchStatus, Surface, TournamentType
 from app.schemas.data_import import ImportResult
 from app.seed_import import (
     ImportReport,
     import_clubs,
+    import_courts,
     import_matches,
     import_opponents,
     import_sets,
@@ -41,13 +42,21 @@ from app.seed_import import (
 
 router = APIRouter(prefix="/import", tags=["import"])
 
-CSV_FILENAMES = ("clubs.csv", "opponents.csv", "tournaments.csv", "matches.csv", "sets.csv")
-REQUIRED_JSON_KEYS = ("clubs", "opponents", "tournaments", "matches")
+CSV_FILENAMES = (
+    "clubs.csv",
+    "courts.csv",
+    "opponents.csv",
+    "tournaments.csv",
+    "matches.csv",
+    "sets.csv",
+)
+REQUIRED_JSON_KEYS = ("clubs", "courts", "opponents", "tournaments", "matches")
 
 
 def _result(report: ImportReport) -> ImportResult:
     return ImportResult(
         clubs=report.inserted.get("clubs", 0),
+        courts=report.inserted.get("courts", 0),
         opponents=report.inserted.get("opponents", 0),
         tournaments=report.inserted.get("tournaments", 0),
         matches=report.inserted.get("matches", 0),
@@ -80,10 +89,11 @@ def _import_csv_zip(db: Session, content: bytes) -> ImportResult:
     try:
         wipe_all(db)
         club_ids = import_clubs(db, rows["clubs.csv"], report)
+        court_ids = import_courts(db, rows["courts.csv"], club_ids, report)
         opponent_ids = import_opponents(db, rows["opponents.csv"], report)
         tournament_ids = import_tournaments(db, rows["tournaments.csv"], club_ids, report)
         match_ids = import_matches(
-            db, rows["matches.csv"], opponent_ids, club_ids, tournament_ids, report
+            db, rows["matches.csv"], opponent_ids, club_ids, court_ids, tournament_ids, report
         )
         import_sets(db, rows["sets.csv"], match_ids, report)
         db.commit()
@@ -100,23 +110,39 @@ def _import_csv_zip(db: Session, content: bytes) -> ImportResult:
 
 def _json_club(db: Session, row: dict[str, Any], report: ImportReport) -> tuple[Any, int] | None:
     row_id = row.get("id")
-    try:
-        surface = Surface(row["surface"]) if row.get("surface") else None
-        environment = Environment(row["environment"]) if row.get("environment") else None
-    except ValueError as exc:
-        report.skip("clubs", str(row_id), str(exc))
-        return None
     club = Club(
         name=row["name"],
         city=row.get("city"),
         country=row.get("country"),
-        surface=surface,
-        environment=environment,
     )
     db.add(club)
     db.flush()
     report.record("clubs", "inserted")
     return row_id, club.id
+
+
+def _json_court(
+    db: Session, row: dict[str, Any], club_ids: dict[Any, int], report: ImportReport
+) -> tuple[Any, int] | None:
+    row_id = row.get("id")
+
+    club_row_id = row.get("club_id")
+    if club_row_id not in club_ids:
+        report.skip("courts", str(row_id), f"unknown club_id {club_row_id!r}")
+        return None
+
+    try:
+        surface = Surface(row["surface"])
+        environment = Environment(row["environment"])
+    except (KeyError, ValueError) as exc:
+        report.skip("courts", str(row_id), str(exc))
+        return None
+
+    court = Court(club_id=club_ids[club_row_id], surface=surface, environment=environment)
+    db.add(court)
+    db.flush()
+    report.record("courts", "inserted")
+    return row_id, court.id
 
 
 def _json_opponent(
@@ -187,6 +213,7 @@ def _json_match(
     row: dict[str, Any],
     opponent_ids: dict[Any, int],
     club_ids: dict[Any, int],
+    court_ids: dict[Any, int],
     tournament_ids: dict[Any, int],
     report: ImportReport,
 ) -> None:
@@ -204,6 +231,12 @@ def _json_match(
         return
     club_id = club_ids[club_row_id] if club_row_id is not None else None
 
+    court_row_id = row.get("court_id")
+    if court_row_id is not None and court_row_id not in court_ids:
+        report.skip("matches", str(row_id), f"unknown court_id {court_row_id!r}")
+        return
+    court_id = court_ids[court_row_id] if court_row_id is not None else None
+
     tournament_row_id = row.get("tournament_id")
     if tournament_row_id is not None and tournament_row_id not in tournament_ids:
         report.skip("matches", str(row_id), f"unknown tournament_id {tournament_row_id!r}")
@@ -214,12 +247,6 @@ def _json_match(
         match_date = date.fromisoformat(row["match_date"])
     except (KeyError, ValueError) as exc:
         report.skip("matches", str(row_id), f"unparseable match_date: {exc}")
-        return
-
-    try:
-        surface = Surface(row["surface"]) if row.get("surface") else None
-    except ValueError as exc:
-        report.skip("matches", str(row_id), str(exc))
         return
 
     try:
@@ -264,9 +291,9 @@ def _json_match(
         match_date=match_date,
         opponent_id=opponent_id,
         club_id=club_id,
+        court_id=court_id,
         tournament_id=tournament_id,
         stage=row.get("stage"),
-        surface=surface,
         duration_min=row.get("duration_min"),
         notes=row.get("notes"),
         status=match_status,
@@ -300,6 +327,12 @@ def _import_json_payload(db: Session, payload: dict[str, Any]) -> ImportResult:
             if mapped is not None:
                 club_ids[mapped[0]] = mapped[1]
 
+        court_ids: dict[Any, int] = {}
+        for row in payload["courts"]:
+            mapped = _json_court(db, row, club_ids, report)
+            if mapped is not None:
+                court_ids[mapped[0]] = mapped[1]
+
         opponent_ids: dict[Any, int] = {}
         for row in payload["opponents"]:
             mapped = _json_opponent(db, row, report)
@@ -313,7 +346,7 @@ def _import_json_payload(db: Session, payload: dict[str, Any]) -> ImportResult:
                 tournament_ids[mapped[0]] = mapped[1]
 
         for row in payload["matches"]:
-            _json_match(db, row, opponent_ids, club_ids, tournament_ids, report)
+            _json_match(db, row, opponent_ids, club_ids, court_ids, tournament_ids, report)
 
         db.commit()
     except Exception:
