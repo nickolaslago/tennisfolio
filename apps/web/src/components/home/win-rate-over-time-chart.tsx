@@ -1,4 +1,13 @@
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import {
+  Bar,
+  ComposedChart,
+  Legend,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 import { useTranslation } from 'react-i18next'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -18,9 +27,13 @@ function formatPeriod(period: string): string {
 function TooltipContent({
   active,
   payload,
+  winRateLabel,
+  matchesPlayedLabel,
 }: {
   active?: boolean
   payload?: { payload: PeriodWinRate }[]
+  winRateLabel: string
+  matchesPlayedLabel: string
 }) {
   if (!active || !payload?.length) return null
   const point = payload[0].payload
@@ -28,8 +41,11 @@ function TooltipContent({
     <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
       <p className="font-medium text-popover-foreground">{formatPeriod(point.period)}</p>
       <p className="text-muted-foreground">
-        {point.wins}-{point.losses} ·{' '}
+        {winRateLabel}: {point.wins}-{point.losses} ·{' '}
         {point.win_rate !== null ? `${Math.round(point.win_rate * 100)}%` : '—'}
+      </p>
+      <p className="text-muted-foreground">
+        {matchesPlayedLabel}: {point.matches}
       </p>
     </div>
   )
@@ -38,6 +54,8 @@ function TooltipContent({
 export function WinRateOverTimeChart({ data }: WinRateOverTimeChartProps) {
   const { t } = useTranslation()
   const points = data.filter((d) => d.win_rate !== null)
+  const winRateLabel = t('home.winRateOverTime.winRate')
+  const matchesPlayedLabel = t('home.winRateOverTime.matchesPlayed')
 
   return (
     <Card>
@@ -53,7 +71,7 @@ export function WinRateOverTimeChart({ data }: WinRateOverTimeChartProps) {
         ) : (
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={points} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
+              <ComposedChart data={points} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
                 <XAxis
                   dataKey="period"
                   tickFormatter={formatPeriod}
@@ -63,6 +81,7 @@ export function WinRateOverTimeChart({ data }: WinRateOverTimeChartProps) {
                   minTickGap={24}
                 />
                 <YAxis
+                  yAxisId="winRate"
                   domain={[0, 1]}
                   tickFormatter={(v: number) => `${Math.round(v * 100)}%`}
                   tickLine={false}
@@ -70,16 +89,53 @@ export function WinRateOverTimeChart({ data }: WinRateOverTimeChartProps) {
                   width={40}
                   tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
                 />
-                <Tooltip content={<TooltipContent />} cursor={{ stroke: 'var(--border)' }} />
+                <YAxis
+                  yAxisId="matches"
+                  orientation="right"
+                  allowDecimals={false}
+                  domain={[0, (max: number) => Math.max(4, Math.ceil(max * 1.5))]}
+                  tickLine={false}
+                  axisLine={false}
+                  width={32}
+                  tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+                />
+                <Tooltip
+                  content={
+                    <TooltipContent
+                      winRateLabel={winRateLabel}
+                      matchesPlayedLabel={matchesPlayedLabel}
+                    />
+                  }
+                  cursor={{ stroke: 'var(--border)' }}
+                />
+                <Legend
+                  verticalAlign="top"
+                  align="right"
+                  height={24}
+                  iconType="circle"
+                  iconSize={8}
+                  wrapperStyle={{ fontSize: 12, color: 'var(--muted-foreground)' }}
+                />
+                <Bar
+                  yAxisId="matches"
+                  dataKey="matches"
+                  name={matchesPlayedLabel}
+                  fill="var(--muted-foreground)"
+                  fillOpacity={0.18}
+                  radius={[2, 2, 0, 0]}
+                  maxBarSize={24}
+                />
                 <Line
+                  yAxisId="winRate"
                   type="monotone"
                   dataKey="win_rate"
+                  name={winRateLabel}
                   stroke="var(--win)"
                   strokeWidth={2}
                   dot={{ r: 4, fill: 'var(--win)', stroke: 'var(--card)', strokeWidth: 2 }}
                   activeDot={{ r: 5, fill: 'var(--win)', stroke: 'var(--card)', strokeWidth: 2 }}
                 />
-              </LineChart>
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
         )}

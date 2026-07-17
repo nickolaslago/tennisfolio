@@ -2,8 +2,10 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Legend,
   LabelList,
   ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
 } from 'recharts'
@@ -20,9 +22,38 @@ function percentLabel(value: number): string {
   return `${Math.round(value * 100)}%`
 }
 
+function TooltipContent({
+  active,
+  payload,
+  winRateLabel,
+  matchesPlayedLabel,
+}: {
+  active?: boolean
+  payload?: { payload: SurfaceWinRate }[]
+  winRateLabel: string
+  matchesPlayedLabel: string
+}) {
+  if (!active || !payload?.length) return null
+  const point = payload[0].payload
+  return (
+    <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
+      <p className="font-medium text-popover-foreground">{point.surface}</p>
+      <p className="text-muted-foreground">
+        {winRateLabel}: {point.wins}-{point.losses} ·{' '}
+        {point.win_rate !== null ? percentLabel(point.win_rate) : '—'}
+      </p>
+      <p className="text-muted-foreground">
+        {matchesPlayedLabel}: {point.matches}
+      </p>
+    </div>
+  )
+}
+
 export function WinRateBySurfaceChart({ data }: WinRateBySurfaceChartProps) {
   const { t } = useTranslation()
   const points = data.filter((d) => d.win_rate !== null)
+  const winRateLabel = t('home.winRateBySurface.winRate')
+  const matchesPlayedLabel = t('home.winRateBySurface.matchesPlayed')
 
   return (
     <Card>
@@ -47,6 +78,7 @@ export function WinRateBySurfaceChart({ data }: WinRateBySurfaceChartProps) {
                   tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
                 />
                 <YAxis
+                  yAxisId="winRate"
                   domain={[0, 1]}
                   tickFormatter={percentLabel}
                   tickLine={false}
@@ -54,7 +86,41 @@ export function WinRateBySurfaceChart({ data }: WinRateBySurfaceChartProps) {
                   width={40}
                   tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
                 />
-                <Bar dataKey="win_rate" fill="var(--chart-2)" radius={[4, 4, 0, 0]} maxBarSize={56}>
+                <YAxis
+                  yAxisId="matches"
+                  orientation="right"
+                  allowDecimals={false}
+                  domain={[0, (max: number) => Math.max(4, Math.ceil(max * 1.4))]}
+                  tickLine={false}
+                  axisLine={false}
+                  width={32}
+                  tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
+                />
+                <Tooltip
+                  content={
+                    <TooltipContent
+                      winRateLabel={winRateLabel}
+                      matchesPlayedLabel={matchesPlayedLabel}
+                    />
+                  }
+                  cursor={{ fill: 'var(--border)', fillOpacity: 0.3 }}
+                />
+                <Legend
+                  verticalAlign="top"
+                  align="right"
+                  height={24}
+                  iconType="circle"
+                  iconSize={8}
+                  wrapperStyle={{ fontSize: 12, color: 'var(--muted-foreground)' }}
+                />
+                <Bar
+                  yAxisId="winRate"
+                  dataKey="win_rate"
+                  name={winRateLabel}
+                  fill="var(--chart-2)"
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={56}
+                >
                   <LabelList
                     dataKey="win_rate"
                     position="top"
@@ -63,6 +129,14 @@ export function WinRateBySurfaceChart({ data }: WinRateBySurfaceChartProps) {
                     fontSize={12}
                   />
                 </Bar>
+                <Bar
+                  yAxisId="matches"
+                  dataKey="matches"
+                  name={matchesPlayedLabel}
+                  fill="var(--muted-foreground)"
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={20}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>

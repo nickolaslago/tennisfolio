@@ -77,7 +77,9 @@
     "winRateBySurface": {
       "title": "Taxa de vitórias por piso",
       "description": "Como os resultados variam entre os pisos em que você jogou.",
-      "empty": "Ainda não há dados por piso — registre partidas com um piso para ver isto."
+      "empty": "Ainda não há dados por piso — registre partidas com um piso para ver isto.",
+      "winRate": "Taxa de vitórias",
+      "matchesPlayed": "Partidas jogadas"
     },
     "resultsDistribution": {
       "title": "Distribuição de resultados",
@@ -90,7 +92,9 @@
     "winRateOverTime": {
       "title": "Taxa de vitórias ao longo do tempo",
       "description": "Taxa de vitórias mensal em todas as partidas jogadas.",
-      "empty": "Jogue algumas partidas para ver aqui a tendência da sua forma."
+      "empty": "Jogue algumas partidas para ver aqui a tendência da sua forma.",
+      "winRate": "Taxa de vitórias",
+      "matchesPlayed": "Partidas jogadas"
     },
     "nextEvents": {
       "upcomingMatches": {
