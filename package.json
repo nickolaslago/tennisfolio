@@ -11,6 +11,7 @@
     "build:web": "pnpm --filter @tennisfolio/web build",
     "lint:web": "pnpm --filter @tennisfolio/web lint",
     "format:web": "pnpm --filter @tennisfolio/web format",
+    "test:web": "pnpm --filter @tennisfolio/web test",
     "test:core": "pnpm --filter @tennisfolio/core test"
   },
   "packageManager": "pnpm@11.13.0"

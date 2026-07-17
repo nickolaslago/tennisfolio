@@ -1,6 +1,6 @@
 import { TOURNAMENT_FORMAT_OPTIONS, isTournamentFormat } from '@tennisfolio/core'
 import { ChevronLeft, Pencil, Trash2, Trophy } from 'lucide-react'
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { EntityIcon } from '@/components/data/entity-icon'
@@ -44,6 +44,7 @@ import { useLastOrganiser } from '@/hooks/use-last-organiser'
 import { useMatches } from '@/hooks/use-matches'
 import type { Match } from '@/lib/api/matches'
 import type { StandingsRow } from '@/lib/api/tournaments'
+import { sortByLabel } from '@/lib/sort-options'
 import { useDocumentTitle } from '@/lib/use-document-title'
 
 function dateRange(tournament: Tournament) {
@@ -653,6 +654,10 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
     : (location.state as { duplicate?: Tournament } | null)?.duplicate
 
   const clubs = useClubs()
+  const clubOptions = useMemo(
+    () => sortByLabel(clubs.data?.items ?? [], (c) => c.name),
+    [clubs.data],
+  )
   const createTournament = useCreateTournament()
   const updateTournament = useUpdateTournament(tournamentId)
   const [lastOrganiser, rememberOrganiser] = useLastOrganiser()
@@ -837,7 +842,7 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={NO_CLUB_VALUE}>No host club</SelectItem>
-                    {(clubs.data?.items ?? []).map((c) => (
+                    {clubOptions.map((c) => (
                       <SelectItem key={c.id} value={String(c.id)}>
                         {c.name}
                       </SelectItem>
