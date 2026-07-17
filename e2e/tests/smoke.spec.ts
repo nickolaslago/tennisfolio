@@ -2,9 +2,9 @@ import { expect, test } from '@playwright/test'
 
 // End-to-end smoke test for the Docker Compose stack (docs/DAT-92). Runs the
 // core "one-screen match entry" journey against the real API + Postgres, not
-// mocks: create an opponent, create a club, log a match via a score string,
-// confirm the derived result reaches the match detail page, then confirm the
-// table/card view toggle works.
+// mocks: create an opponent, create a club, log a match via the per-set score
+// fields, confirm the derived result reaches the match detail page, then
+// confirm the table/card view toggle works.
 
 test('opponent -> club -> match -> derived result -> view toggle', async ({ page }) => {
   const runId = Date.now()
@@ -39,7 +39,14 @@ test('opponent -> club -> match -> derived result -> view toggle', async ({ page
     await page.getByRole('combobox', { name: 'Club' }).click()
     await page.getByRole('option', { name: clubName }).click()
 
-    await page.getByRole('textbox', { name: 'Score' }).fill('6-4 3-6 10-7')
+    // Score entry is a per-set games-won/games-lost grid (DAT-123) — the default
+    // "3 Sets" scoring type gives us exactly the three rows this score needs.
+    await page.getByLabel('Set 1 games won').fill('6')
+    await page.getByLabel('Set 1 games lost').fill('4')
+    await page.getByLabel('Set 2 games won').fill('3')
+    await page.getByLabel('Set 2 games lost').fill('6')
+    await page.getByLabel('Set 3 games won').fill('10')
+    await page.getByLabel('Set 3 games lost').fill('7')
     await page.getByRole('button', { name: 'Save match' }).click()
 
     await expect(page.getByRole('heading', { name: 'Match saved' })).toBeVisible()
