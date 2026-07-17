@@ -1,13 +1,16 @@
 import { NavLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 import { navItems } from '@/components/layout/nav-items'
 import { cn } from '@/lib/utils'
 
 /** Mobile navigation: fixed bottom tab bar, hidden at the md breakpoint and up. */
 export function BottomTabBar() {
+  const { t } = useTranslation()
+
   return (
     <nav
-      aria-label="Primary"
+      aria-label={t('nav.primaryNavLabel')}
       className="fixed inset-x-0 bottom-0 z-40 border-t border-sidebar-border bg-sidebar pb-[env(safe-area-inset-bottom)] text-sidebar-foreground md:hidden"
     >
       <ul
@@ -34,7 +37,7 @@ export function BottomTabBar() {
                     aria-hidden="true"
                     className={cn('size-5', isActive && 'stroke-[2.25]')}
                   />
-                  {item.label}
+                  {t(item.labelKey)}
                 </>
               )}
             </NavLink>

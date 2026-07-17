@@ -1,3 +1,13 @@
 {
-  "common": {}
+  "common": {},
+  "nav": {
+    "skipToContent": "Skip to content",
+    "primaryNavLabel": "Primary",
+    "home": "Home",
+    "matches": "Matches",
+    "opponents": "Opponents",
+    "clubs": "Clubs",
+    "tournaments": "Tournaments",
+    "export": "Export"
+  }
 }
