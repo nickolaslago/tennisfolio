@@ -9,5 +9,10 @@
     "clubs": "Clubs",
     "tournaments": "Tournaments",
     "export": "Export"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "That ball went long — there's nothing at this address.",
+    "backToHome": "Back to Home"
   }
 }

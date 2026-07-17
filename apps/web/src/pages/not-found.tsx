@@ -1,20 +1,19 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { useDocumentTitle } from '@/lib/use-document-title'
 
 export function NotFoundPage() {
-  useDocumentTitle('Page not found')
+  const { t } = useTranslation()
+  useDocumentTitle(t('notFound.title'))
 
   return (
     <>
-      <PageHeader
-        title="Page not found"
-        description="That ball went long — there's nothing at this address."
-      />
+      <PageHeader title={t('notFound.title')} description={t('notFound.description')} />
       <Button asChild>
-        <Link to="/">Back to Home</Link>
+        <Link to="/">{t('notFound.backToHome')}</Link>
       </Button>
     </>
   )
