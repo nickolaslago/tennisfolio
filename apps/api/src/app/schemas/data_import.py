@@ -7,6 +7,7 @@ class ImportResult(BaseModel):
     """Row counts written by a wipe + replace import, plus any skipped rows."""
 
     clubs: int
+    courts: int
     opponents: int
     tournaments: int
     matches: int

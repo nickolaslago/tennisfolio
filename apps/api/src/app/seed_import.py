@@ -20,7 +20,7 @@ from datetime import date, datetime
 from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
-from app.models import Club, Match, Opponent, Set, Tournament
+from app.models import Club, Court, Match, Opponent, Set, Tournament
 from app.models.enums import (
     AgeRange,
     Environment,
@@ -30,7 +30,7 @@ from app.models.enums import (
 )
 from app.models.enums import Surface as SurfaceEnum
 
-TABLES = ("clubs", "opponents", "tournaments", "matches", "sets")
+TABLES = ("clubs", "courts", "opponents", "tournaments", "matches", "sets")
 
 # "Fast" isn't a Surface enum member — it's a common colloquial synonym for
 # hard courts, which is how it's used in the seed data (USTA National Tennis
@@ -129,17 +129,6 @@ def import_clubs(db: Session, rows: list[dict[str, str]], report: ImportReport) 
     for row in rows:
         csv_id = row["club_id"]
         name = row["name"].strip()
-        surface_raw = blank_to_none(row.get("surface"))
-        environment_raw = blank_to_none(row.get("environment"))
-
-        if surface_raw and surface_raw not in SURFACE_ALIASES:
-            report.skip("clubs", csv_id, f"unknown surface {surface_raw!r}")
-            continue
-        try:
-            environment = Environment(environment_raw) if environment_raw else None
-        except ValueError:
-            report.skip("clubs", csv_id, f"unknown environment {environment_raw!r}")
-            continue
 
         club = db.query(Club).filter_by(name=name).one_or_none()
         action = "updated" if club is not None else "inserted"
@@ -148,11 +137,56 @@ def import_clubs(db: Session, rows: list[dict[str, str]], report: ImportReport) 
             db.add(club)
         club.city = blank_to_none(row.get("city"))
         club.country = blank_to_none(row.get("country"))
-        club.surface = SURFACE_ALIASES[surface_raw] if surface_raw else None
-        club.environment = environment
         db.flush()
         id_map[csv_id] = club.id
         report.record("clubs", action)
+    return id_map
+
+
+def import_courts(
+    db: Session,
+    rows: list[dict[str, str]],
+    club_ids: dict[str, int],
+    report: ImportReport,
+) -> dict[str, int]:
+    id_map: dict[str, int] = {}
+    for row in rows:
+        csv_id = row["court_id"]
+
+        club_csv_id = blank_to_none(row.get("club_id"))
+        if club_csv_id is None or club_csv_id not in club_ids:
+            report.skip("courts", csv_id, f"unknown club_id {club_csv_id!r}")
+            continue
+        club_id = club_ids[club_csv_id]
+
+        surface_raw = blank_to_none(row.get("surface"))
+        if not surface_raw or surface_raw not in SURFACE_ALIASES:
+            report.skip("courts", csv_id, f"unknown surface {surface_raw!r}")
+            continue
+        surface = SURFACE_ALIASES[surface_raw]
+
+        environment_raw = blank_to_none(row.get("environment"))
+        try:
+            environment = Environment(environment_raw) if environment_raw else None
+        except ValueError:
+            report.skip("courts", csv_id, f"unknown environment {environment_raw!r}")
+            continue
+        if environment is None:
+            report.skip("courts", csv_id, "missing environment")
+            continue
+
+        court = (
+            db.query(Court)
+            .filter_by(club_id=club_id, surface=surface, environment=environment)
+            .one_or_none()
+        )
+        action = "updated" if court is not None else "inserted"
+        if court is None:
+            court = Court(club_id=club_id, surface=surface, environment=environment)
+            db.add(court)
+        db.flush()
+        id_map[csv_id] = court.id
+        report.record("courts", action)
     return id_map
 
 
@@ -249,6 +283,7 @@ def import_matches(
     rows: list[dict[str, str]],
     opponent_ids: dict[str, int],
     club_ids: dict[str, int],
+    court_ids: dict[str, int],
     tournament_ids: dict[str, int],
     report: ImportReport,
 ) -> dict[str, int]:
@@ -268,6 +303,12 @@ def import_matches(
             continue
         club_id = club_ids[club_csv_id] if club_csv_id is not None else None
 
+        court_csv_id = blank_to_none(row.get("court_id"))
+        if court_csv_id is not None and court_csv_id not in court_ids:
+            report.skip("matches", csv_id, f"unknown court_id {court_csv_id!r}")
+            continue
+        court_id = court_ids[court_csv_id] if court_csv_id is not None else None
+
         tournament_csv_id = blank_to_none(row.get("tournament_id"))
         if tournament_csv_id is not None and tournament_csv_id not in tournament_ids:
             report.skip("matches", csv_id, f"unknown tournament_id {tournament_csv_id!r}")
@@ -279,12 +320,6 @@ def import_matches(
         except ValueError:
             report.skip("matches", csv_id, f"unparseable match_date {row['match_date']!r}")
             continue
-
-        surface_raw = blank_to_none(row.get("surface"))
-        if surface_raw and surface_raw not in SURFACE_ALIASES:
-            report.skip("matches", csv_id, f"unknown surface {surface_raw!r}")
-            continue
-        surface = SURFACE_ALIASES[surface_raw] if surface_raw else None
 
         try:
             status = MatchStatus(row.get("status", "played").strip() or "played")
@@ -310,9 +345,9 @@ def import_matches(
             match = Match(match_date=match_date, opponent_id=opponent_id)
             db.add(match)
         match.club_id = club_id
+        match.court_id = court_id
         match.tournament_id = tournament_id
         match.stage = blank_to_none(row.get("stage"))
-        match.surface = surface
         match.duration_min = duration_min
         match.notes = blank_to_none(row.get("notes"))
         match.status = status
@@ -388,6 +423,7 @@ def wipe_all(db: Session) -> None:
     """
     db.execute(delete(Set))
     db.execute(delete(Match))
+    db.execute(delete(Court))
     db.execute(delete(Tournament))
     db.execute(delete(Club))
     db.execute(delete(Opponent))

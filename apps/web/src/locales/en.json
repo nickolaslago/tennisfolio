@@ -228,7 +228,11 @@
       "durationHint": "In minutes",
       "durationPlaceholder": "e.g. 90",
       "notes": "Notes",
-      "notesPlaceholder": "How it went, what to work on…"
+      "notesPlaceholder": "How it went, what to work on…",
+      "court": "Court",
+      "courtPlaceholder": "Select a court",
+      "courtPickClubFirst": "Pick a club first",
+      "courtNone": "This club has no courts yet."
     },
     "scorePreview": {
       "prefix": "Reads as a",
@@ -344,7 +348,8 @@
       "city": "City",
       "country": "Country",
       "surface": "Surface",
-      "environment": "Environment"
+      "environment": "Environment",
+      "courts": "Courts"
     },
     "emptyState": {
       "title": "No clubs yet",
@@ -383,7 +388,14 @@
       "environmentPlaceholder": "Select environment",
       "environmentIndoor": "Indoor",
       "environmentOutdoor": "Outdoor",
-      "saveChanges": "Save changes"
+      "saveChanges": "Save changes",
+      "courts": "Courts",
+      "courtsHint": "Add at least one court. Each must be a unique surface and environment.",
+      "courtsRequired": "Add at least one court.",
+      "courtIncomplete": "Each court needs both a surface and an environment.",
+      "courtDuplicate": "Each court must be a unique surface and environment combination.",
+      "addCourt": "Add court",
+      "removeCourt": "Remove court"
     }
   },
   "tournaments": {

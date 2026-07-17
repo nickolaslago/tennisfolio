@@ -1,5 +1,5 @@
-club_id,name,city,country,surface,environment
-clu-1,Stade Roland Garros,Paris,France,Clay,Outdoor
-clu-2,All England Lawn Tennis & Croquet Club,London,United Kingdom,Grass,Outdoor
-clu-3,USTA Billie Jean King National Tennis Center,New York,Unite States,Fast,Outdoor
-clu-4,La Defense Arena,Paris,France,Fast,Indoor
+club_id,name,city,country
+clu-1,Stade Roland Garros,Paris,France
+clu-2,All England Lawn Tennis & Croquet Club,London,United Kingdom
+clu-3,USTA Billie Jean King National Tennis Center,New York,Unite States
+clu-4,La Defense Arena,Paris,France

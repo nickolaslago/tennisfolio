@@ -20,7 +20,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.db import DbSession
-from app.models import Club, Match, Opponent, Tournament
+from app.models import Club, Court, Match, Opponent, Tournament
 
 router = APIRouter(prefix="/export", tags=["export"])
 
@@ -55,12 +55,23 @@ def _clubs_csv(clubs: list[Club]) -> str:
             c.name,
             _fmt(c.city),
             _fmt(c.country),
-            _fmt(c.surface.value if c.surface else None),
-            _fmt(c.environment.value if c.environment else None),
         ]
         for c in clubs
     ]
-    return _write_csv(["club_id", "name", "city", "country", "surface", "environment"], rows)
+    return _write_csv(["club_id", "name", "city", "country"], rows)
+
+
+def _courts_csv(courts: list[Court]) -> str:
+    rows = [
+        [
+            f"cou-{c.id}",
+            f"clu-{c.club_id}",
+            c.surface.value,
+            c.environment.value,
+        ]
+        for c in courts
+    ]
+    return _write_csv(["court_id", "club_id", "surface", "environment"], rows)
 
 
 def _opponents_csv(opponents: list[Opponent]) -> str:
@@ -130,9 +141,9 @@ def _matches_csv(matches: list[Match]) -> str:
             _fmt_date(m.match_date),
             f"opp-{m.opponent_id}",
             f"clu-{m.club_id}" if m.club_id is not None else "",
+            f"cou-{m.court_id}" if m.court_id is not None else "",
             f"tou-{m.tournament_id}" if m.tournament_id is not None else "",
             _fmt(m.stage),
-            _fmt(m.surface.value if m.surface else None),
             _fmt(m.duration_min),
             m.status.value,
             _fmt(m.notes),
@@ -145,9 +156,9 @@ def _matches_csv(matches: list[Match]) -> str:
             "match_date",
             "opponent_id",
             "club_id",
+            "court_id",
             "tournament_id",
             "stage",
-            "surface",
             "duration_min",
             "status",
             "notes",
@@ -172,14 +183,17 @@ def _sets_csv(matches: list[Match]) -> str:
     return _write_csv(["set_id", "match_id", "set_no", "games_won", "games_lost", "tiebreak"], rows)
 
 
-def _load_all(db: DbSession) -> tuple[list[Club], list[Opponent], list[Tournament], list[Match]]:
+def _load_all(
+    db: DbSession,
+) -> tuple[list[Club], list[Court], list[Opponent], list[Tournament], list[Match]]:
     clubs = list(db.scalars(select(Club).order_by(Club.id)).all())
+    courts = list(db.scalars(select(Court).order_by(Court.id)).all())
     opponents = list(db.scalars(select(Opponent).order_by(Opponent.id)).all())
     tournaments = list(db.scalars(select(Tournament).order_by(Tournament.id)).all())
     matches = list(
         db.scalars(select(Match).options(selectinload(Match.sets)).order_by(Match.id)).all()
     )
-    return clubs, opponents, tournaments, matches
+    return clubs, courts, opponents, tournaments, matches
 
 
 def _timestamp() -> str:
@@ -188,11 +202,12 @@ def _timestamp() -> str:
 
 @router.get("/csv")
 def export_csv(db: DbSession) -> Response:
-    clubs, opponents, tournaments, matches = _load_all(db)
+    clubs, courts, opponents, tournaments, matches = _load_all(db)
 
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.writestr("clubs.csv", _clubs_csv(clubs))
+        zf.writestr("courts.csv", _courts_csv(courts))
         zf.writestr("opponents.csv", _opponents_csv(opponents))
         zf.writestr("tournaments.csv", _tournaments_csv(tournaments))
         zf.writestr("matches.csv", _matches_csv(matches))
@@ -208,7 +223,7 @@ def export_csv(db: DbSession) -> Response:
 
 @router.get("/json")
 def export_json(db: DbSession) -> Response:
-    clubs, opponents, tournaments, matches = _load_all(db)
+    clubs, courts, opponents, tournaments, matches = _load_all(db)
 
     payload = {
         "exported_at": datetime.now().isoformat(),
@@ -218,10 +233,17 @@ def export_json(db: DbSession) -> Response:
                 "name": c.name,
                 "city": c.city,
                 "country": c.country,
-                "surface": c.surface.value if c.surface else None,
-                "environment": c.environment.value if c.environment else None,
             }
             for c in clubs
+        ],
+        "courts": [
+            {
+                "id": c.id,
+                "club_id": c.club_id,
+                "surface": c.surface.value,
+                "environment": c.environment.value,
+            }
+            for c in courts
         ],
         "opponents": [
             {
@@ -256,9 +278,9 @@ def export_json(db: DbSession) -> Response:
                 "match_date": m.match_date.isoformat(),
                 "opponent_id": m.opponent_id,
                 "club_id": m.club_id,
+                "court_id": m.court_id,
                 "tournament_id": m.tournament_id,
                 "stage": m.stage,
-                "surface": m.surface.value if m.surface else None,
                 "duration_min": m.duration_min,
                 "status": m.status.value,
                 "notes": m.notes,

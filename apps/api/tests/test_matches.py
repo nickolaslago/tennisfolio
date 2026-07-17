@@ -18,6 +18,15 @@ def _club(client: TestClient, name: str = "Roland Garros") -> int:
     return client.post("/clubs", json={"name": name}).json()["id"]
 
 
+def _club_with_courts(
+    client: TestClient, name: str, surfaces: list[str]
+) -> tuple[int, dict[str, int]]:
+    """Create a club with one court per surface; return (club_id, {surface: court_id})."""
+    courts = [{"surface": surface, "environment": "Outdoor"} for surface in surfaces]
+    body = client.post("/clubs", json={"name": name, "courts": courts}).json()
+    return body["id"], {c["surface"]: c["id"] for c in body["courts"]}
+
+
 def _tournament(client: TestClient, name: str = "Club Open") -> int:
     response = client.post(
         "/tournaments", json={"name": name, "tournament_type": "Knockout Tournament"}
@@ -251,6 +260,66 @@ def test_create_unknown_tournament_404(client: TestClient) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Court selection and club/court validation
+# ---------------------------------------------------------------------------
+
+
+def test_create_match_with_court_derives_surface(client: TestClient) -> None:
+    club_id, courts = _club_with_courts(client, "Roland Garros", ["Clay"])
+    response = client.post(
+        "/matches",
+        json=_match_payload(
+            _opponent(client), score="6-4", club_id=club_id, court_id=courts["Clay"]
+        ),
+    )
+    assert response.status_code == 201
+    body = response.json()
+    assert body["court_id"] == courts["Clay"]
+    assert body["surface"] == "Clay"
+
+
+def test_create_match_unknown_court_404(client: TestClient) -> None:
+    club_id = _club(client)
+    response = client.post(
+        "/matches",
+        json=_match_payload(_opponent(client), score="6-4", club_id=club_id, court_id=999),
+    )
+    assert response.status_code == 404
+
+
+def test_create_match_court_must_belong_to_club(client: TestClient) -> None:
+    _club_a, courts_a = _club_with_courts(client, "Club A", ["Clay"])
+    club_b = _club(client, "Club B")
+    response = client.post(
+        "/matches",
+        json=_match_payload(
+            _opponent(client), score="6-4", club_id=club_b, court_id=courts_a["Clay"]
+        ),
+    )
+    assert response.status_code == 422
+
+
+def test_create_match_court_without_club_rejected(client: TestClient) -> None:
+    _club_id, courts = _club_with_courts(client, "Club A", ["Clay"])
+    response = client.post(
+        "/matches",
+        json=_match_payload(_opponent(client), score="6-4", court_id=courts["Clay"]),
+    )
+    assert response.status_code == 422
+
+
+def test_update_match_court_must_belong_to_club(client: TestClient) -> None:
+    _club_a, courts_a = _club_with_courts(client, "Club A", ["Clay"])
+    club_b = _club(client, "Club B")
+    created = client.post(
+        "/matches", json=_match_payload(_opponent(client), score="6-4", club_id=club_b)
+    ).json()
+
+    response = client.patch(f"/matches/{created['id']}", json={"court_id": courts_a["Clay"]})
+    assert response.status_code == 422
+
+
+# ---------------------------------------------------------------------------
 # Scheduled matches and completing them later
 # ---------------------------------------------------------------------------
 
@@ -403,30 +472,34 @@ def test_delete_match_not_found(client: TestClient) -> None:
 
 @pytest.fixture()
 def filter_fixture(client: TestClient) -> dict[str, int]:
-    """Six matches spread over opponents, clubs, tournaments, surfaces and dates."""
+    """Six matches spread over opponents, clubs, tournaments, surfaces and dates.
+
+    Surface is derived through each match's court, so the two clubs are given
+    courts for every surface they need.
+    """
     nadal = _opponent(client, "Nadal")
     federer = _opponent(client, "Federer")
-    club_a = _club(client, "Club A")
-    club_b = _club(client, "Club B")
+    club_a, courts_a = _club_with_courts(client, "Club A", ["Clay", "Grass"])
+    club_b, courts_b = _club_with_courts(client, "Club B", ["Hard", "Clay"])
     tournament = _tournament(client)
 
     matches = [
-        # date, opponent, club, tournament, surface, score
-        ("2026-01-10", nadal, club_a, None, "Clay", "6-4"),
-        ("2026-02-15", nadal, club_b, tournament, "Hard", "3-6 6-4 10-8"),
-        ("2026-03-20", federer, club_a, tournament, "Grass", "4-6"),
-        ("2026-04-25", federer, club_b, None, "Clay", "6-3 6-2 6-2"),
+        # date, opponent, club, court, tournament, score
+        ("2026-01-10", nadal, club_a, courts_a["Clay"], None, "6-4"),
+        ("2026-02-15", nadal, club_b, courts_b["Hard"], tournament, "3-6 6-4 10-8"),
+        ("2026-03-20", federer, club_a, courts_a["Grass"], tournament, "4-6"),
+        ("2026-04-25", federer, club_b, courts_b["Clay"], None, "6-3 6-2 6-2"),
         ("2026-05-30", nadal, None, None, None, "7-6"),
-        ("2026-06-05", federer, club_a, None, "Clay", None),  # scheduled
+        ("2026-06-05", federer, club_a, courts_a["Clay"], None, None),  # scheduled
     ]
-    for match_date, opponent_id, club_id, tournament_id, surface, score in matches:
+    for match_date, opponent_id, club_id, court_id, tournament_id, score in matches:
         payload: dict[str, Any] = {"match_date": match_date, "opponent_id": opponent_id}
         if club_id is not None:
             payload["club_id"] = club_id
+        if court_id is not None:
+            payload["court_id"] = court_id
         if tournament_id is not None:
             payload["tournament_id"] = tournament_id
-        if surface is not None:
-            payload["surface"] = surface
         if score is not None:
             payload["score"] = score
         assert client.post("/matches", json=payload).status_code == 201

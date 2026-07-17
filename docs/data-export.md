@@ -15,7 +15,7 @@ filtering.
 
 ## CSV export
 
-The zip contains `clubs.csv`, `opponents.csv`, `tournaments.csv`,
+The zip contains `clubs.csv`, `courts.csv`, `opponents.csv`, `tournaments.csv`,
 `matches.csv`, and `sets.csv`. Their column layout is **identical to what
 [`apps/api/scripts/import_seed.py`](../apps/api/scripts/import_seed.py)
 reads** — the same script used to load the mock seed data — so a CSV export
@@ -36,12 +36,18 @@ Each row carries a `*_id` column that only exists to link rows *within the
 export* — `mat-3` in `matches.csv` refers to the same match as `mat-3` in
 `sets.csv`. These are **not** the database's real integer primary keys; the
 importer maps them to whatever IDs the target database assigns on
-insert/upsert. Prefixes: `clu-` (clubs), `opp-` (opponents), `tou-`
-(tournaments), `mat-` (matches), `set-` (sets).
+insert/upsert. Prefixes: `clu-` (clubs), `cou-` (courts), `opp-` (opponents),
+`tou-` (tournaments), `mat-` (matches), `set-` (sets).
 
 ### Column reference
 
-**`clubs.csv`**: `club_id, name, city, country, surface, environment`
+**`clubs.csv`**: `club_id, name, city, country`
+
+**`courts.csv`**: `court_id, club_id, surface, environment`
+
+> A club owns one or more courts, each a unique `(surface, environment)`
+> combination. A match's surface is derived through its court, so it is no
+> longer stored on the club or the match directly.
 
 **`opponents.csv`**: `opponent_id, last_name, name, nationality, handeness, age_range, level, notes`
 
@@ -51,7 +57,7 @@ insert/upsert. Prefixes: `clu-` (clubs), `opp-` (opponents), `tou-`
 
 **`tournaments.csv`**: `tournament_id, name, season, tournament_type, format, club_id, start_date, end_date, notes`
 
-**`matches.csv`**: `match_id, match_date, opponent_id, club_id, tournament_id, stage, surface, duration_min, status, notes`
+**`matches.csv`**: `match_id, match_date, opponent_id, club_id, court_id, tournament_id, stage, duration_min, status, notes`
 
 **`sets.csv`**: `set_id, match_id, set_no, games_won, games_lost, tiebreak`
 
@@ -76,7 +82,8 @@ A single object:
 ```jsonc
 {
   "exported_at": "2026-07-16T10:32:04.123456",
-  "clubs": [ { "id": 1, "name": "...", "city": null, "country": null, "surface": "Clay", "environment": "Outdoor" } ],
+  "clubs": [ { "id": 1, "name": "...", "city": null, "country": null } ],
+  "courts": [ { "id": 1, "club_id": 1, "surface": "Clay", "environment": "Outdoor" } ],
   "opponents": [ { "id": 1, "last_name": "...", "name": null, "nationality": null, "handedness": "R", "age_range": null, "level": null, "notes": null } ],
   "tournaments": [ { "id": 1, "name": "...", "season": null, "tournament_type": "Knockout Tournament", "format": null, "club_id": 1, "start_date": "2026-05-24", "end_date": null, "notes": null } ],
   "matches": [
@@ -85,9 +92,9 @@ A single object:
       "match_date": "2026-05-25",
       "opponent_id": 1,
       "club_id": 1,
+      "court_id": 1,
       "tournament_id": 1,
       "stage": "R32",
-      "surface": "Clay",
       "duration_min": 125,
       "status": "played",
       "notes": null,

@@ -5,7 +5,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
 from app.db import Base
-from app.models import Match, Opponent, Set
+from app.models import Club, Court, Match, Opponent, Set
 from app.models.enums import (
     Environment,
     Handedness,
@@ -35,6 +35,7 @@ def test_all_entities_registered() -> None:
     assert set(inspect(engine).get_table_names()) == {
         "opponents",
         "clubs",
+        "courts",
         "tournaments",
         "matches",
         "sets",
@@ -72,3 +73,19 @@ def test_sets_cascade_when_match_deleted() -> None:
         s.delete(match)
         s.commit()
         assert s.query(Set).count() == 0
+
+
+def test_courts_cascade_when_club_deleted() -> None:
+    with _session() as s:
+        club = Club(name="Roland Garros")
+        club.courts = [
+            Court(surface=Surface.CLAY, environment=Environment.OUTDOOR),
+            Court(surface=Surface.HARD, environment=Environment.INDOOR),
+        ]
+        s.add(club)
+        s.commit()
+        assert s.query(Court).count() == 2
+
+        s.delete(club)
+        s.commit()
+        assert s.query(Court).count() == 0

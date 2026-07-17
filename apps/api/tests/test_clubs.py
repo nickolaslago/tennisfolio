@@ -5,13 +5,56 @@ from fastapi.testclient import TestClient
 def test_create_club(client: TestClient) -> None:
     response = client.post(
         "/clubs",
-        json={"name": "Riverside Tennis Club", "surface": "Clay", "environment": "Outdoor"},
+        json={
+            "name": "Riverside Tennis Club",
+            "courts": [{"surface": "Clay", "environment": "Outdoor"}],
+        },
     )
     assert response.status_code == 201
     body = response.json()
     assert body["name"] == "Riverside Tennis Club"
-    assert body["surface"] == "Clay"
+    assert len(body["courts"]) == 1
+    assert body["courts"][0]["surface"] == "Clay"
+    assert body["courts"][0]["environment"] == "Outdoor"
+    assert "id" in body["courts"][0]
     assert "id" in body
+
+
+def test_create_club_without_courts(client: TestClient) -> None:
+    response = client.post("/clubs", json={"name": "Riverside"})
+    assert response.status_code == 201
+    assert response.json()["courts"] == []
+
+
+def test_create_club_with_multiple_courts(client: TestClient) -> None:
+    response = client.post(
+        "/clubs",
+        json={
+            "name": "Big Club",
+            "courts": [
+                {"surface": "Clay", "environment": "Outdoor"},
+                {"surface": "Hard", "environment": "Indoor"},
+            ],
+        },
+    )
+    assert response.status_code == 201
+    body = response.json()
+    surfaces = {(c["surface"], c["environment"]) for c in body["courts"]}
+    assert surfaces == {("Clay", "Outdoor"), ("Hard", "Indoor")}
+
+
+def test_create_club_rejects_duplicate_courts(client: TestClient) -> None:
+    response = client.post(
+        "/clubs",
+        json={
+            "name": "Dup Club",
+            "courts": [
+                {"surface": "Clay", "environment": "Outdoor"},
+                {"surface": "Clay", "environment": "Outdoor"},
+            ],
+        },
+    )
+    assert response.status_code == 422
 
 
 def test_create_club_requires_name(client: TestClient) -> None:
@@ -23,8 +66,67 @@ def test_create_club_requires_name(client: TestClient) -> None:
 
 
 def test_create_club_rejects_invalid_enum(client: TestClient) -> None:
-    response = client.post("/clubs", json={"name": "Riverside", "surface": "Ice"})
+    response = client.post(
+        "/clubs",
+        json={"name": "Riverside", "courts": [{"surface": "Ice", "environment": "Indoor"}]},
+    )
     assert response.status_code == 422
+
+
+def test_update_club_courts_add_update_delete(client: TestClient) -> None:
+    created = client.post(
+        "/clubs",
+        json={
+            "name": "Evolving Club",
+            "courts": [
+                {"surface": "Clay", "environment": "Outdoor"},
+                {"surface": "Grass", "environment": "Outdoor"},
+            ],
+        },
+    ).json()
+    courts = {c["surface"]: c for c in created["courts"]}
+
+    # Keep+update the clay court, drop grass, add a new hard court.
+    response = client.patch(
+        f"/clubs/{created['id']}",
+        json={
+            "courts": [
+                {"id": courts["Clay"]["id"], "surface": "Clay", "environment": "Indoor"},
+                {"surface": "Hard", "environment": "Indoor"},
+            ]
+        },
+    )
+    assert response.status_code == 200
+    body = response.json()
+    result = {(c["surface"], c["environment"]) for c in body["courts"]}
+    assert result == {("Clay", "Indoor"), ("Hard", "Indoor")}
+    # The kept court retained its id (updated in place, not recreated).
+    clay = next(c for c in body["courts"] if c["surface"] == "Clay")
+    assert clay["id"] == courts["Clay"]["id"]
+
+
+def test_update_club_courts_omitted_leaves_them_untouched(client: TestClient) -> None:
+    created = client.post(
+        "/clubs",
+        json={"name": "Stable Club", "courts": [{"surface": "Clay", "environment": "Outdoor"}]},
+    ).json()
+
+    response = client.patch(f"/clubs/{created['id']}", json={"city": "Paris"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["city"] == "Paris"
+    assert len(body["courts"]) == 1
+
+
+def test_update_club_courts_empty_list_clears_them(client: TestClient) -> None:
+    created = client.post(
+        "/clubs",
+        json={"name": "Clearing Club", "courts": [{"surface": "Clay", "environment": "Outdoor"}]},
+    ).json()
+
+    response = client.patch(f"/clubs/{created['id']}", json={"courts": []})
+    assert response.status_code == 200
+    assert response.json()["courts"] == []
 
 
 def test_get_club(client: TestClient) -> None:

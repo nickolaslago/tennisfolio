@@ -30,6 +30,7 @@ from app.seed_import import (
     TABLES,
     ImportReport,
     import_clubs,
+    import_courts,
     import_matches,
     import_opponents,
     import_sets,
@@ -49,6 +50,7 @@ def run(seed_dir: Path, dry_run: bool) -> ImportReport:
     db = SessionLocal()
     try:
         club_ids = import_clubs(db, read_csv(seed_dir / "clubs.csv"), report)
+        court_ids = import_courts(db, read_csv(seed_dir / "courts.csv"), club_ids, report)
         opponent_ids = import_opponents(db, read_csv(seed_dir / "opponents.csv"), report)
         tournament_ids = import_tournaments(
             db, read_csv(seed_dir / "tournaments.csv"), club_ids, report
@@ -58,6 +60,7 @@ def run(seed_dir: Path, dry_run: bool) -> ImportReport:
             read_csv(seed_dir / "matches.csv"),
             opponent_ids,
             club_ids,
+            court_ids,
             tournament_ids,
             report,
         )

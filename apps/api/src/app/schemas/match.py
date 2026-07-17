@@ -34,9 +34,9 @@ class MatchBase(BaseModel):
     match_date: date
     opponent_id: int
     club_id: int | None = None
+    court_id: int | None = None
     tournament_id: int | None = None
     stage: str | None = Field(default=None, max_length=80)
-    surface: Surface | None = None
     duration_min: int | None = Field(default=None, ge=1)
     notes: str | None = None
 
@@ -69,9 +69,9 @@ class MatchUpdate(BaseModel):
     match_date: date | None = None
     opponent_id: int | None = None
     club_id: int | None = None
+    court_id: int | None = None
     tournament_id: int | None = None
     stage: str | None = Field(default=None, max_length=80)
-    surface: Surface | None = None
     duration_min: int | None = Field(default=None, ge=1)
     notes: str | None = None
     score: str | None = None
@@ -90,6 +90,9 @@ class MatchRead(MatchBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    # Derived from the match's court (see the matches router); the match itself
+    # no longer stores a surface.
+    surface: Surface | None
     status: MatchStatus
     match_type: str
     result: MatchResult | None

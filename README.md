@@ -24,9 +24,10 @@ Carried over from the Notion prototype, with results **derived** rather than sto
 | Table | Purpose |
 |---|---|
 | Opponents | Who you played |
-| Clubs | Where you played — surface, environment |
+| Clubs | Where you played |
+| Courts | A club's courts, each a unique (surface, environment) pair |
 | Tournaments | Knockout or ranking-league context for matches |
-| Matches | One row per match; result and score are derived |
+| Matches | One row per match; played on one of its club's courts; result and score are derived |
 | Sets | Per-set games won/lost; a match's result aggregates from these |
 
 Because everything result-related derives from Sets, the model handles 1, 3 or 5 sets identically with no schema change.
@@ -36,7 +37,7 @@ Because everything result-related derives from Sets, the model handles 1, 3 or 5
 The feature that justifies the whole app. A single form:
 
 - Opponent (dropdown, with quick "＋ new opponent")
-- Club (dropdown) → pre-fills surface, editable
+- Club (dropdown) → then a court picker limited to that club's courts (auto-selected when there's only one)
 - Tournament + stage (optional)
 - **Score** — one field: `6-4` or `6-4 3-6 10-7`
 
