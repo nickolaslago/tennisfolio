@@ -1,6 +1,8 @@
 import { ChevronLeft, Pencil, Trash2, UserPlus } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 
 import { CountryCombobox } from '@/components/data/country-combobox'
 import { EntityIcon } from '@/components/data/entity-icon'
@@ -42,7 +44,8 @@ const fullName = (opponent: Opponent) =>
   opponent.name ? `${opponent.name} ${opponent.last_name}` : opponent.last_name
 
 export function OpponentsPage() {
-  useDocumentTitle('Opponents')
+  const { t } = useTranslation()
+  useDocumentTitle(t('opponents.pageTitle'))
   const opponents = useOpponents()
   const deleteOpponent = useDeleteOpponent()
 
@@ -54,14 +57,14 @@ export function OpponentsPage() {
       duplicateState={{ duplicate: opponent }}
       onDelete={() => deleteOpponent.mutate(opponent.id)}
       deletePending={deleteOpponent.isPending}
-      deleteDescription="This permanently removes the opponent. This can't be undone."
+      deleteDescription={t('opponents.deleteDescription')}
     />
   )
 
   const columns: EntityColumn<Opponent>[] = [
     {
       id: 'name',
-      header: 'Name',
+      header: t('opponents.columns.name'),
       sortValue: (o) => fullName(o).toLowerCase(),
       cell: (o) => (
         <Link
@@ -75,18 +78,18 @@ export function OpponentsPage() {
     },
     {
       id: 'nationality',
-      header: 'Nationality',
+      header: t('opponents.columns.nationality'),
       sortValue: (o) => o.nationality,
       cell: (o) => o.nationality ?? '—',
     },
     {
       id: 'handedness',
-      header: 'Handedness',
+      header: t('opponents.columns.handedness'),
       cell: (o) => o.handedness ?? '—',
     },
     {
       id: 'level',
-      header: 'Level',
+      header: t('opponents.columns.level'),
       sortValue: (o) => o.level,
       cell: (o) => o.level ?? '—',
     },
@@ -94,10 +97,7 @@ export function OpponentsPage() {
 
   return (
     <>
-      <PageHeader
-        title="Opponents"
-        description="Players you've faced and your head-to-head records."
-      />
+      <PageHeader title={t('opponents.pageTitle')} description={t('opponents.pageDescription')} />
       <EntityList
         entityKey="opponents"
         items={opponents.data?.items ?? []}
@@ -108,13 +108,13 @@ export function OpponentsPage() {
         columns={columns}
         rowActions={rowOptions}
         getSearchText={(o) => `${fullName(o)} ${o.nationality ?? ''} ${o.level ?? ''}`}
-        searchPlaceholder="Filter opponents…"
+        searchPlaceholder={t('opponents.filterPlaceholder')}
         defaultSort={{ columnId: 'name', direction: 'asc' }}
-        emptyTitle="No opponents yet"
-        emptyDescription="Add the players you've faced to start tracking head-to-head records."
+        emptyTitle={t('opponents.emptyState.title')}
+        emptyDescription={t('opponents.emptyState.description')}
         createAction={{
-          label: 'Add opponent',
-          emptyLabel: 'Add your first opponent',
+          label: t('opponents.addOpponent'),
+          emptyLabel: t('opponents.addFirstOpponent'),
           to: '/opponents/new',
           icon: UserPlus,
         }}
@@ -133,15 +133,15 @@ export function OpponentsPage() {
               </div>
               <dl className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <dt className="text-muted-foreground">Nationality</dt>
+                  <dt className="text-muted-foreground">{t('opponents.columns.nationality')}</dt>
                   <dd>{o.nationality ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Handedness</dt>
+                  <dt className="text-muted-foreground">{t('opponents.columns.handedness')}</dt>
                   <dd>{o.handedness ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Level</dt>
+                  <dt className="text-muted-foreground">{t('opponents.columns.level')}</dt>
                   <dd>{o.level ?? '—'}</dd>
                 </div>
               </dl>
@@ -155,14 +155,15 @@ export function OpponentsPage() {
 
 type ResultFilter = 'all' | 'wins' | 'losses'
 
-function matchResultLabel(match: Match) {
-  if (!match.result) return 'Scheduled'
-  return match.result === 'Win' ? 'Win' : 'Loss'
-}
-
 function OpponentMatches({ opponentId }: { opponentId: number }) {
+  const { t } = useTranslation()
   const matches = useMatches({ opponent_id: opponentId })
   const [filter, setFilter] = useState<ResultFilter>('all')
+
+  const matchResultLabel = (match: Match) => {
+    if (!match.result) return t('matches.tabs.scheduled')
+    return match.result === 'Win' ? 'Win' : 'Loss'
+  }
 
   const items = matches.data?.items ?? []
   const filtered = items.filter((match) => {
@@ -177,7 +178,7 @@ function OpponentMatches({ opponentId }: { opponentId: number }) {
   const columns: EntityColumn<Match>[] = [
     {
       id: 'date',
-      header: 'Date',
+      header: t('matches.columns.date'),
       sortValue: (m) => m.match_date,
       cell: (m) => (
         <Link to={`/matches/${m.id}`} className="font-medium hover:underline">
@@ -187,18 +188,18 @@ function OpponentMatches({ opponentId }: { opponentId: number }) {
     },
     {
       id: 'score',
-      header: 'Score',
+      header: t('opponents.matches.columns.score'),
       cell: (m) => m.score ?? '—',
     },
     {
       id: 'result',
-      header: 'Result',
+      header: t('matches.columns.result'),
       sortValue: (m) => m.result ?? '',
       cell: (m) => matchResultLabel(m),
     },
     {
       id: 'surface',
-      header: 'Surface',
+      header: t('matches.columns.surface'),
       sortValue: (m) => m.surface,
       cell: (m) => m.surface ?? '—',
     },
@@ -207,10 +208,10 @@ function OpponentMatches({ opponentId }: { opponentId: number }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="cn-font-heading text-lg font-semibold">Matches</h2>
+        <h2 className="cn-font-heading text-lg font-semibold">{t('opponents.matches.heading')}</h2>
         {matches.isPending || matches.isError ? null : (
           <p className="text-sm text-muted-foreground">
-            {wins}–{losses} ({items.length} match{items.length === 1 ? '' : 'es'})
+            {t('opponents.matches.recordSummary', { wins, losses, count: items.length })}
           </p>
         )}
       </div>
@@ -221,17 +222,21 @@ function OpponentMatches({ opponentId }: { opponentId: number }) {
         <ErrorState error={matches.error} onRetry={() => void matches.refetch()} />
       ) : items.length === 0 ? (
         <EmptyState
-          title="No matches yet"
-          description="Matches played against this opponent will show up here."
+          title={t('opponents.matches.emptyState.title')}
+          description={t('opponents.matches.emptyState.description')}
         />
       ) : (
         <>
-          <div role="group" aria-label="Filter by result" className="flex gap-2">
+          <div
+            role="group"
+            aria-label={t('opponents.matches.filterByResultLabel')}
+            className="flex gap-2"
+          >
             {(
               [
-                { value: 'all', label: 'All' },
-                { value: 'wins', label: 'Wins' },
-                { value: 'losses', label: 'Losses' },
+                { value: 'all', label: t('opponents.matches.filters.all') },
+                { value: 'wins', label: t('opponents.matches.filters.wins') },
+                { value: 'losses', label: t('opponents.matches.filters.losses') },
               ] as const
             ).map((option) => (
               <Button
@@ -249,7 +254,7 @@ function OpponentMatches({ opponentId }: { opponentId: number }) {
 
           {filtered.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              No matches for this filter.
+              {t('opponents.matches.noFilterMatches')}
             </p>
           ) : (
             <Card>
@@ -282,13 +287,16 @@ function OpponentMatches({ opponentId }: { opponentId: number }) {
 }
 
 export function OpponentDetailPage() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const opponentId = Number(id)
   const opponent = useOpponent(opponentId)
   const deleteOpponent = useDeleteOpponent()
   const navigate = useNavigate()
   useDocumentTitle(
-    opponent.data ? `${opponent.data.name ?? ''} ${opponent.data.last_name}`.trim() : 'Opponent',
+    opponent.data
+      ? `${opponent.data.name ?? ''} ${opponent.data.last_name}`.trim()
+      : t('opponents.detail.pageTitleFallback'),
   )
 
   return (
@@ -296,12 +304,12 @@ export function OpponentDetailPage() {
       <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
         <Link to="/opponents">
           <ChevronLeft aria-hidden="true" data-icon="inline-start" />
-          Back to Opponents
+          {t('opponents.detail.backToOpponents')}
         </Link>
       </Button>
 
       {!Number.isFinite(opponentId) ? (
-        <ErrorState error={new Error(`"${id}" is not a valid opponent id.`)} />
+        <ErrorState error={new Error(t('opponents.detail.invalidId', { id }))} />
       ) : opponent.isPending ? (
         <LoadingState />
       ) : opponent.isError ? (
@@ -322,7 +330,7 @@ export function OpponentDetailPage() {
               <Button variant="outline" size="sm" asChild>
                 <Link to={`/opponents/${opponent.data.id}/edit`}>
                   <Pencil aria-hidden="true" data-icon="inline-start" />
-                  Edit
+                  {t('common.rowActions.edit')}
                 </Link>
               </Button>
               <Button
@@ -336,7 +344,7 @@ export function OpponentDetailPage() {
                 }}
               >
                 <Trash2 aria-hidden="true" data-icon="inline-start" />
-                Delete
+                {t('common.rowActions.delete')}
               </Button>
             </div>
           </div>
@@ -344,19 +352,19 @@ export function OpponentDetailPage() {
             <CardContent>
               <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
                 <div>
-                  <dt className="text-muted-foreground">Nationality</dt>
+                  <dt className="text-muted-foreground">{t('opponents.columns.nationality')}</dt>
                   <dd>{opponent.data.nationality ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Handedness</dt>
+                  <dt className="text-muted-foreground">{t('opponents.columns.handedness')}</dt>
                   <dd>{opponent.data.handedness ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Age range</dt>
+                  <dt className="text-muted-foreground">{t('opponents.detail.ageRange')}</dt>
                   <dd>{opponent.data.age_range ?? '—'}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">Notes</dt>
+                  <dt className="text-muted-foreground">{t('opponents.detail.notes')}</dt>
                   <dd>{opponent.data.notes ?? '—'}</dd>
                 </div>
               </dl>
@@ -374,10 +382,12 @@ export function OpponentDetailPage() {
   )
 }
 
-const HANDEDNESS_OPTIONS: { value: Handedness; label: string }[] = [
-  { value: 'R', label: 'Right' },
-  { value: 'L', label: 'Left' },
-]
+function handednessOptions(t: TFunction): { value: Handedness; label: string }[] {
+  return [
+    { value: 'R', label: t('opponents.form.handednessRight') },
+    { value: 'L', label: t('opponents.form.handednessLeft') },
+  ]
+}
 
 const AGE_RANGE_OPTIONS: AgeRange[] = [
   'Under 18',
@@ -437,25 +447,26 @@ function toPayload(form: OpponentFormState): OpponentCreate {
   }
 }
 
-function validate(form: OpponentFormState): Record<string, string> {
+function validate(form: OpponentFormState, t: TFunction): Record<string, string> {
   const errors: Record<string, string> = {}
-  if (!form.last_name.trim()) errors.last_name = 'Last name is required.'
+  if (!form.last_name.trim()) errors.last_name = t('opponents.form.lastNameRequired')
   return errors
 }
 
 export function OpponentFormPage() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const isEdit = id !== undefined
   const opponentId = Number(id)
 
-  useDocumentTitle(isEdit ? 'Edit opponent' : 'Add opponent')
+  useDocumentTitle(isEdit ? t('opponents.form.editTitle') : t('opponents.addOpponent'))
 
   const opponent = useOpponent(isEdit ? opponentId : NaN)
 
   if (!isEdit) return <OpponentForm mode="create" />
 
   if (!Number.isFinite(opponentId)) {
-    return <ErrorState error={new Error(`"${id}" is not a valid opponent id.`)} />
+    return <ErrorState error={new Error(t('opponents.detail.invalidId', { id }))} />
   }
   if (opponent.isPending) return <LoadingState />
   if (opponent.isError) {
@@ -465,6 +476,7 @@ export function OpponentFormPage() {
 }
 
 function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Opponent }) {
+  const { t } = useTranslation()
   const isEdit = props.mode === 'edit'
   const opponentId = isEdit ? props.opponent.id : NaN
   const navigate = useNavigate()
@@ -482,7 +494,7 @@ function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Oppo
   const [touched, setTouched] = useState(false)
 
   const mutation = isEdit ? updateOpponent : createOpponent
-  const clientErrors = validate(form)
+  const clientErrors = validate(form, t)
   const serverErrors = fieldErrorsFromApiError(mutation.error)
   const errors = touched ? { ...serverErrors, ...clientErrors } : serverErrors
   const bannerMessage =
@@ -512,13 +524,13 @@ function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Oppo
       <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
         <Link to={backTo}>
           <ChevronLeft aria-hidden="true" data-icon="inline-start" />
-          {isEdit ? 'Back to opponent' : 'Back to Opponents'}
+          {isEdit ? t('opponents.form.backToOpponent') : t('opponents.detail.backToOpponents')}
         </Link>
       </Button>
 
       <PageHeader
-        title={isEdit ? 'Edit opponent' : 'Add opponent'}
-        description="Players you've faced and your head-to-head records."
+        title={isEdit ? t('opponents.form.editTitle') : t('opponents.addOpponent')}
+        description={t('opponents.pageDescription')}
       />
 
       <Card>
@@ -526,12 +538,17 @@ function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Oppo
           <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
             <FormBanner error={bannerMessage} />
 
-            <FormField id="icon" label="Icon" optional>
+            <FormField id="icon" label={t('opponents.form.icon')} optional>
               <EntityIconPicker value={form.icon} onChange={(icon) => setForm({ ...form, icon })} />
             </FormField>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField id="name" label="First name" optional error={errors.name}>
+              <FormField
+                id="name"
+                label={t('opponents.form.firstName')}
+                optional
+                error={errors.name}
+              >
                 <Input
                   id="name"
                   value={form.name}
@@ -540,7 +557,11 @@ function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Oppo
                 />
               </FormField>
 
-              <FormField id="last_name" label="Last name" error={errors.last_name}>
+              <FormField
+                id="last_name"
+                label={t('opponents.form.lastName')}
+                error={errors.last_name}
+              >
                 <Input
                   id="last_name"
                   value={form.last_name}
@@ -551,7 +572,12 @@ function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Oppo
                 />
               </FormField>
 
-              <FormField id="nationality" label="Nationality" optional error={errors.nationality}>
+              <FormField
+                id="nationality"
+                label={t('opponents.columns.nationality')}
+                optional
+                error={errors.nationality}
+              >
                 <CountryCombobox
                   id="nationality"
                   value={form.nationality || null}
@@ -560,26 +586,36 @@ function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Oppo
                 />
               </FormField>
 
-              <FormField id="level" label="Level" optional error={errors.level}>
+              <FormField
+                id="level"
+                label={t('opponents.columns.level')}
+                optional
+                error={errors.level}
+              >
                 <Input
                   id="level"
                   value={form.level}
                   onChange={(e) => setForm({ ...form, level: e.target.value })}
                   aria-invalid={Boolean(errors.level)}
-                  placeholder="e.g. 4.5 NTRP, Club champion…"
+                  placeholder={t('opponents.form.levelPlaceholder')}
                 />
               </FormField>
 
-              <FormField id="handedness" label="Handedness" optional error={errors.handedness}>
+              <FormField
+                id="handedness"
+                label={t('opponents.columns.handedness')}
+                optional
+                error={errors.handedness}
+              >
                 <Select
                   value={form.handedness}
                   onValueChange={(value) => setForm({ ...form, handedness: value as Handedness })}
                 >
                   <SelectTrigger id="handedness" className="w-full">
-                    <SelectValue placeholder="Select handedness" />
+                    <SelectValue placeholder={t('opponents.form.handednessPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {HANDEDNESS_OPTIONS.map((option) => (
+                    {handednessOptions(t).map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
@@ -588,13 +624,18 @@ function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Oppo
                 </Select>
               </FormField>
 
-              <FormField id="age_range" label="Age range" optional error={errors.age_range}>
+              <FormField
+                id="age_range"
+                label={t('opponents.detail.ageRange')}
+                optional
+                error={errors.age_range}
+              >
                 <Select
                   value={form.age_range}
                   onValueChange={(value) => setForm({ ...form, age_range: value as AgeRange })}
                 >
                   <SelectTrigger id="age_range" className="w-full">
-                    <SelectValue placeholder="Select age range" />
+                    <SelectValue placeholder={t('opponents.form.ageRangePlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {AGE_RANGE_OPTIONS.map((option) => (
@@ -607,7 +648,13 @@ function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Oppo
               </FormField>
             </div>
 
-            <FormField id="notes" label="Notes" optional error={errors.notes} className="w-full">
+            <FormField
+              id="notes"
+              label={t('opponents.detail.notes')}
+              optional
+              error={errors.notes}
+              className="w-full"
+            >
               <Textarea
                 id="notes"
                 value={form.notes}
@@ -619,10 +666,10 @@ function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Oppo
 
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" asChild>
-                <Link to={backTo}>Cancel</Link>
+                <Link to={backTo}>{t('common.cancel')}</Link>
               </Button>
               <Button type="submit" disabled={mutation.isPending}>
-                {isEdit ? 'Save changes' : 'Add opponent'}
+                {isEdit ? t('opponents.form.saveChanges') : t('opponents.addOpponent')}
               </Button>
             </div>
           </form>

@@ -262,5 +262,74 @@
       "vsOpponentAndDate": "vs {{opponent}} · {{date}}",
       "logAnother": "Log another match"
     }
+  },
+  "opponents": {
+    "pageTitle": "Opponents",
+    "pageDescription": "Players you've faced and your head-to-head records.",
+    "deleteDescription": "This permanently removes the opponent. This can't be undone.",
+    "filterPlaceholder": "Filter opponents…",
+    "addOpponent": "Add opponent",
+    "addFirstOpponent": "Add your first opponent",
+    "columns": {
+      "name": "Name",
+      "nationality": "Nationality",
+      "handedness": "Handedness",
+      "level": "Level"
+    },
+    "emptyState": {
+      "title": "No opponents yet",
+      "description": "Add the players you've faced to start tracking head-to-head records."
+    },
+    "matches": {
+      "heading": "Matches",
+      "recordSummary_one": "{{wins}}–{{losses}} ({{count}} match)",
+      "recordSummary_other": "{{wins}}–{{losses}} ({{count}} matches)",
+      "filterByResultLabel": "Filter by result",
+      "noFilterMatches": "No matches for this filter.",
+      "columns": {
+        "score": "Score"
+      },
+      "filters": {
+        "all": "All",
+        "wins": "Wins",
+        "losses": "Losses"
+      },
+      "emptyState": {
+        "title": "No matches yet",
+        "description": "Matches played against this opponent will show up here."
+      }
+    },
+    "detail": {
+      "backToOpponents": "Back to Opponents",
+      "pageTitleFallback": "Opponent",
+      "invalidId": "\"{{id}}\" is not a valid opponent id.",
+      "ageRange": "Age range",
+      "notes": "Notes"
+    },
+    "form": {
+      "backToOpponent": "Back to opponent",
+      "editTitle": "Edit opponent",
+      "lastNameRequired": "Last name is required.",
+      "icon": "Icon",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "levelPlaceholder": "e.g. 4.5 NTRP, Club champion…",
+      "handednessPlaceholder": "Select handedness",
+      "handednessRight": "Right",
+      "handednessLeft": "Left",
+      "ageRangePlaceholder": "Select age range",
+      "saveChanges": "Save changes"
+    },
+    "headToHead": {
+      "title": "Head-to-head",
+      "noMatchesYet": "No matches yet",
+      "winRateSummary_one": "{{percent}}% win rate, {{count}} match",
+      "winRateSummary_other": "{{percent}}% win rate, {{count}} matches",
+      "last5": "Last 5",
+      "bySurface": "By surface",
+      "matchTooltip": "{{date}} · {{score}}",
+      "resultWinShort": "W",
+      "resultLossShort": "L"
+    }
   }
 }
