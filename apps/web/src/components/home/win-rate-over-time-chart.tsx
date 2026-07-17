@@ -28,7 +28,8 @@ function TooltipContent({
     <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
       <p className="font-medium text-popover-foreground">{formatPeriod(point.period)}</p>
       <p className="text-muted-foreground">
-        {point.wins}-{point.losses} · {point.win_rate !== null ? `${Math.round(point.win_rate * 100)}%` : '—'}
+        {point.wins}-{point.losses} ·{' '}
+        {point.win_rate !== null ? `${Math.round(point.win_rate * 100)}%` : '—'}
       </p>
     </div>
   )

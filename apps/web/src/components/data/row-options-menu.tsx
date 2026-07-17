@@ -50,7 +50,11 @@ export function RowOptionsMenu({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon-sm" aria-label={t('common.rowActions.actionsFor', { label })}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t('common.rowActions.actionsFor', { label })}
+          >
             <MoreHorizontal aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
@@ -79,7 +83,9 @@ export function RowOptionsMenu({
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t('common.rowActions.deleteConfirmTitle', { label })}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t('common.rowActions.deleteConfirmTitle', { label })}
+            </AlertDialogTitle>
             <AlertDialogDescription>{deleteDescription}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

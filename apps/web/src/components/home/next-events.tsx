@@ -20,7 +20,10 @@ function UpcomingMatches() {
 
   const opponentsById = new Map((opponents.data?.items ?? []).map((o) => [o.id, o]))
 
-  function opponentLabel(opponent: { name: string | null; last_name: string } | undefined, id: number) {
+  function opponentLabel(
+    opponent: { name: string | null; last_name: string } | undefined,
+    id: number,
+  ) {
     if (!opponent) return t('home.opponentFallback', { id })
     return opponent.name ? `${opponent.name} ${opponent.last_name}` : opponent.last_name
   }
@@ -30,10 +33,13 @@ function UpcomingMatches() {
     .slice(0, 5)
 
   if (matches.isPending) return <LoadingState />
-  if (matches.isError) return <ErrorState error={matches.error} onRetry={() => void matches.refetch()} />
+  if (matches.isError)
+    return <ErrorState error={matches.error} onRetry={() => void matches.refetch()} />
 
   if (upcoming.length === 0) {
-    return <p className="text-sm text-muted-foreground">{t('home.nextEvents.upcomingMatches.empty')}</p>
+    return (
+      <p className="text-sm text-muted-foreground">{t('home.nextEvents.upcomingMatches.empty')}</p>
+    )
   }
 
   return (
@@ -98,7 +104,9 @@ function ActiveAndUpcomingTournaments() {
             <span
               className={cn(
                 'shrink-0 rounded-full px-2 py-0.5 text-xs font-medium',
-                tournament.isActive ? 'bg-highlight/15 text-highlight' : 'bg-muted text-muted-foreground',
+                tournament.isActive
+                  ? 'bg-highlight/15 text-highlight'
+                  : 'bg-muted text-muted-foreground',
               )}
             >
               {tournament.isActive

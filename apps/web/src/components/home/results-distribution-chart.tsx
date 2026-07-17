@@ -57,7 +57,9 @@ export function ResultsDistributionChart({ data }: ResultsDistributionChartProps
               </span>
               <span className="flex items-center gap-1.5">
                 <span aria-hidden="true" className="size-2.5 rounded-full bg-loss" />
-                <span className="text-muted-foreground">{t('home.resultsDistribution.losses')}</span>
+                <span className="text-muted-foreground">
+                  {t('home.resultsDistribution.losses')}
+                </span>
                 <span className="font-medium">{losses}</span>
               </span>
             </div>

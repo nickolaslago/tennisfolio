@@ -13,7 +13,10 @@ export function RecentMatchesStrip() {
   const opponents = useOpponents()
   const opponentsById = new Map((opponents.data?.items ?? []).map((o) => [o.id, o]))
 
-  function opponentLabel(opponent: { name: string | null; last_name: string } | undefined, id: number) {
+  function opponentLabel(
+    opponent: { name: string | null; last_name: string } | undefined,
+    id: number,
+  ) {
     if (!opponent) return t('home.opponentFallback', { id })
     return opponent.name ? `${opponent.name} ${opponent.last_name}` : opponent.last_name
   }
@@ -25,7 +28,10 @@ export function RecentMatchesStrip() {
           <CardTitle>{t('home.recentMatches.title')}</CardTitle>
           <CardDescription>{t('home.recentMatches.description')}</CardDescription>
         </div>
-        <Link to="/matches" className="flex items-center text-sm text-muted-foreground hover:text-primary">
+        <Link
+          to="/matches"
+          className="flex items-center text-sm text-muted-foreground hover:text-primary"
+        >
           {t('home.viewAll')}
           <ChevronRight aria-hidden="true" className="size-4" />
         </Link>
@@ -48,11 +54,18 @@ export function RecentMatchesStrip() {
                 <span className="truncate text-xs text-muted-foreground">{match.match_date}</span>
                 <span className="truncate font-medium">
                   {t('home.vsOpponent', {
-                    opponent: opponentLabel(opponentsById.get(match.opponent_id), match.opponent_id),
+                    opponent: opponentLabel(
+                      opponentsById.get(match.opponent_id),
+                      match.opponent_id,
+                    ),
                   })}
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className={match.result === 'Win' ? 'font-medium text-win' : 'font-medium text-loss'}>
+                  <span
+                    className={
+                      match.result === 'Win' ? 'font-medium text-win' : 'font-medium text-loss'
+                    }
+                  >
                     {match.result}
                   </span>
                   <span className="truncate text-muted-foreground">{match.score}</span>

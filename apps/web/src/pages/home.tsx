@@ -113,7 +113,9 @@ export function HomePage() {
               label={t('home.stats.tiebreakRecord')}
               icon={Target}
               value={
-                tiebreaks.isPending ? '—' : `${tiebreaks.data?.wins ?? 0}-${tiebreaks.data?.losses ?? 0}`
+                tiebreaks.isPending
+                  ? '—'
+                  : `${tiebreaks.data?.wins ?? 0}-${tiebreaks.data?.losses ?? 0}`
               }
               description={tiebreaks.data ? formatPercent(tiebreaks.data.win_rate) : undefined}
             />
