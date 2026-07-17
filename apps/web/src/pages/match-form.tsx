@@ -661,7 +661,11 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
                   label={t('matchForm.fields.court')}
                   optional
                   error={fieldErrors.court_id}
-                  hint={form.clubId && clubCourts.length === 0 ? t('matchForm.fields.courtNone') : undefined}
+                  hint={
+                    form.clubId && clubCourts.length === 0
+                      ? t('matchForm.fields.courtNone')
+                      : undefined
+                  }
                 >
                   <Select
                     value={form.courtId || undefined}

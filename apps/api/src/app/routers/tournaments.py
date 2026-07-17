@@ -39,12 +39,15 @@ def list_tournaments(
     tournament_type: TournamentType | None = Query(
         default=None, description="Filter by tournament type"
     ),
+    club_id: int | None = Query(default=None, description="Filter by host club"),
 ) -> Page[TournamentRead]:
     stmt = select(Tournament)
     if search:
         stmt = stmt.where(Tournament.name.ilike(f"%{search}%"))
     if tournament_type:
         stmt = stmt.where(Tournament.tournament_type == tournament_type)
+    if club_id is not None:
+        stmt = stmt.where(Tournament.club_id == club_id)
 
     total = db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
     rows = db.scalars(stmt.order_by(Tournament.name).limit(limit).offset(offset)).all()

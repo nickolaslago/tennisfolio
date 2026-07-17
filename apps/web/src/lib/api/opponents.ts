@@ -32,7 +32,12 @@ export interface OpponentCreate {
 
 export type OpponentUpdate = Partial<OpponentCreate>
 
-export function listOpponents(params: ListParams = {}, signal?: AbortSignal) {
+export interface OpponentListParams extends ListParams {
+  handedness?: Handedness
+  age_range?: AgeRange
+}
+
+export function listOpponents(params: OpponentListParams = {}, signal?: AbortSignal) {
   return http.get<Page<Opponent>>('/opponents', { params, signal })
 }
 

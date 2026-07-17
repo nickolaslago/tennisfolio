@@ -80,6 +80,28 @@ def test_list_opponents_search_matches_last_or_first_name(client: TestClient) ->
     assert response.json()["total"] == 1
 
 
+def test_list_opponents_filters_by_handedness(client: TestClient) -> None:
+    client.post("/opponents", json={"last_name": "Nadal", "handedness": "L"})
+    client.post("/opponents", json={"last_name": "Federer", "handedness": "R"})
+
+    response = client.get("/opponents", params={"handedness": "L"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["total"] == 1
+    assert body["items"][0]["last_name"] == "Nadal"
+
+
+def test_list_opponents_filters_by_age_range(client: TestClient) -> None:
+    client.post("/opponents", json={"last_name": "Nadal", "age_range": "26-35"})
+    client.post("/opponents", json={"last_name": "Federer", "age_range": "36-45"})
+
+    response = client.get("/opponents", params={"age_range": "26-35"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["total"] == 1
+    assert body["items"][0]["last_name"] == "Nadal"
+
+
 def test_update_opponent(client: TestClient) -> None:
     created = client.post("/opponents", json={"last_name": "Nadal"}).json()
 

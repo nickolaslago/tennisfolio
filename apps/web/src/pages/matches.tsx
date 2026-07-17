@@ -1,14 +1,6 @@
-import {
-  ChevronLeft,
-  ClipboardCheck,
-  Pencil,
-  Plus,
-  SlidersHorizontal,
-  Trash2,
-  X,
-} from 'lucide-react'
+import { ChevronLeft, ClipboardCheck, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useMemo } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -22,22 +14,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { EntityList, type EntityColumn } from '@/components/data/entity-list'
+import { EntityList, type EntityColumn, type FilterField } from '@/components/data/entity-list'
 import { ErrorState, LoadingState } from '@/components/data/query-state'
 import { RowOptionsMenu } from '@/components/data/row-options-menu'
 import { OpponentHeadToHead } from '@/components/opponents/head-to-head'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -46,21 +29,18 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useClub, useClubs } from '@/hooks/use-clubs'
 import { useDeleteMatch, useMatch, useMatches } from '@/hooks/use-matches'
 import { useOpponent, useOpponents } from '@/hooks/use-opponents'
 import { useTournament, useTournaments } from '@/hooks/use-tournaments'
+import { useUrlFilters } from '@/hooks/use-url-filters'
 import type { Match, MatchListParams, MatchStatus, SetRead, Surface } from '@/lib/api/matches'
 import { sortByLabel } from '@/lib/sort-options'
 import { useDocumentTitle } from '@/lib/use-document-title'
 
 const SURFACE_OPTIONS: Surface[] = ['Hard', 'Clay', 'Grass', 'Carpet']
 
-/** Sentinel select value for "no filter" — Radix Select item values can't be an empty string. */
-const ALL_VALUE = 'all'
-
-const FILTER_KEYS = [
+const FILTER_FIELD_IDS = [
   'opponent_id',
   'club_id',
   'tournament_id',
@@ -69,57 +49,39 @@ const FILTER_KEYS = [
   'date_to',
 ] as const
 
-interface MatchFilters {
+function MatchStatusControl({
+  status,
+  onChange,
+}: {
   status: MatchStatus | null
-  opponentId: string
-  clubId: string
-  tournamentId: string
-  surface: Surface | ''
-  dateFrom: string
-  dateTo: string
-}
-
-/** Reads/writes match filters straight from the URL query string, so filtered views are shareable. */
-function useMatchFilters() {
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  const statusParam = searchParams.get('status')
-  const filters: MatchFilters = {
-    status: statusParam === 'played' || statusParam === 'scheduled' ? statusParam : null,
-    opponentId: searchParams.get('opponent_id') ?? '',
-    clubId: searchParams.get('club_id') ?? '',
-    tournamentId: searchParams.get('tournament_id') ?? '',
-    surface: (searchParams.get('surface') as Surface | null) ?? '',
-    dateFrom: searchParams.get('date_from') ?? '',
-    dateTo: searchParams.get('date_to') ?? '',
-  }
-
-  const setParam = (key: string, value: string) => {
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev)
-        if (value) next.set(key, value)
-        else next.delete(key)
-        return next
-      },
-      { replace: true },
-    )
-  }
-
-  const clearFilters = () => {
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev)
-        for (const key of FILTER_KEYS) next.delete(key)
-        return next
-      },
-      { replace: true },
-    )
-  }
-
-  const hasActiveFilters = FILTER_KEYS.some((key) => searchParams.get(key))
-
-  return { filters, setParam, clearFilters, hasActiveFilters }
+  onChange: (status: MatchStatus | null) => void
+}) {
+  const { t } = useTranslation()
+  const options: { value: MatchStatus | null; label: string }[] = [
+    { value: null, label: t('matches.tabs.all') },
+    { value: 'played', label: t('matches.tabs.played') },
+    { value: 'scheduled', label: t('matches.tabs.scheduled') },
+  ]
+  return (
+    <div
+      role="group"
+      aria-label={t('matches.filters.statusLabel')}
+      className="inline-flex items-center gap-0.5 rounded-lg border border-input bg-transparent p-0.5 dark:bg-input/30"
+    >
+      {options.map((option) => (
+        <Button
+          key={option.label}
+          type="button"
+          size="sm"
+          variant={status === option.value ? 'secondary' : 'ghost'}
+          aria-pressed={status === option.value}
+          onClick={() => onChange(option.value)}
+        >
+          {option.label}
+        </Button>
+      ))}
+    </div>
+  )
 }
 
 function toId(value: string): number | undefined {
@@ -147,7 +109,14 @@ export function MatchesPage() {
   const { t } = useTranslation()
   useDocumentTitle(t('matches.pageTitle'))
 
-  const { filters, setParam, clearFilters, hasActiveFilters } = useMatchFilters()
+  const {
+    values: filterValues,
+    setValue: setFilterValue,
+    removeValue,
+  } = useUrlFilters(['status', ...FILTER_FIELD_IDS])
+  const statusParam = filterValues.status
+  const status: MatchStatus | null =
+    statusParam === 'played' || statusParam === 'scheduled' ? statusParam : null
 
   const opponents = useOpponents()
   const clubs = useClubs()
@@ -156,18 +125,18 @@ export function MatchesPage() {
 
   const matchParams = useMemo<MatchListParams>(() => {
     const params: MatchListParams = {}
-    if (filters.status) params.status = filters.status
-    const opponentId = toId(filters.opponentId)
+    if (status) params.status = status
+    const opponentId = toId(filterValues.opponent_id)
     if (opponentId !== undefined) params.opponent_id = opponentId
-    const clubId = toId(filters.clubId)
+    const clubId = toId(filterValues.club_id)
     if (clubId !== undefined) params.club_id = clubId
-    const tournamentId = toId(filters.tournamentId)
+    const tournamentId = toId(filterValues.tournament_id)
     if (tournamentId !== undefined) params.tournament_id = tournamentId
-    if (filters.surface) params.surface = filters.surface
-    if (filters.dateFrom) params.date_from = filters.dateFrom
-    if (filters.dateTo) params.date_to = filters.dateTo
+    if (filterValues.surface) params.surface = filterValues.surface as Surface
+    if (filterValues.date_from) params.date_from = filterValues.date_from
+    if (filterValues.date_to) params.date_to = filterValues.date_to
     return params
-  }, [filters])
+  }, [status, filterValues])
 
   const matches = useMatches(matchParams)
 
@@ -198,6 +167,37 @@ export function MatchesPage() {
   const tournamentFilterOptions = useMemo(
     () => sortByLabel(tournaments.data?.items ?? [], (t) => t.name),
     [tournaments.data],
+  )
+
+  const filterFields: FilterField[] = useMemo(
+    () => [
+      {
+        id: 'opponent_id',
+        label: t('matches.columns.opponent'),
+        options: opponentFilterOptions.map((o) => ({
+          value: String(o.id),
+          label: o.name ? `${o.name} ${o.last_name}` : o.last_name,
+        })),
+      },
+      {
+        id: 'club_id',
+        label: t('matches.columns.club'),
+        options: clubFilterOptions.map((c) => ({ value: String(c.id), label: c.name })),
+      },
+      {
+        id: 'tournament_id',
+        label: t('matches.columns.tournament'),
+        options: tournamentFilterOptions.map((tn) => ({ value: String(tn.id), label: tn.name })),
+      },
+      {
+        id: 'surface',
+        label: t('matches.columns.surface'),
+        options: SURFACE_OPTIONS.map((surface) => ({ value: surface, label: surface })),
+      },
+      { id: 'date_from', label: t('matches.filters.dateFromLabel'), type: 'date' },
+      { id: 'date_to', label: t('matches.filters.dateToLabel'), type: 'date' },
+    ],
+    [t, opponentFilterOptions, clubFilterOptions, tournamentFilterOptions],
   )
 
   const opponentName = (id: number) => {
@@ -296,141 +296,6 @@ export function MatchesPage() {
     <>
       <PageHeader title={t('matches.pageTitle')} description={t('matches.pageDescription')} />
 
-      <Card className="mb-6">
-        <CardContent>
-          <div className="mb-3 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-            <SlidersHorizontal className="size-4" aria-hidden="true" />
-            {t('matches.filters.heading')}
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="filter-opponent">{t('matches.columns.opponent')}</Label>
-              <Select
-                value={filters.opponentId || ALL_VALUE}
-                onValueChange={(value) => setParam('opponent_id', value === ALL_VALUE ? '' : value)}
-              >
-                <SelectTrigger id="filter-opponent" className="w-full">
-                  <SelectValue placeholder={t('matches.filters.allOpponents')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL_VALUE}>{t('matches.filters.allOpponents')}</SelectItem>
-                  {opponentFilterOptions.map((o) => (
-                    <SelectItem key={o.id} value={String(o.id)}>
-                      {o.name ? `${o.name} ${o.last_name}` : o.last_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="filter-club">{t('matches.columns.club')}</Label>
-              <Select
-                value={filters.clubId || ALL_VALUE}
-                onValueChange={(value) => setParam('club_id', value === ALL_VALUE ? '' : value)}
-              >
-                <SelectTrigger id="filter-club" className="w-full">
-                  <SelectValue placeholder={t('matches.filters.allClubs')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL_VALUE}>{t('matches.filters.allClubs')}</SelectItem>
-                  {clubFilterOptions.map((c) => (
-                    <SelectItem key={c.id} value={String(c.id)}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="filter-tournament">{t('matches.columns.tournament')}</Label>
-              <Select
-                value={filters.tournamentId || ALL_VALUE}
-                onValueChange={(value) =>
-                  setParam('tournament_id', value === ALL_VALUE ? '' : value)
-                }
-              >
-                <SelectTrigger id="filter-tournament" className="w-full">
-                  <SelectValue placeholder={t('matches.filters.allTournaments')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL_VALUE}>{t('matches.filters.allTournaments')}</SelectItem>
-                  {tournamentFilterOptions.map((t) => (
-                    <SelectItem key={t.id} value={String(t.id)}>
-                      {t.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="filter-surface">{t('matches.columns.surface')}</Label>
-              <Select
-                value={filters.surface || ALL_VALUE}
-                onValueChange={(value) => setParam('surface', value === ALL_VALUE ? '' : value)}
-              >
-                <SelectTrigger id="filter-surface" className="w-full">
-                  <SelectValue placeholder={t('matches.filters.allSurfaces')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL_VALUE}>{t('matches.filters.allSurfaces')}</SelectItem>
-                  {SURFACE_OPTIONS.map((surface) => (
-                    <SelectItem key={surface} value={surface}>
-                      {surface}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="filter-date-from">{t('matches.filters.dateFromLabel')}</Label>
-              <Input
-                id="filter-date-from"
-                type="date"
-                value={filters.dateFrom}
-                onChange={(e) => setParam('date_from', e.target.value)}
-                max={filters.dateTo || undefined}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="filter-date-to">{t('matches.filters.dateToLabel')}</Label>
-              <Input
-                id="filter-date-to"
-                type="date"
-                value={filters.dateTo}
-                onChange={(e) => setParam('date_to', e.target.value)}
-                min={filters.dateFrom || undefined}
-              />
-            </div>
-          </div>
-
-          {hasActiveFilters ? (
-            <div className="mt-4 flex justify-end">
-              <Button variant="ghost" size="sm" onClick={clearFilters}>
-                <X aria-hidden="true" data-icon="inline-start" />
-                {t('matches.filters.clearFilters')}
-              </Button>
-            </div>
-          ) : null}
-        </CardContent>
-      </Card>
-
-      <Tabs
-        value={filters.status ?? ALL_VALUE}
-        onValueChange={(value) => setParam('status', value === ALL_VALUE ? '' : value)}
-        className="mb-4"
-      >
-        <TabsList>
-          <TabsTrigger value={ALL_VALUE}>{t('matches.tabs.all')}</TabsTrigger>
-          <TabsTrigger value="played">{t('matches.tabs.played')}</TabsTrigger>
-          <TabsTrigger value="scheduled">{t('matches.tabs.scheduled')}</TabsTrigger>
-        </TabsList>
-      </Tabs>
-
       <EntityList
         entityKey="matches"
         items={matches.data?.items ?? []}
@@ -439,12 +304,30 @@ export function MatchesPage() {
         error={matches.error}
         onRetry={() => void matches.refetch()}
         columns={columns}
+        getSearchText={(m) =>
+          `${opponentName(m.opponent_id)} ${clubName(m.club_id) ?? ''} ${
+            tournamentName(m.tournament_id) ?? ''
+          } ${m.match_date} ${m.score ?? ''}`
+        }
+        searchPlaceholder={t('matches.filterPlaceholder')}
         rowActions={(m) => (
           <div className="flex items-center justify-end gap-2">
             {completeButton(m)}
             {rowOptions(m)}
           </div>
         )}
+        toolbarExtra={
+          <MatchStatusControl
+            status={status}
+            onChange={(next) => setFilterValue('status', next ?? '')}
+          />
+        }
+        filters={{
+          fields: filterFields,
+          values: filterValues,
+          onChange: setFilterValue,
+          onRemove: removeValue,
+        }}
         defaultSort={{ columnId: 'date', direction: 'desc' }}
         emptyTitle={t('matches.emptyState.title')}
         emptyDescription={t('matches.emptyState.description')}

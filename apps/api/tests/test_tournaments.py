@@ -129,6 +129,27 @@ def test_list_tournaments_rejects_invalid_type_filter(client: TestClient) -> Non
     assert response.status_code == 422
 
 
+def test_list_tournaments_filters_by_club(client: TestClient) -> None:
+    club = client.post("/clubs", json={"name": "Riverside"}).json()
+    client.post(
+        "/tournaments",
+        json={
+            "name": "Winter Open",
+            "tournament_type": "Knockout Tournament",
+            "club_id": club["id"],
+        },
+    )
+    client.post(
+        "/tournaments", json={"name": "Spring Cup", "tournament_type": "Knockout Tournament"}
+    )
+
+    response = client.get("/tournaments", params={"club_id": club["id"]})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["total"] == 1
+    assert body["items"][0]["name"] == "Winter Open"
+
+
 def test_update_tournament(client: TestClient) -> None:
     created = client.post(
         "/tournaments", json={"name": "Winter Open", "tournament_type": "Knockout Tournament"}

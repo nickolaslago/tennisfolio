@@ -7,7 +7,7 @@ import type { TFunction } from 'i18next'
 
 import { EntityIcon } from '@/components/data/entity-icon'
 import { EntityIconPicker } from '@/components/data/entity-icon-picker'
-import { EntityList, type EntityColumn } from '@/components/data/entity-list'
+import { EntityList, type EntityColumn, type FilterField } from '@/components/data/entity-list'
 import { FormBanner, FormField } from '@/components/data/entity-form'
 import { EmptyState, ErrorState, LoadingState } from '@/components/data/query-state'
 import { RowOptionsMenu } from '@/components/data/row-options-menu'
@@ -44,6 +44,7 @@ import {
 import { useClub, useClubs } from '@/hooks/use-clubs'
 import { useLastOrganiser } from '@/hooks/use-last-organiser'
 import { useMatches } from '@/hooks/use-matches'
+import { useUrlFilters } from '@/hooks/use-url-filters'
 import type { Match } from '@/lib/api/matches'
 import type { StandingsRow } from '@/lib/api/tournaments'
 import { sortByLabel } from '@/lib/sort-options'
@@ -54,10 +55,37 @@ function dateRange(tournament: Tournament) {
   return `${tournament.start_date ?? '—'} – ${tournament.end_date ?? '—'}`
 }
 
+const FILTER_FIELD_IDS = ['club_id', 'status'] as const
+
+type DerivedTournamentStatus = 'upcoming' | 'ongoing' | 'completed'
+
+/**
+ * A tournament's lifecycle state isn't stored — it's derived from its dates
+ * against today, same spirit as match result/score being computed on read.
+ */
+function tournamentStatus(tournament: Tournament, today: string): DerivedTournamentStatus {
+  if (!tournament.start_date || tournament.start_date > today) return 'upcoming'
+  if (tournament.end_date && tournament.end_date < today) return 'completed'
+  return 'ongoing'
+}
+
+function toId(value: string): number | undefined {
+  if (!value) return undefined
+  const n = Number(value)
+  return Number.isFinite(n) ? n : undefined
+}
+
 export function TournamentsPage() {
   const { t: translate } = useTranslation()
   useDocumentTitle(translate('tournaments.pageTitle'))
-  const tournaments = useTournaments()
+
+  const {
+    values: filterValues,
+    setValue: setFilterValue,
+    removeValue,
+  } = useUrlFilters(FILTER_FIELD_IDS)
+
+  const tournaments = useTournaments({ club_id: toId(filterValues.club_id) })
   const clubs = useClubs()
   const deleteTournament = useDeleteTournament()
 
@@ -65,6 +93,39 @@ export function TournamentsPage() {
     if (clubId === null) return null
     return clubs.data?.items.find((c) => c.id === clubId)?.name ?? null
   }
+
+  const clubFilterOptions = useMemo(
+    () => sortByLabel(clubs.data?.items ?? [], (c) => c.name),
+    [clubs.data],
+  )
+
+  const today = useMemo(() => new Date().toISOString().slice(0, 10), [])
+
+  const items = useMemo(() => {
+    const all = tournaments.data?.items ?? []
+    if (!filterValues.status) return all
+    return all.filter((tournament) => tournamentStatus(tournament, today) === filterValues.status)
+  }, [tournaments.data, filterValues.status, today])
+
+  const filterFields: FilterField[] = useMemo(
+    () => [
+      {
+        id: 'club_id',
+        label: translate('tournaments.columns.hostClub'),
+        options: clubFilterOptions.map((c) => ({ value: String(c.id), label: c.name })),
+      },
+      {
+        id: 'status',
+        label: translate('tournaments.filters.statusLabel'),
+        options: [
+          { value: 'upcoming', label: translate('tournaments.filters.statusUpcoming') },
+          { value: 'ongoing', label: translate('tournaments.filters.statusOngoing') },
+          { value: 'completed', label: translate('tournaments.filters.statusCompleted') },
+        ],
+      },
+    ],
+    [translate, clubFilterOptions],
+  )
 
   const rowOptions = (tournament: Tournament) => (
     <RowOptionsMenu
@@ -133,7 +194,7 @@ export function TournamentsPage() {
       />
       <EntityList
         entityKey="tournaments"
-        items={tournaments.data?.items ?? []}
+        items={items}
         isPending={tournaments.isPending}
         isError={tournaments.isError}
         error={tournaments.error}
@@ -146,6 +207,12 @@ export function TournamentsPage() {
           }`
         }
         searchPlaceholder={translate('tournaments.filterPlaceholder')}
+        filters={{
+          fields: filterFields,
+          values: filterValues,
+          onChange: setFilterValue,
+          onRemove: removeValue,
+        }}
         defaultSort={{ columnId: 'name', direction: 'asc' }}
         emptyTitle={translate('tournaments.emptyState.title')}
         emptyDescription={translate('tournaments.emptyState.description')}

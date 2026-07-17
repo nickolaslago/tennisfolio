@@ -33,7 +33,15 @@
       "cardView": "Visualização em cartões",
       "viewModeLabel": "Modo de visualização",
       "noMatchesFor": "Nenhum resultado para “{{query}}”.",
-      "sortBy": "Ordenar por {{header}}"
+      "sortBy": "Ordenar por {{header}}",
+      "filters": {
+        "button": "Filtros",
+        "fieldLabel": "Campo",
+        "valueLabel": "Valor",
+        "selectValue": "Selecionar valor…",
+        "addFilter": "Adicionar filtro",
+        "removeFilter": "Remover filtro de {{label}}"
+      }
     }
   },
   "nav": {
@@ -119,15 +127,11 @@
     "logMatch": "Registrar partida",
     "logFirstMatch": "Registre sua primeira partida",
     "deleteDescription": "Isso remove permanentemente a partida e os placares dos sets. Isso não pode ser desfeito.",
+    "filterPlaceholder": "Filtrar partidas…",
     "filters": {
-      "heading": "Filtros",
-      "allOpponents": "Todos os adversários",
-      "allClubs": "Todos os clubes",
-      "allTournaments": "Todos os torneios",
-      "allSurfaces": "Todos os pisos",
+      "statusLabel": "Status da partida",
       "dateFromLabel": "De",
-      "dateToLabel": "Até",
-      "clearFilters": "Limpar filtros"
+      "dateToLabel": "Até"
     },
     "tabs": {
       "all": "Todas",
@@ -409,6 +413,12 @@
     "filterPlaceholder": "Filtrar torneios…",
     "addTournament": "Adicionar torneio",
     "addFirstTournament": "Adicione seu primeiro torneio",
+    "filters": {
+      "statusLabel": "Status",
+      "statusUpcoming": "Futuro",
+      "statusOngoing": "Em andamento",
+      "statusCompleted": "Concluído"
+    },
     "columns": {
       "name": "Nome",
       "season": "Temporada",
