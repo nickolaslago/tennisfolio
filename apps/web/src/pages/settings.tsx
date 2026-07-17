@@ -42,7 +42,10 @@ import { importData, type ImportResult } from '@/lib/api/import'
 import { useDocumentTitle } from '@/lib/use-document-title'
 import i18n from '@/i18n'
 
-const LANGUAGE_OPTIONS: { code: string; label: string }[] = [{ code: 'en', label: 'English' }]
+const LANGUAGE_OPTIONS: { code: string; label: string }[] = [
+  { code: 'en', label: 'English' },
+  { code: 'pt', label: 'Português' },
+]
 
 const THEME_OPTIONS: { value: Theme; labelKey: string; icon: LucideIcon }[] = [
   { value: 'light', labelKey: 'settings.appearance.themeLight', icon: Sun },
