@@ -4,7 +4,9 @@ import {
   ChevronsUpDown,
   LayoutGrid,
   Search,
+  SlidersHorizontal,
   Table as TableIcon,
+  X,
 } from 'lucide-react'
 import type { ComponentType, ReactNode } from 'react'
 import { useMemo, useState } from 'react'
@@ -12,9 +14,19 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { EmptyState, ErrorState, LoadingState } from '@/components/data/query-state'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -41,6 +53,29 @@ export interface EntityColumn<T> {
   className?: string
   /** Class for the header cell (`<th>`). */
   headClassName?: string
+}
+
+export interface FilterFieldOption {
+  value: string
+  label: string
+}
+
+/** One field the custom-filter popover can filter on — e.g. a match's surface. */
+export interface FilterField {
+  id: string
+  label: string
+  /** `select` (default) needs `options`; `text`/`date` render a free-form input. */
+  type?: 'select' | 'text' | 'date'
+  options?: FilterFieldOption[]
+  placeholder?: string
+}
+
+export interface EntityListFilters {
+  fields: FilterField[]
+  /** Current value per field id; empty/absent means the field isn't active. */
+  values: Record<string, string>
+  onChange: (fieldId: string, value: string) => void
+  onRemove: (fieldId: string) => void
 }
 
 export interface CreateAction {
@@ -76,6 +111,11 @@ export interface EntityListProps<T extends EntityRow> {
   /** Text the filter matches against per row. Omit to hide the filter input. */
   getSearchText?: (item: T) => string
   searchPlaceholder?: string
+
+  /** Custom field+value filters, rendered as a popover button plus removable chips. */
+  filters?: EntityListFilters
+  /** Page-specific controls (e.g. a status toggle) rendered inline in the toolbar. */
+  toolbarExtra?: ReactNode
 
   emptyTitle: string
   emptyDescription?: string
@@ -157,6 +197,150 @@ function ViewToggle({ view, onChange }: { view: ViewMode; onChange: (view: ViewM
   )
 }
 
+function FilterPopover({ fields, values, onChange }: Omit<EntityListFilters, 'onRemove'>) {
+  const { t } = useTranslation()
+  const [open, setOpen] = useState(false)
+  const [fieldId, setFieldId] = useState(fields[0]?.id ?? '')
+  const [value, setValue] = useState('')
+
+  const activeCount = fields.filter((f) => values[f.id]).length
+  const field = fields.find((f) => f.id === fieldId)
+
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next)
+    if (next) {
+      const firstField = fields[0]
+      setFieldId(firstField?.id ?? '')
+      setValue(firstField ? (values[firstField.id] ?? '') : '')
+    }
+  }
+
+  const handleFieldChange = (id: string) => {
+    setFieldId(id)
+    setValue(values[id] ?? '')
+  }
+
+  const handleApply = () => {
+    if (!fieldId || !value) return
+    onChange(fieldId, value)
+    setOpen(false)
+  }
+
+  if (fields.length === 0) return null
+
+  return (
+    <Popover open={open} onOpenChange={handleOpenChange}>
+      <PopoverTrigger asChild>
+        <Button type="button" variant="outline" size="sm">
+          <SlidersHorizontal aria-hidden="true" data-icon="inline-start" />
+          {t('common.entityList.filters.button')}
+          {activeCount > 0 ? (
+            <Badge variant="secondary" className="ml-0.5">
+              {activeCount}
+            </Badge>
+          ) : null}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-64">
+        <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="entity-filter-field">{t('common.entityList.filters.fieldLabel')}</Label>
+            <Select value={fieldId} onValueChange={handleFieldChange}>
+              <SelectTrigger id="entity-filter-field" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {fields.map((f) => (
+                  <SelectItem key={f.id} value={f.id}>
+                    {f.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {field ? (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="entity-filter-value">
+                {t('common.entityList.filters.valueLabel')}
+              </Label>
+              {field.type === 'date' ? (
+                <Input
+                  id="entity-filter-value"
+                  type="date"
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                />
+              ) : field.type === 'text' ? (
+                <Input
+                  id="entity-filter-value"
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  placeholder={field.placeholder}
+                />
+              ) : (
+                <Select value={value || undefined} onValueChange={setValue}>
+                  <SelectTrigger id="entity-filter-value" className="w-full">
+                    <SelectValue
+                      placeholder={field.placeholder ?? t('common.entityList.filters.selectValue')}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(field.options ?? []).map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          ) : null}
+
+          <Button
+            type="button"
+            size="sm"
+            onClick={handleApply}
+            disabled={!value}
+            className="self-end"
+          >
+            {t('common.entityList.filters.addFilter')}
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+function FilterChips({ fields, values, onRemove }: Omit<EntityListFilters, 'onChange'>) {
+  const { t } = useTranslation()
+  const active = fields.filter((f) => values[f.id])
+
+  return (
+    <>
+      {active.map((field) => {
+        const value = values[field.id]
+        const displayValue = field.options?.find((o) => o.value === value)?.label ?? value
+        return (
+          <Badge key={field.id} variant="secondary" className="gap-1 pr-1">
+            <span>
+              {field.label}: {displayValue}
+            </span>
+            <button
+              type="button"
+              onClick={() => onRemove(field.id)}
+              aria-label={t('common.entityList.filters.removeFilter', { label: field.label })}
+              className="rounded-full p-0.5 hover:bg-foreground/10"
+            >
+              <X className="size-3" aria-hidden="true" />
+            </button>
+          </Badge>
+        )
+      })}
+    </>
+  )
+}
+
 export function EntityList<T extends EntityRow>({
   entityKey,
   items,
@@ -169,6 +353,8 @@ export function EntityList<T extends EntityRow>({
   rowActions,
   getSearchText,
   searchPlaceholder,
+  filters,
+  toolbarExtra,
   emptyTitle,
   emptyDescription,
   createAction,
@@ -226,7 +412,7 @@ export function EntityList<T extends EntityRow>({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {getSearchText ? (
           <div className="relative w-full max-w-xs">
             <Search
@@ -242,10 +428,26 @@ export function EntityList<T extends EntityRow>({
               className="pl-8"
             />
           </div>
-        ) : (
-          <span />
-        )}
-        <div className="flex items-center gap-2">
+        ) : null}
+
+        {toolbarExtra}
+
+        {filters ? (
+          <>
+            <FilterPopover
+              fields={filters.fields}
+              values={filters.values}
+              onChange={filters.onChange}
+            />
+            <FilterChips
+              fields={filters.fields}
+              values={filters.values}
+              onRemove={filters.onRemove}
+            />
+          </>
+        ) : null}
+
+        <div className="ml-auto flex items-center gap-2">
           {createAction ? (
             <CreateActionButton action={createAction} label={createAction.label} />
           ) : null}

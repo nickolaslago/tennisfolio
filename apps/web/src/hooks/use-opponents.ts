@@ -1,11 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import * as opponentsApi from '@/lib/api/opponents'
-import type { OpponentCreate, OpponentUpdate } from '@/lib/api/opponents'
+import type { OpponentCreate, OpponentListParams, OpponentUpdate } from '@/lib/api/opponents'
 import { queryKeys } from '@/lib/api/query-keys'
-import type { ListParams } from '@/lib/api/types'
 
-export function useOpponents(params: ListParams = {}) {
+export function useOpponents(params: OpponentListParams = {}) {
   return useQuery({
     queryKey: queryKeys.opponents.list(params),
     queryFn: ({ signal }) => opponentsApi.listOpponents(params, signal),

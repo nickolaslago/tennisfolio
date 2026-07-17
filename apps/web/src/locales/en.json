@@ -33,7 +33,15 @@
       "cardView": "Card view",
       "viewModeLabel": "View mode",
       "noMatchesFor": "No matches for “{{query}}”.",
-      "sortBy": "Sort by {{header}}"
+      "sortBy": "Sort by {{header}}",
+      "filters": {
+        "button": "Filters",
+        "fieldLabel": "Field",
+        "valueLabel": "Value",
+        "selectValue": "Select value…",
+        "addFilter": "Add filter",
+        "removeFilter": "Remove {{label}} filter"
+      }
     }
   },
   "nav": {
@@ -119,15 +127,11 @@
     "logMatch": "Log match",
     "logFirstMatch": "Log your first match",
     "deleteDescription": "This permanently removes the match and its set scores. This can't be undone.",
+    "filterPlaceholder": "Filter matches…",
     "filters": {
-      "heading": "Filters",
-      "allOpponents": "All opponents",
-      "allClubs": "All clubs",
-      "allTournaments": "All tournaments",
-      "allSurfaces": "All surfaces",
+      "statusLabel": "Match status",
       "dateFromLabel": "From",
-      "dateToLabel": "To",
-      "clearFilters": "Clear filters"
+      "dateToLabel": "To"
     },
     "tabs": {
       "all": "All",
@@ -409,6 +413,12 @@
     "filterPlaceholder": "Filter tournaments…",
     "addTournament": "Add tournament",
     "addFirstTournament": "Add your first tournament",
+    "filters": {
+      "statusLabel": "Status",
+      "statusUpcoming": "Upcoming",
+      "statusOngoing": "Ongoing",
+      "statusCompleted": "Completed"
+    },
     "columns": {
       "name": "Name",
       "season": "Season",

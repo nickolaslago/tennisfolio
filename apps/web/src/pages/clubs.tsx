@@ -1,5 +1,5 @@
 import { ChevronLeft, MapPinPlus, Pencil, Plus, Trash2 } from 'lucide-react'
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
@@ -7,7 +7,7 @@ import type { TFunction } from 'i18next'
 import { CountryCombobox } from '@/components/data/country-combobox'
 import { EntityIcon } from '@/components/data/entity-icon'
 import { EntityIconPicker } from '@/components/data/entity-icon-picker'
-import { EntityList, type EntityColumn } from '@/components/data/entity-list'
+import { EntityList, type EntityColumn, type FilterField } from '@/components/data/entity-list'
 import { FormBanner, FormField } from '@/components/data/entity-form'
 import { EmptyState, ErrorState, LoadingState } from '@/components/data/query-state'
 import { RowOptionsMenu } from '@/components/data/row-options-menu'
@@ -36,6 +36,7 @@ import type { Club, ClubCreate, Court, CourtInput, Environment, Surface } from '
 import { useClub, useClubs, useCreateClub, useDeleteClub, useUpdateClub } from '@/hooks/use-clubs'
 import { useMatches } from '@/hooks/use-matches'
 import type { Match } from '@/lib/api/matches'
+import { useUrlFilters } from '@/hooks/use-url-filters'
 import { useDocumentTitle } from '@/lib/use-document-title'
 
 function environmentLabel(environment: Environment, t: TFunction): string {
@@ -53,11 +54,66 @@ function courtsSummary(courts: Court[], t: TFunction): string {
   return courts.map((court) => formatCourt(court, t)).join(', ')
 }
 
+const SURFACE_OPTIONS: Surface[] = ['Hard', 'Clay', 'Grass', 'Carpet']
+
+function environmentOptions(t: TFunction): { value: Environment; label: string }[] {
+  return [
+    { value: 'Indoor', label: t('clubs.form.environmentIndoor') },
+    { value: 'Outdoor', label: t('clubs.form.environmentOutdoor') },
+  ]
+}
+
+const FILTER_FIELD_IDS = ['surface', 'environment', 'country'] as const
+
 export function ClubsPage() {
   const { t } = useTranslation()
   useDocumentTitle(t('clubs.pageTitle'))
-  const clubs = useClubs()
+
+  const {
+    values: filterValues,
+    setValue: setFilterValue,
+    removeValue,
+  } = useUrlFilters(FILTER_FIELD_IDS)
+
+  const clubs = useClubs({
+    surface: (filterValues.surface as Surface) || undefined,
+    environment: (filterValues.environment as Environment) || undefined,
+    country: filterValues.country || undefined,
+  })
+  // Unfiltered, so the country filter's option list doesn't shrink to only the
+  // countries left over after another filter has already been applied.
+  const allClubs = useClubs()
   const deleteClub = useDeleteClub()
+
+  const countryOptions = useMemo(() => {
+    const countries = new Set(
+      (allClubs.data?.items ?? [])
+        .map((c) => c.country)
+        .filter((country): country is string => Boolean(country)),
+    )
+    return Array.from(countries).sort((a, b) => a.localeCompare(b))
+  }, [allClubs.data])
+
+  const filterFields: FilterField[] = useMemo(
+    () => [
+      {
+        id: 'surface',
+        label: t('clubs.columns.surface'),
+        options: SURFACE_OPTIONS.map((surface) => ({ value: surface, label: surface })),
+      },
+      {
+        id: 'environment',
+        label: t('clubs.columns.environment'),
+        options: environmentOptions(t),
+      },
+      {
+        id: 'country',
+        label: t('clubs.columns.country'),
+        options: countryOptions.map((country) => ({ value: country, label: country })),
+      },
+    ],
+    [t, countryOptions],
+  )
 
   const rowOptions = (club: Club) => (
     <RowOptionsMenu
@@ -124,6 +180,12 @@ export function ClubsPage() {
             .join(' ')}`
         }
         searchPlaceholder={t('clubs.filterPlaceholder')}
+        filters={{
+          fields: filterFields,
+          values: filterValues,
+          onChange: setFilterValue,
+          onRemove: removeValue,
+        }}
         defaultSort={{ columnId: 'name', direction: 'asc' }}
         emptyTitle={t('clubs.emptyState.title')}
         emptyDescription={t('clubs.emptyState.description')}
@@ -426,15 +488,6 @@ export function ClubDetailPage() {
   )
 }
 
-const SURFACE_OPTIONS: Surface[] = ['Hard', 'Clay', 'Grass', 'Carpet']
-
-function environmentOptions(t: TFunction): { value: Environment; label: string }[] {
-  return [
-    { value: 'Indoor', label: t('clubs.form.environmentIndoor') },
-    { value: 'Outdoor', label: t('clubs.form.environmentOutdoor') },
-  ]
-}
-
 /** A court row as edited in the form; fields may be blank while being filled in. */
 interface CourtRow {
   id?: number
@@ -646,7 +699,6 @@ function ClubForm(props: { mode: 'create' } | { mode: 'edit'; club: Club }) {
                   aria-invalid={Boolean(errors.country)}
                 />
               </FormField>
-
             </div>
 
             <CourtsEditor

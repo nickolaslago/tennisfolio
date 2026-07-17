@@ -1,7 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import * as tournamentsApi from '@/lib/api/tournaments'
-import type { TournamentCreate, TournamentListParams, TournamentUpdate } from '@/lib/api/tournaments'
+import type {
+  TournamentCreate,
+  TournamentListParams,
+  TournamentUpdate,
+} from '@/lib/api/tournaments'
 import { queryKeys } from '@/lib/api/query-keys'
 
 export function useTournaments(params: TournamentListParams = {}) {

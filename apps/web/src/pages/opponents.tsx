@@ -1,5 +1,5 @@
 import { ChevronLeft, Pencil, Trash2, UserPlus } from 'lucide-react'
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
@@ -7,7 +7,7 @@ import type { TFunction } from 'i18next'
 import { CountryCombobox } from '@/components/data/country-combobox'
 import { EntityIcon } from '@/components/data/entity-icon'
 import { EntityIconPicker } from '@/components/data/entity-icon-picker'
-import { EntityList, type EntityColumn } from '@/components/data/entity-list'
+import { EntityList, type EntityColumn, type FilterField } from '@/components/data/entity-list'
 import { FormBanner, FormField } from '@/components/data/entity-form'
 import { EmptyState, ErrorState, LoadingState } from '@/components/data/query-state'
 import { RowOptionsMenu } from '@/components/data/row-options-menu'
@@ -38,16 +38,62 @@ import { useDeleteOpponent, useOpponent, useOpponents } from '@/hooks/use-oppone
 import { useCreateOpponent, useUpdateOpponent } from '@/hooks/use-opponents'
 import { useMatches } from '@/hooks/use-matches'
 import type { Match } from '@/lib/api/matches'
+import { useUrlFilters } from '@/hooks/use-url-filters'
 import { useDocumentTitle } from '@/lib/use-document-title'
+
+const FILTER_FIELD_IDS = ['handedness', 'age_range'] as const
 
 const fullName = (opponent: Opponent) =>
   opponent.name ? `${opponent.name} ${opponent.last_name}` : opponent.last_name
 
+function handednessOptions(t: TFunction): { value: Handedness; label: string }[] {
+  return [
+    { value: 'R', label: t('opponents.form.handednessRight') },
+    { value: 'L', label: t('opponents.form.handednessLeft') },
+  ]
+}
+
+const AGE_RANGE_OPTIONS: AgeRange[] = [
+  'Under 18',
+  '18-25',
+  '26-35',
+  '36-45',
+  '46-55',
+  '56-65',
+  'Over 65',
+]
+
 export function OpponentsPage() {
   const { t } = useTranslation()
   useDocumentTitle(t('opponents.pageTitle'))
-  const opponents = useOpponents()
+
+  const {
+    values: filterValues,
+    setValue: setFilterValue,
+    removeValue,
+  } = useUrlFilters(FILTER_FIELD_IDS)
+
+  const opponents = useOpponents({
+    handedness: (filterValues.handedness as Handedness) || undefined,
+    age_range: (filterValues.age_range as AgeRange) || undefined,
+  })
   const deleteOpponent = useDeleteOpponent()
+
+  const filterFields: FilterField[] = useMemo(
+    () => [
+      {
+        id: 'handedness',
+        label: t('opponents.columns.handedness'),
+        options: handednessOptions(t).map((o) => ({ value: o.value, label: o.label })),
+      },
+      {
+        id: 'age_range',
+        label: t('opponents.detail.ageRange'),
+        options: AGE_RANGE_OPTIONS.map((range) => ({ value: range, label: range })),
+      },
+    ],
+    [t],
+  )
 
   const rowOptions = (opponent: Opponent) => (
     <RowOptionsMenu
@@ -109,6 +155,12 @@ export function OpponentsPage() {
         rowActions={rowOptions}
         getSearchText={(o) => `${fullName(o)} ${o.nationality ?? ''} ${o.level ?? ''}`}
         searchPlaceholder={t('opponents.filterPlaceholder')}
+        filters={{
+          fields: filterFields,
+          values: filterValues,
+          onChange: setFilterValue,
+          onRemove: removeValue,
+        }}
         defaultSort={{ columnId: 'name', direction: 'asc' }}
         emptyTitle={t('opponents.emptyState.title')}
         emptyDescription={t('opponents.emptyState.description')}
@@ -381,23 +433,6 @@ export function OpponentDetailPage() {
     </>
   )
 }
-
-function handednessOptions(t: TFunction): { value: Handedness; label: string }[] {
-  return [
-    { value: 'R', label: t('opponents.form.handednessRight') },
-    { value: 'L', label: t('opponents.form.handednessLeft') },
-  ]
-}
-
-const AGE_RANGE_OPTIONS: AgeRange[] = [
-  'Under 18',
-  '18-25',
-  '26-35',
-  '36-45',
-  '46-55',
-  '56-65',
-  'Over 65',
-]
 
 interface OpponentFormState {
   last_name: string

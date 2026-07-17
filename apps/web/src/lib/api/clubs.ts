@@ -39,7 +39,13 @@ export interface ClubCreate {
 
 export type ClubUpdate = Partial<ClubCreate>
 
-export function listClubs(params: ListParams = {}, signal?: AbortSignal) {
+export interface ClubListParams extends ListParams {
+  surface?: Surface
+  environment?: Environment
+  country?: string
+}
+
+export function listClubs(params: ClubListParams = {}, signal?: AbortSignal) {
   return http.get<Page<Club>>('/clubs', { params, signal })
 }
 

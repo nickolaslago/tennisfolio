@@ -1,11 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import * as clubsApi from '@/lib/api/clubs'
-import type { ClubCreate, ClubUpdate } from '@/lib/api/clubs'
+import type { ClubCreate, ClubListParams, ClubUpdate } from '@/lib/api/clubs'
 import { queryKeys } from '@/lib/api/query-keys'
-import type { ListParams } from '@/lib/api/types'
 
-export function useClubs(params: ListParams = {}) {
+export function useClubs(params: ClubListParams = {}) {
   return useQuery({
     queryKey: queryKeys.clubs.list(params),
     queryFn: ({ signal }) => clubsApi.listClubs(params, signal),

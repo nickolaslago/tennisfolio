@@ -170,6 +170,46 @@ def test_list_clubs_search_matches_name(client: TestClient) -> None:
     assert body["items"][0]["name"] == "Riverside Tennis Club"
 
 
+def test_list_clubs_filters_by_country(client: TestClient) -> None:
+    client.post("/clubs", json={"name": "Riverside", "country": "Spain"})
+    client.post("/clubs", json={"name": "Lakeside", "country": "France"})
+
+    response = client.get("/clubs", params={"country": "Spain"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["total"] == 1
+    assert body["items"][0]["name"] == "Riverside"
+
+
+def test_list_clubs_filters_by_court_surface_and_environment(client: TestClient) -> None:
+    client.post(
+        "/clubs",
+        json={"name": "Riverside", "courts": [{"surface": "Clay", "environment": "Outdoor"}]},
+    )
+    client.post(
+        "/clubs",
+        json={"name": "Lakeside", "courts": [{"surface": "Hard", "environment": "Indoor"}]},
+    )
+
+    response = client.get("/clubs", params={"surface": "Clay"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["total"] == 1
+    assert body["items"][0]["name"] == "Riverside"
+
+    response = client.get("/clubs", params={"environment": "Indoor"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["total"] == 1
+    assert body["items"][0]["name"] == "Lakeside"
+
+    response = client.get("/clubs", params={"surface": "Hard", "environment": "Indoor"})
+    assert response.json()["total"] == 1
+
+    response = client.get("/clubs", params={"surface": "Grass"})
+    assert response.json()["total"] == 0
+
+
 def test_update_club(client: TestClient) -> None:
     created = client.post("/clubs", json={"name": "Riverside"}).json()
 

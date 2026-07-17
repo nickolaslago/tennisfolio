@@ -37,6 +37,7 @@ export type TournamentUpdate = Partial<TournamentCreate>
 
 export interface TournamentListParams extends ListParams {
   tournament_type?: TournamentType
+  club_id?: number
 }
 
 /** One opponent's row in a Ranking League standings table — mirrors StandingsRow. */

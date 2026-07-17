@@ -19,7 +19,13 @@ const TONE_ICON_CLASS: Record<NonNullable<StatTileProps['tone']>, string> = {
 }
 
 /** A single KPI figure — label, value, and an optional supporting line. */
-export function StatTile({ label, value, description, icon: Icon, tone = 'neutral' }: StatTileProps) {
+export function StatTile({
+  label,
+  value,
+  description,
+  icon: Icon,
+  tone = 'neutral',
+}: StatTileProps) {
   return (
     <Card>
       <CardContent className="flex items-start justify-between gap-3">
@@ -32,7 +38,10 @@ export function StatTile({ label, value, description, icon: Icon, tone = 'neutra
         </div>
         <span
           aria-hidden="true"
-          className={cn('flex size-9 shrink-0 items-center justify-center rounded-full', TONE_ICON_CLASS[tone])}
+          className={cn(
+            'flex size-9 shrink-0 items-center justify-center rounded-full',
+            TONE_ICON_CLASS[tone],
+          )}
         >
           <Icon className="size-4.5" />
         </span>

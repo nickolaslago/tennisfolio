@@ -12,6 +12,7 @@ from sqlalchemy.orm import selectinload
 
 from app.db import DbSession
 from app.models import Club, Court
+from app.models.enums import Environment, Surface
 from app.routers.common import get_or_404
 from app.schemas.club import ClubCreate, ClubRead, ClubUpdate
 from app.schemas.common import Page
@@ -60,10 +61,23 @@ def list_clubs(
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     search: str | None = Query(default=None, min_length=1, description="Text search on name"),
+    surface: Surface | None = Query(default=None, description="Filter by a court's surface"),
+    environment: Environment | None = Query(
+        default=None, description="Filter by a court's environment"
+    ),
+    country: str | None = Query(default=None, description="Filter by country"),
 ) -> Page[ClubRead]:
     stmt = select(Club)
     if search:
         stmt = stmt.where(Club.name.ilike(f"%{search}%"))
+    if country:
+        stmt = stmt.where(Club.country == country)
+    if surface is not None or environment is not None:
+        stmt = stmt.join(Court, Court.club_id == Club.id).distinct()
+        if surface is not None:
+            stmt = stmt.where(Court.surface == surface)
+        if environment is not None:
+            stmt = stmt.where(Court.environment == environment)
 
     total = db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
     rows = db.scalars(
