@@ -1,4 +1,5 @@
 import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, XAxis, YAxis } from 'recharts'
+import { useTranslation } from 'react-i18next'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import type { SurfaceWinRate } from '@/lib/api/stats'
@@ -12,18 +13,19 @@ function percentLabel(value: number): string {
 }
 
 export function WinRateBySurfaceChart({ data }: WinRateBySurfaceChartProps) {
+  const { t } = useTranslation()
   const points = data.filter((d) => d.win_rate !== null)
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Win rate by surface</CardTitle>
-        <CardDescription>How results vary across the surfaces you've played on.</CardDescription>
+        <CardTitle>{t('home.winRateBySurface.title')}</CardTitle>
+        <CardDescription>{t('home.winRateBySurface.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         {points.length === 0 ? (
           <p className="py-12 text-center text-sm text-muted-foreground">
-            No surface breakdown yet — log matches with a surface to see this.
+            {t('home.winRateBySurface.empty')}
           </p>
         ) : (
           <div className="h-64 w-full">

@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import type { WinRateStat } from '@/lib/api/stats'
 
@@ -7,6 +9,7 @@ interface ResultsDistributionChartProps {
 
 /** Part-to-whole win/loss split — a horizontal stacked bar reads better than a two-slice pie. */
 export function ResultsDistributionChart({ data }: ResultsDistributionChartProps) {
+  const { t } = useTranslation()
   const { matches, wins, losses } = data
   const winPct = matches > 0 ? wins / matches : 0
   const lossPct = matches > 0 ? losses / matches : 0
@@ -14,19 +17,19 @@ export function ResultsDistributionChart({ data }: ResultsDistributionChartProps
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Results distribution</CardTitle>
-        <CardDescription>Every played match, split by result.</CardDescription>
+        <CardTitle>{t('home.resultsDistribution.title')}</CardTitle>
+        <CardDescription>{t('home.resultsDistribution.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         {matches === 0 ? (
           <p className="py-12 text-center text-sm text-muted-foreground">
-            Play your first match to see your results split here.
+            {t('home.resultsDistribution.empty')}
           </p>
         ) : (
           <div className="flex flex-col gap-4">
             <div
               role="img"
-              aria-label={`${wins} wins, ${losses} losses out of ${matches} matches`}
+              aria-label={t('home.resultsDistribution.ariaLabel', { wins, losses, matches })}
               className="flex h-8 w-full overflow-hidden rounded-lg bg-muted"
             >
               {winPct > 0 ? (
@@ -49,12 +52,12 @@ export function ResultsDistributionChart({ data }: ResultsDistributionChartProps
             <div className="flex items-center gap-6 text-sm">
               <span className="flex items-center gap-1.5">
                 <span aria-hidden="true" className="size-2.5 rounded-full bg-win" />
-                <span className="text-muted-foreground">Wins</span>
+                <span className="text-muted-foreground">{t('home.resultsDistribution.wins')}</span>
                 <span className="font-medium">{wins}</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <span aria-hidden="true" className="size-2.5 rounded-full bg-loss" />
-                <span className="text-muted-foreground">Losses</span>
+                <span className="text-muted-foreground">{t('home.resultsDistribution.losses')}</span>
                 <span className="font-medium">{losses}</span>
               </span>
             </div>

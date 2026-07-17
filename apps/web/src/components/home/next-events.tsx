@@ -1,5 +1,6 @@
 import { CalendarClock, ChevronRight, Trophy } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 import { EntityIcon } from '@/components/data/entity-icon'
 import { ErrorState, LoadingState } from '@/components/data/query-state'
@@ -11,17 +12,18 @@ import { cn } from '@/lib/utils'
 
 const todayIso = () => new Date().toISOString().slice(0, 10)
 
-function opponentLabel(opponent: { name: string | null; last_name: string } | undefined, id: number) {
-  if (!opponent) return `Opponent #${id}`
-  return opponent.name ? `${opponent.name} ${opponent.last_name}` : opponent.last_name
-}
-
 function UpcomingMatches() {
+  const { t } = useTranslation()
   const today = todayIso()
   const matches = useMatches({ status: 'scheduled', date_from: today, limit: 100 })
   const opponents = useOpponents()
 
   const opponentsById = new Map((opponents.data?.items ?? []).map((o) => [o.id, o]))
+
+  function opponentLabel(opponent: { name: string | null; last_name: string } | undefined, id: number) {
+    if (!opponent) return t('home.opponentFallback', { id })
+    return opponent.name ? `${opponent.name} ${opponent.last_name}` : opponent.last_name
+  }
 
   const upcoming = [...(matches.data?.items ?? [])]
     .sort((a, b) => a.match_date.localeCompare(b.match_date))
@@ -31,7 +33,7 @@ function UpcomingMatches() {
   if (matches.isError) return <ErrorState error={matches.error} onRetry={() => void matches.refetch()} />
 
   if (upcoming.length === 0) {
-    return <p className="text-sm text-muted-foreground">No scheduled matches on the calendar.</p>
+    return <p className="text-sm text-muted-foreground">{t('home.nextEvents.upcomingMatches.empty')}</p>
   }
 
   return (
@@ -44,7 +46,11 @@ function UpcomingMatches() {
           >
             <span className="flex min-w-0 items-center gap-2.5">
               <CalendarClock aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-              <span className="truncate">vs {opponentLabel(opponentsById.get(match.opponent_id), match.opponent_id)}</span>
+              <span className="truncate">
+                {t('home.vsOpponent', {
+                  opponent: opponentLabel(opponentsById.get(match.opponent_id), match.opponent_id),
+                })}
+              </span>
             </span>
             <span className="shrink-0 text-muted-foreground">{match.match_date}</span>
           </Link>
@@ -55,6 +61,7 @@ function UpcomingMatches() {
 }
 
 function ActiveAndUpcomingTournaments() {
+  const { t } = useTranslation()
   const today = todayIso()
   const tournaments = useTournaments({ limit: 200 })
 
@@ -69,7 +76,7 @@ function ActiveAndUpcomingTournaments() {
     .slice(0, 5)
 
   if (relevant.length === 0) {
-    return <p className="text-sm text-muted-foreground">No active or upcoming tournaments.</p>
+    return <p className="text-sm text-muted-foreground">{t('home.nextEvents.tournaments.empty')}</p>
   }
 
   return (
@@ -94,7 +101,9 @@ function ActiveAndUpcomingTournaments() {
                 tournament.isActive ? 'bg-highlight/15 text-highlight' : 'bg-muted text-muted-foreground',
               )}
             >
-              {tournament.isActive ? 'Active' : (tournament.start_date ?? 'Upcoming')}
+              {tournament.isActive
+                ? t('home.nextEvents.tournamentActive')
+                : (tournament.start_date ?? t('home.nextEvents.tournamentUpcoming'))}
             </span>
           </Link>
         </li>
@@ -104,19 +113,21 @@ function ActiveAndUpcomingTournaments() {
 }
 
 export function NextEvents() {
+  const { t } = useTranslation()
+
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <div>
-            <CardTitle>Upcoming matches</CardTitle>
-            <CardDescription>Scheduled matches still to play.</CardDescription>
+            <CardTitle>{t('home.nextEvents.upcomingMatches.title')}</CardTitle>
+            <CardDescription>{t('home.nextEvents.upcomingMatches.description')}</CardDescription>
           </div>
           <Link
             to="/matches?status=scheduled"
             className="flex items-center text-sm text-muted-foreground hover:text-primary"
           >
-            View all
+            {t('home.viewAll')}
             <ChevronRight aria-hidden="true" className="size-4" />
           </Link>
         </CardHeader>
@@ -127,14 +138,14 @@ export function NextEvents() {
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <div>
-            <CardTitle>Tournaments</CardTitle>
-            <CardDescription>What's active or coming up.</CardDescription>
+            <CardTitle>{t('home.nextEvents.tournaments.title')}</CardTitle>
+            <CardDescription>{t('home.nextEvents.tournaments.description')}</CardDescription>
           </div>
           <Link
             to="/tournaments"
             className="flex items-center text-sm text-muted-foreground hover:text-primary"
           >
-            View all
+            {t('home.viewAll')}
             <ChevronRight aria-hidden="true" className="size-4" />
           </Link>
         </CardHeader>

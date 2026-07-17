@@ -1,6 +1,7 @@
 import { CalendarRange, Flame, Plus, Target, Trophy } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 import { ErrorState } from '@/components/data/query-state'
 import { NextEvents } from '@/components/home/next-events'
@@ -31,20 +32,18 @@ function formatPercent(value: number | null): string {
 }
 
 function EmptyHome() {
+  const { t } = useTranslation()
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Welcome to Tennisfolio 🎾</CardTitle>
-        <CardDescription>
-          Your performance dashboard lands here as soon as you've logged a match — win rate,
-          streaks, charts, and what's next.
-        </CardDescription>
+        <CardTitle>{t('home.emptyState.title')}</CardTitle>
+        <CardDescription>{t('home.emptyState.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <Button asChild size="sm">
           <Link to="/matches/new">
             <Plus aria-hidden="true" data-icon="inline-start" />
-            Log your first match
+            {t('home.emptyState.cta')}
           </Link>
         </Button>
       </CardContent>
@@ -53,7 +52,8 @@ function EmptyHome() {
 }
 
 export function HomePage() {
-  useDocumentTitle('Home')
+  const { t } = useTranslation()
+  useDocumentTitle(t('home.pageTitle'))
 
   const anyMatches = useMatches({ limit: 1 })
   const winRate = useWinRate()
@@ -68,10 +68,7 @@ export function HomePage() {
 
   return (
     <>
-      <PageHeader
-        title="Home"
-        description="Your tennis portfolio at a glance — recent matches, form, and what's next."
-      />
+      <PageHeader title={t('home.pageTitle')} description={t('home.pageDescription')} />
 
       {anyMatches.isPending ? null : anyMatches.isError ? (
         <ErrorState error={anyMatches.error} onRetry={() => void anyMatches.refetch()} />
@@ -81,14 +78,14 @@ export function HomePage() {
         <div className="flex flex-col gap-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatTile
-              label="Overall win rate"
+              label={t('home.stats.overallWinRate')}
               icon={Trophy}
               tone="win"
               value={winRate.isPending ? '—' : formatPercent(winRate.data?.win_rate ?? null)}
               description={winRate.data ? `${winRate.data.wins}-${winRate.data.losses}` : undefined}
             />
             <StatTile
-              label="Current streak"
+              label={t('home.stats.currentStreak')}
               icon={Flame}
               tone={
                 streaks.data?.current_streak_type === 'Win'
@@ -104,16 +101,16 @@ export function HomePage() {
                     ? `${streaks.data.current_streak_length}${streaks.data.current_streak_type === 'Win' ? 'W' : 'L'}`
                     : '—'
               }
-              description="Consecutive results"
+              description={t('home.stats.currentStreakDescription')}
             />
             <StatTile
-              label="Matches this season"
+              label={t('home.stats.matchesThisSeason')}
               icon={CalendarRange}
               value={seasonWinRate.isPending ? '—' : (seasonWinRate.data?.matches ?? 0)}
               description={new Date().getFullYear().toString()}
             />
             <StatTile
-              label="Tiebreak record"
+              label={t('home.stats.tiebreakRecord')}
               icon={Target}
               value={
                 tiebreaks.isPending ? '—' : `${tiebreaks.data?.wins ?? 0}-${tiebreaks.data?.losses ?? 0}`

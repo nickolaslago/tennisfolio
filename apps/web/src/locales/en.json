@@ -49,5 +49,61 @@
     "title": "Page not found",
     "description": "That ball went long — there's nothing at this address.",
     "backToHome": "Back to Home"
+  },
+  "home": {
+    "pageTitle": "Home",
+    "pageDescription": "Your tennis portfolio at a glance — recent matches, form, and what's next.",
+    "viewAll": "View all",
+    "opponentFallback": "Opponent #{{id}}",
+    "vsOpponent": "vs {{opponent}}",
+    "emptyState": {
+      "title": "Welcome to Tennisfolio 🎾",
+      "description": "Your performance dashboard lands here as soon as you've logged a match — win rate, streaks, charts, and what's next.",
+      "cta": "Log your first match"
+    },
+    "stats": {
+      "overallWinRate": "Overall win rate",
+      "currentStreak": "Current streak",
+      "currentStreakDescription": "Consecutive results",
+      "matchesThisSeason": "Matches this season",
+      "tiebreakRecord": "Tiebreak record"
+    },
+    "recentMatches": {
+      "title": "Recent matches",
+      "description": "Your last few results.",
+      "empty": "No played matches yet."
+    },
+    "winRateBySurface": {
+      "title": "Win rate by surface",
+      "description": "How results vary across the surfaces you've played on.",
+      "empty": "No surface breakdown yet — log matches with a surface to see this."
+    },
+    "resultsDistribution": {
+      "title": "Results distribution",
+      "description": "Every played match, split by result.",
+      "empty": "Play your first match to see your results split here.",
+      "ariaLabel": "{{wins}} wins, {{losses}} losses out of {{matches}} matches",
+      "wins": "Wins",
+      "losses": "Losses"
+    },
+    "winRateOverTime": {
+      "title": "Win rate over time",
+      "description": "Monthly win rate across every played match.",
+      "empty": "Play a few matches to see your form trend here."
+    },
+    "nextEvents": {
+      "upcomingMatches": {
+        "title": "Upcoming matches",
+        "description": "Scheduled matches still to play.",
+        "empty": "No scheduled matches on the calendar."
+      },
+      "tournaments": {
+        "title": "Tournaments",
+        "description": "What's active or coming up.",
+        "empty": "No active or upcoming tournaments."
+      },
+      "tournamentActive": "Active",
+      "tournamentUpcoming": "Upcoming"
+    }
   }
 }

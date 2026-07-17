@@ -1,4 +1,5 @@
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { useTranslation } from 'react-i18next'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import type { PeriodWinRate } from '@/lib/api/stats'
@@ -34,18 +35,19 @@ function TooltipContent({
 }
 
 export function WinRateOverTimeChart({ data }: WinRateOverTimeChartProps) {
+  const { t } = useTranslation()
   const points = data.filter((d) => d.win_rate !== null)
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Win rate over time</CardTitle>
-        <CardDescription>Monthly win rate across every played match.</CardDescription>
+        <CardTitle>{t('home.winRateOverTime.title')}</CardTitle>
+        <CardDescription>{t('home.winRateOverTime.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         {points.length === 0 ? (
           <p className="py-12 text-center text-sm text-muted-foreground">
-            Play a few matches to see your form trend here.
+            {t('home.winRateOverTime.empty')}
           </p>
         ) : (
           <div className="h-64 w-full">
