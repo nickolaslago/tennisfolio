@@ -1,5 +1,6 @@
 import { formatEntityIcon, parseEntityIcon, type EntityIconColorToken } from '@tennisfolio/core'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -33,12 +34,14 @@ const DEFAULT_COLOR: EntityIconColorToken = 'highlight'
 export function EntityIconPicker({
   value,
   onChange,
-  triggerLabel = 'Choose icon',
+  triggerLabel,
 }: {
   value: string | null
   onChange: (value: string | null) => void
   triggerLabel?: string
 }) {
+  const { t } = useTranslation()
+  const resolvedTriggerLabel = triggerLabel ?? t('common.iconPicker.chooseIcon')
   const [open, setOpen] = useState(false)
   let parsed
   try {
@@ -76,7 +79,7 @@ export function EntityIconPicker({
               })()
             )
           ) : null}
-          {triggerLabel}
+          {resolvedTriggerLabel}
         </Button>
         {value ? (
           <Button
@@ -86,7 +89,7 @@ export function EntityIconPicker({
             onClick={() => onChange(null)}
             className="text-muted-foreground"
           >
-            Clear
+            {t('common.clear')}
           </Button>
         ) : null}
       </div>
@@ -94,14 +97,14 @@ export function EntityIconPicker({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Choose an icon</DialogTitle>
-            <DialogDescription>Pick an emoji, or a colored icon.</DialogDescription>
+            <DialogTitle>{t('common.iconPicker.dialogTitle')}</DialogTitle>
+            <DialogDescription>{t('common.iconPicker.dialogDescription')}</DialogDescription>
           </DialogHeader>
 
           <Tabs defaultValue="emoji">
             <TabsList className="w-full">
-              <TabsTrigger value="emoji">Emoji</TabsTrigger>
-              <TabsTrigger value="icon">Icon</TabsTrigger>
+              <TabsTrigger value="emoji">{t('common.iconPicker.emojiTab')}</TabsTrigger>
+              <TabsTrigger value="icon">{t('common.iconPicker.iconTab')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="emoji" className="mt-2">
@@ -121,7 +124,11 @@ export function EntityIconPicker({
             </TabsContent>
 
             <TabsContent value="icon" className="mt-2 flex flex-col gap-3">
-              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Icon color">
+              <div
+                className="flex flex-wrap gap-1.5"
+                role="group"
+                aria-label={t('common.iconPicker.iconColorLabel')}
+              >
                 {ENTITY_ICON_COLOR_TOKENS.map((token) => (
                   <button
                     key={token}
@@ -160,7 +167,7 @@ export function EntityIconPicker({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Close
+              {t('common.close')}
             </Button>
           </DialogFooter>
         </DialogContent>

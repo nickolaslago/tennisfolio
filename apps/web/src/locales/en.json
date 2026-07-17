@@ -1,5 +1,40 @@
 {
-  "common": {},
+  "common": {
+    "optional": "(optional)",
+    "somethingWentWrong": "Something went wrong.",
+    "loading": "Loading…",
+    "couldntLoad": "Couldn't load this",
+    "tryAgain": "Try again",
+    "selectCountry": "Select country…",
+    "searchCountries": "Search countries…",
+    "noCountryFound": "No country found.",
+    "clear": "Clear",
+    "cancel": "Cancel",
+    "close": "Close",
+    "rowActions": {
+      "actionsFor": "Actions for {{label}}",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "deleteConfirmTitle": "Delete {{label}}?"
+    },
+    "iconPicker": {
+      "chooseIcon": "Choose icon",
+      "dialogTitle": "Choose an icon",
+      "dialogDescription": "Pick an emoji, or a colored icon.",
+      "emojiTab": "Emoji",
+      "iconTab": "Icon",
+      "iconColorLabel": "Icon color"
+    },
+    "entityList": {
+      "filterPlaceholder": "Filter…",
+      "tableView": "Table view",
+      "cardView": "Card view",
+      "viewModeLabel": "View mode",
+      "noMatchesFor": "No matches for “{{query}}”.",
+      "sortBy": "Sort by {{header}}"
+    }
+  },
   "nav": {
     "skipToContent": "Skip to content",
     "primaryNavLabel": "Primary",

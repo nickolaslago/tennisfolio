@@ -9,6 +9,7 @@ import {
 import type { ComponentType, ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 import { EmptyState, ErrorState, LoadingState } from '@/components/data/query-state'
 import { Button } from '@/components/ui/button'
@@ -128,14 +129,15 @@ function CreateActionButton({ action, label }: { action: CreateAction; label: st
 }
 
 function ViewToggle({ view, onChange }: { view: ViewMode; onChange: (view: ViewMode) => void }) {
+  const { t } = useTranslation()
   const options: { value: ViewMode; label: string; icon: IconComponent }[] = [
-    { value: 'table', label: 'Table view', icon: TableIcon },
-    { value: 'card', label: 'Card view', icon: LayoutGrid },
+    { value: 'table', label: t('common.entityList.tableView'), icon: TableIcon },
+    { value: 'card', label: t('common.entityList.cardView'), icon: LayoutGrid },
   ]
   return (
     <div
       role="group"
-      aria-label="View mode"
+      aria-label={t('common.entityList.viewModeLabel')}
       className="inline-flex items-center gap-0.5 rounded-lg border border-input bg-transparent p-0.5 dark:bg-input/30"
     >
       {options.map(({ value, label, icon: Icon }) => (
@@ -166,7 +168,7 @@ export function EntityList<T extends EntityRow>({
   renderCard,
   rowActions,
   getSearchText,
-  searchPlaceholder = 'Filter…',
+  searchPlaceholder,
   emptyTitle,
   emptyDescription,
   createAction,
@@ -174,6 +176,8 @@ export function EntityList<T extends EntityRow>({
   defaultSort,
   cardGridClassName,
 }: EntityListProps<T>) {
+  const { t } = useTranslation()
+  const resolvedSearchPlaceholder = searchPlaceholder ?? t('common.entityList.filterPlaceholder')
   const [view, setView] = usePersistedView(entityKey, defaultView)
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<SortState | null>(defaultSort ?? null)
@@ -233,8 +237,8 @@ export function EntityList<T extends EntityRow>({
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder={searchPlaceholder}
-              aria-label={searchPlaceholder}
+              placeholder={resolvedSearchPlaceholder}
+              aria-label={resolvedSearchPlaceholder}
               className="pl-8"
             />
           </div>
@@ -251,7 +255,7 @@ export function EntityList<T extends EntityRow>({
 
       {sorted.length === 0 ? (
         <p className="py-8 text-center text-sm text-muted-foreground">
-          No matches for &ldquo;{query}&rdquo;.
+          {t('common.entityList.noMatchesFor', { query })}
         </p>
       ) : view === 'table' ? (
         <Card>
@@ -272,7 +276,7 @@ export function EntityList<T extends EntityRow>({
                           <button
                             type="button"
                             onClick={() => toggleSort(column.id)}
-                            aria-label={`Sort by ${column.header}`}
+                            aria-label={t('common.entityList.sortBy', { header: column.header })}
                             className={cn(
                               'group -mx-1 inline-flex items-center gap-1 rounded px-1 py-0.5 font-medium transition-colors hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none',
                               active ? 'text-foreground' : 'text-foreground/70',

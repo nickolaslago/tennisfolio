@@ -1,6 +1,7 @@
 import { COUNTRY_NAMES } from '@tennisfolio/core'
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import {
   Command,
@@ -19,7 +20,7 @@ export function CountryCombobox({
   id,
   value,
   onChange,
-  placeholder = 'Select country…',
+  placeholder,
   'aria-invalid': ariaInvalid,
 }: {
   id?: string
@@ -29,6 +30,8 @@ export function CountryCombobox({
   'aria-invalid'?: boolean
 }) {
   const [open, setOpen] = useState(false)
+  const { t } = useTranslation()
+  const resolvedPlaceholder = placeholder ?? t('common.selectCountry')
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -44,15 +47,15 @@ export function CountryCombobox({
             !value && 'text-muted-foreground',
           )}
         >
-          <span className="line-clamp-1">{value ?? placeholder}</span>
+          <span className="line-clamp-1">{value ?? resolvedPlaceholder}</span>
           <ChevronDown className="pointer-events-none size-4 shrink-0 text-muted-foreground" />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search countries…" />
+          <CommandInput placeholder={t('common.searchCountries')} />
           <CommandList>
-            <CommandEmpty>No country found.</CommandEmpty>
+            <CommandEmpty>{t('common.noCountryFound')}</CommandEmpty>
             <CommandGroup>
               {COUNTRY_NAMES.map((country) => (
                 <CommandItem
@@ -80,7 +83,7 @@ export function CountryCombobox({
                     }}
                     className="text-muted-foreground"
                   >
-                    Clear
+                    {t('common.clear')}
                   </CommandItem>
                 </CommandGroup>
               </>
