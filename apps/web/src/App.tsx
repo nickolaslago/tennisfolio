@@ -2,12 +2,12 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import { AppShell } from '@/components/layout/app-shell'
 import { ClubDetailPage, ClubFormPage, ClubsPage } from '@/pages/clubs'
-import { ExportPage } from '@/pages/export'
 import { HomePage } from '@/pages/home'
 import { MatchFormPage } from '@/pages/match-form'
 import { MatchDetailPage, MatchesPage } from '@/pages/matches'
 import { NotFoundPage } from '@/pages/not-found'
 import { OpponentDetailPage, OpponentFormPage, OpponentsPage } from '@/pages/opponents'
+import { SettingsPage } from '@/pages/settings'
 import { TournamentDetailPage, TournamentFormPage, TournamentsPage } from '@/pages/tournaments'
 
 const router = createBrowserRouter([
@@ -32,7 +32,7 @@ const router = createBrowserRouter([
       { path: 'tournaments/new', element: <TournamentFormPage /> },
       { path: 'tournaments/:id/edit', element: <TournamentFormPage /> },
       { path: 'tournaments/:id', element: <TournamentDetailPage /> },
-      { path: 'export', element: <ExportPage /> },
+      { path: 'settings', element: <SettingsPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

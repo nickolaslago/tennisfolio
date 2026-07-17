@@ -1,4 +1,4 @@
-import { CalendarRange, Flame, Plus, Target, Trophy } from 'lucide-react'
+import { CalendarRange, Flame, Plus, Settings, Target, Trophy } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -68,7 +68,23 @@ export function HomePage() {
 
   return (
     <>
-      <PageHeader title={t('home.pageTitle')} description={t('home.pageDescription')} />
+      <PageHeader
+        title={t('home.pageTitle')}
+        description={t('home.pageDescription')}
+        action={
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            aria-label={t('nav.settings')}
+          >
+            <Link to="/settings">
+              <Settings aria-hidden="true" />
+            </Link>
+          </Button>
+        }
+      />
 
       {anyMatches.isPending ? null : anyMatches.isError ? (
         <ErrorState error={anyMatches.error} onRetry={() => void anyMatches.refetch()} />

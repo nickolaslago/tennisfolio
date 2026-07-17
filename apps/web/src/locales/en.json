@@ -44,7 +44,7 @@
     "opponents": "Opponents",
     "clubs": "Clubs",
     "tournaments": "Tournaments",
-    "export": "Export"
+    "settings": "Settings"
   },
   "notFound": {
     "title": "Page not found",
@@ -472,9 +472,31 @@
       "saveChanges": "Save changes"
     }
   },
+  "settings": {
+    "pageTitle": "Settings",
+    "pageDescription": "Manage how Tennisfolio looks and behaves, and back up your data.",
+    "general": {
+      "title": "General",
+      "description": "Regional preferences for dates and the app's language.",
+      "timezone": "Timezone",
+      "searchTimezone": "Search timezone…",
+      "noTimezoneFound": "No timezone found.",
+      "language": "Language"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "description": "Choose how Tennisfolio looks on this device.",
+      "theme": "Theme",
+      "themeLight": "Light",
+      "themeDark": "Dark",
+      "themeSystem": "System"
+    },
+    "backupExport": {
+      "title": "Backup & Export",
+      "description": "Download every match, opponent, club and tournament you've recorded — no lock-in, take your data with you any time."
+    }
+  },
   "export": {
-    "pageTitle": "Export",
-    "pageDescription": "Download every match, opponent, club and tournament you've recorded — no lock-in, take your data with you any time.",
     "downloadFailed": "Download failed.",
     "preparing": "Preparing…",
     "footerPrefix": "See",
