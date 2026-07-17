@@ -385,5 +385,91 @@
       "environmentOutdoor": "Outdoor",
       "saveChanges": "Save changes"
     }
+  },
+  "tournaments": {
+    "pageTitle": "Tournaments",
+    "pageDescription": "Tournaments and leagues you've entered, past and upcoming.",
+    "deleteDescription": "This permanently removes the tournament. This can't be undone.",
+    "filterPlaceholder": "Filter tournaments…",
+    "addTournament": "Add tournament",
+    "addFirstTournament": "Add your first tournament",
+    "columns": {
+      "name": "Name",
+      "season": "Season",
+      "type": "Type",
+      "organiser": "Organiser",
+      "hostClub": "Host club",
+      "dates": "Dates"
+    },
+    "emptyState": {
+      "title": "No tournaments yet",
+      "description": "Add the tournaments and leagues you've entered to start tracking matches by stage."
+    },
+    "matches": {
+      "heading": "Matches",
+      "recordSummary_one": "{{wins}}–{{losses}} ({{count}} match)",
+      "recordSummary_other": "{{wins}}–{{losses}} ({{count}} matches)",
+      "filterByResultLabel": "Filter by result",
+      "noFilterMatches": "No matches for this filter.",
+      "unspecifiedStage": "Unspecified",
+      "columns": {
+        "score": "Score"
+      },
+      "filters": {
+        "all": "All",
+        "wins": "Wins",
+        "losses": "Losses"
+      },
+      "emptyState": {
+        "title": "No matches yet",
+        "description": "Matches played in this tournament will show up here."
+      }
+    },
+    "standings": {
+      "heading": "Standings",
+      "emptyState": {
+        "title": "No standings yet",
+        "description": "Play a match in this league to see the standings table."
+      },
+      "columns": {
+        "opponent": "Opponent",
+        "wins": "W",
+        "losses": "L",
+        "winPct": "Win %",
+        "sets": "Sets",
+        "games": "Games"
+      }
+    },
+    "detail": {
+      "backToTournaments": "Back to Tournaments",
+      "pageTitleFallback": "Tournament",
+      "invalidId": "\"{{id}}\" is not a valid tournament id.",
+      "format": "Format",
+      "notes": "Notes"
+    },
+    "form": {
+      "backToTournament": "Back to tournament",
+      "editTitle": "Edit tournament",
+      "nameRequired": "Name is required.",
+      "typeRequired": "Tournament type is required.",
+      "endDateAfterStart": "End date must be on or after the start date.",
+      "icon": "Icon",
+      "seasonPlaceholder": "e.g. 2026",
+      "typeLabel": "Tournament type",
+      "typePlaceholder": "Select tournament type",
+      "typeKnockout": "Knockout Tournament",
+      "typeRanking": "Ranking League",
+      "formatLabel": "Format",
+      "formatPlaceholder": "Select format",
+      "formatCustom": "Custom",
+      "customFormatLabel": "Custom format",
+      "customFormatPlaceholder": "e.g. Round robin, then knockout",
+      "organiserPlaceholder": "e.g. Riverside Tennis Club",
+      "hostClubPlaceholder": "Select host club",
+      "noHostClub": "No host club",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "saveChanges": "Save changes"
+    }
   }
 }
