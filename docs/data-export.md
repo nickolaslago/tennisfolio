@@ -1,7 +1,8 @@
-# Data export
+# Data export & import
 
-Tennisfolio never locks your data in. The **Export** page (`/export` in the
-web app) offers two one-click downloads, both served by
+Tennisfolio never locks your data in. The **Backup & Export** section of the
+Settings page (`/settings` in the web app) offers two one-click downloads,
+both served by
 [`apps/api/src/app/routers/export.py`](../apps/api/src/app/routers/export.py):
 
 | Endpoint | Format | Contents |
@@ -99,6 +100,29 @@ A single object:
 Unlike the CSV export, the JSON export uses the database's **real** integer
 IDs directly (`opponent_id`, `club_id`, `tournament_id` point at other
 objects' `id` fields in the same document), and nests each match's sets
-inline rather than as a separate table. There's no importer for this format
-yet — it's meant for scripting, backups, and feeding into other tools, not
-for round-tripping back into Tennisfolio.
+inline rather than as a separate table. Those `id` fields are only used to
+link rows within the document, the same way the CSV export's `clu-`/`opp-`/…
+prefixes do — re-importing assigns fresh database IDs.
+
+## Data import
+
+The **Import** section on the Settings page (`/settings`), and
+`POST /import` in
+[`apps/api/src/app/routers/data_import.py`](../apps/api/src/app/routers/data_import.py),
+accept either file produced by the export endpoints above — the CSV zip or
+the JSON file — and use it to **replace** every table: everything currently
+in the database is wiped first, then the file's contents are loaded in.
+This is destructive and cannot be undone, which is why the Settings page
+asks for confirmation before calling it.
+
+The endpoint sniffs the upload's content to tell the two formats apart, so
+either can be dropped on the same file picker. The CSV branch reuses the
+exact parsing and per-entity import functions
+[`apps/api/src/app/seed_import.py`](../apps/api/src/app/seed_import.py)
+also exposes to `scripts/import_seed.py`, so the round-trip contract
+described above is enforced by one shared implementation. Rows that don't
+match the expected format (unknown enum values, dangling foreign keys, an
+illegal set score, ...) are skipped and reported back rather than failing
+the whole import — see
+[`apps/api/tests/test_import.py`](../apps/api/tests/test_import.py) for the
+export → import round-trip test and the skip-reporting behavior.

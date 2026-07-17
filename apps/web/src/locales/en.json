@@ -511,5 +511,19 @@
       "description": "A single JSON file with every table, matches nested with their sets. Best for scripting or feeding into another tool.",
       "download": "Download JSON"
     }
+  },
+  "import": {
+    "title": "Import",
+    "description": "Restore from a Tennisfolio export file (.json or the zipped CSVs). This replaces everything currently in your portfolio.",
+    "filePickerLabel": "Export file",
+    "importing": "Importing…",
+    "confirmTitle": "Replace all data?",
+    "confirmDescription": "Importing \"{{filename}}\" will permanently delete every match, opponent, club, and tournament you currently have, and replace them with the contents of this file. This can't be undone.",
+    "confirmAction": "Replace data",
+    "successTitle": "Import complete",
+    "successSummary": "{{clubs}} clubs, {{opponents}} opponents, {{tournaments}} tournaments, {{matches}} matches, {{sets}} sets imported.",
+    "successSkipped_one": "{{count}} row was skipped — it didn't match the expected format.",
+    "successSkipped_other": "{{count}} rows were skipped — they didn't match the expected format.",
+    "importFailed": "Import failed."
   }
 }
