@@ -31,7 +31,7 @@ export function StatTile({
       <CardContent className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
           <span className="text-sm text-muted-foreground">{label}</span>
-          <span className="cn-font-heading text-2xl font-semibold tracking-tight">{value}</span>
+          <span className="font-heading text-2xl font-semibold tracking-tight">{value}</span>
           {description ? (
             <span className="text-xs text-muted-foreground">{description}</span>
           ) : null}

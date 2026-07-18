@@ -20,7 +20,7 @@ export function OpponentHeadToHead({ opponentId }: { opponentId: number }) {
   return (
     <Card>
       <CardContent className="flex flex-col gap-4">
-        <h2 className="cn-font-heading text-lg font-semibold">{t('opponents.headToHead.title')}</h2>
+        <h2 className="font-heading text-lg font-semibold">{t('opponents.headToHead.title')}</h2>
 
         {isPending ? (
           <LoadingState />

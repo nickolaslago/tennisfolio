@@ -5,6 +5,22 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ════════════════════════════════════════════════════════════════════════
+   TENNISFOLIO DESIGN SYSTEM · see docs/design-system.md for the full guide
+
+   Three tiers, each layered on the one before:
+     1. Primitives        (:root / .dark, --rg-* and raw scale values)
+                           Raw palette + scale. Never referenced by components.
+     2. Semantic tokens    (:root / .dark, everything else below the primitives)
+                           The shadcn contract (--background, --primary, …) and
+                           Tennisfolio's brand tokens (--win, --loss, --surface,
+                           --highlight). Re-pointed per theme in .dark.
+     3. Component mappings (@theme inline, below)
+                           Exposes tier-2 tokens as Tailwind utilities
+                           (bg-primary, text-win, rounded-lg, font-heading, …).
+                           Components consume ONLY this tier — never --rg-*.
+   ════════════════════════════════════════════════════════════════════════ */
+
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: 'Geist Variable', sans-serif;
@@ -40,9 +56,8 @@
   --color-foreground: var(--foreground);
   --color-background: var(--background);
 
-  /* Tennisfolio brand semantic tokens — expose the Roland-Garros palette
-       as Tailwind utilities (bg-surface, text-win, border-loss, …). These
-       are domain/brand tokens that sit alongside shadcn's own tokens. */
+  /* Tennisfolio brand tokens — expose them as Tailwind utilities
+       (bg-surface, text-win, border-loss, …) alongside shadcn's own. */
   --color-surface: var(--surface);
   --color-surface-foreground: var(--surface-foreground);
   --color-win: var(--win);
@@ -62,12 +77,12 @@
 }
 
 :root {
-  /* ── Roland-Garros palette · raw reference values ─────────────────────
-       Private palette layer. Do NOT reference these directly in components;
-       consume the semantic tokens (and the Tailwind utilities they generate)
-       below. Re-theming — a dark mode, or the future Expo mobile app — means
-       re-pointing the semantic tokens at different palette values, never
-       editing component code. */
+  /* ── Tier 1 · Primitives — Roland-Garros palette ──────────────────────
+       Raw reference values only. Never referenced directly in components —
+       consume the semantic tokens (tier 2) below, or the Tailwind utilities
+       they generate (tier 3, @theme above). Re-theming — a dark mode, a
+       user accent choice, or the future Expo mobile app — means re-pointing
+       tier 2 at different tier-1 values, never editing component code. */
   --rg-clay: #c23b22; /* Clay Terracotta      — primary contrast        */
   --rg-court: #004b23; /* Classic Court Green  — secondary contrast      */
   --rg-baseline: #f1f3f4; /* Crisp Baseline White — backgrounds / negative  */
@@ -75,7 +90,14 @@
   --rg-slate: #1c2d37; /* Dark Slate / Navy    — text, borders, primary  */
   --rg-white: #ffffff; /* raised surfaces (cards, popovers, dropdowns)   */
 
-  /* ── Semantic tokens · shadcn/ui contract ───────────────────────────── */
+  /* ── Tier 1 · Primitives — raw scale values ───────────────────────────
+       Non-colour primitives. --radius is the base of the radius scale
+       tier 3 derives (--radius-sm … --radius-4xl, see @theme above). */
+  --radius: 0.625rem;
+
+  /* ── Tier 2 · Semantic tokens — shadcn/ui contract ────────────────────
+       Named by UI role, not by palette colour, so a re-theme never touches
+       these names — only the tier-1 value each one points at. */
   --background: var(--rg-baseline); /* Crisp Baseline White — used generously */
   --foreground: var(--rg-slate); /* body text — Dark Slate/Navy */
   --card: var(--rg-white); /* cards lift off the baseline-white page */
@@ -99,9 +121,8 @@
   --chart-3: var(--rg-ochre);
   --chart-4: var(--rg-slate);
   --chart-5: #55636d;
-  --radius: 0.625rem;
 
-  /* ── Brand semantic tokens · Tennisfolio domain ─────────────────────────
+  /* ── Tier 2 · Semantic tokens — Tennisfolio brand domain ──────────────
        Match/set results are a core domain concept, so win/loss get first-class
        tokens (green = win, clay = loss) rather than ad-hoc UI colours. */
   --surface: var(--rg-baseline); /* Crisp Baseline White — negative space */
@@ -113,7 +134,8 @@
   --highlight: var(--rg-ochre); /* light accent / call-outs → Suntan Ochre */
   --highlight-foreground: var(--rg-slate); /* dark text — AA on ochre */
 
-  /* sidebar tokens — kept for shadcn compatibility, themed to match */
+  /* ── Tier 2 · Semantic tokens — sidebar ────────────────────────────────
+       Kept for shadcn compatibility, themed to match. */
   --sidebar: var(--rg-white);
   --sidebar-foreground: var(--rg-slate);
   --sidebar-primary: var(--rg-slate);
@@ -125,9 +147,11 @@
 }
 
 .dark {
-  /* Dark Roland-Garros palette — same brand colours as :root, re-pointed for a
-       dark surface. Clay/court/ochre are brightened where they sit on dark
-       backgrounds so they keep AA contrast against --rg-slate-950. */
+  /* ── Tier 1 · Primitives — dark-mode palette extension ────────────────
+       Same brand colours as :root, re-pointed for a dark surface. Clay/
+       court/ochre are brightened where they sit on dark backgrounds so
+       they keep AA contrast against --rg-slate-950. Still never referenced
+       directly by components — only tier 2 below points at these. */
   --rg-slate-950: #101c24; /* below the raw :root palette — dark mode base */
   --rg-slate-900: #1c2d37; /* == --rg-slate — raised surfaces (cards, popovers) */
   --rg-slate-800: #24363f; /* muted / hover surfaces */
@@ -135,6 +159,9 @@
   --rg-clay-bright: #e2694f; /* Clay Terracotta, brightened for dark bg */
   --rg-court-bright: #2e9e5b; /* Classic Court Green, brightened for dark bg */
 
+  /* ── Tier 2 · Semantic tokens — re-pointed for dark mode ──────────────
+       Same names as :root; only the tier-1 value each one points at changes.
+       Components never need to know which theme is active. */
   --background: var(--rg-slate-950);
   --foreground: var(--rg-baseline);
   --card: var(--rg-slate-900);
@@ -158,6 +185,8 @@
   --chart-3: var(--rg-ochre);
   --chart-4: var(--rg-baseline);
   --chart-5: #9aa7ad;
+
+  /* sidebar (tier 2, dark re-point) */
   --sidebar: var(--rg-slate-900);
   --sidebar-foreground: var(--rg-baseline);
   --sidebar-primary: var(--rg-baseline);
@@ -167,7 +196,7 @@
   --sidebar-border: var(--rg-slate-700);
   --sidebar-ring: var(--rg-ochre);
 
-  /* brand tokens */
+  /* brand tokens (tier 2, dark re-point) */
   --surface: var(--rg-slate-950);
   --surface-foreground: var(--rg-baseline);
   --win: var(--rg-court-bright);

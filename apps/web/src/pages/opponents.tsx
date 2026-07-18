@@ -176,7 +176,7 @@ export function OpponentsPage() {
               <div className="flex items-start justify-between gap-2">
                 <Link
                   to={`/opponents/${o.id}`}
-                  className="flex items-center gap-1.5 cn-font-heading text-base font-medium hover:underline"
+                  className="flex items-center gap-1.5 font-heading text-base font-medium hover:underline"
                 >
                   <EntityIcon value={o.icon} />
                   {fullName(o)}
@@ -260,7 +260,7 @@ function OpponentMatches({ opponentId }: { opponentId: number }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="cn-font-heading text-lg font-semibold">{t('opponents.matches.heading')}</h2>
+        <h2 className="font-heading text-lg font-semibold">{t('opponents.matches.heading')}</h2>
         {matches.isPending || matches.isError ? null : (
           <p className="text-sm text-muted-foreground">
             {t('opponents.matches.recordSummary', { wins, losses, count: items.length })}

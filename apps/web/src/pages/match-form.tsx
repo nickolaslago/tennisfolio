@@ -905,15 +905,15 @@ function SavedMatchPanel({
             )}
             <div className="flex flex-col gap-0.5">
               {isScheduled ? (
-                <span className="cn-font-heading text-xl font-semibold text-highlight">
+                <span className="font-heading text-xl font-semibold text-highlight">
                   {t('matches.tabs.scheduled')}
                 </span>
               ) : (
                 <span
                   className={
                     match.result === 'Win'
-                      ? 'cn-font-heading text-xl font-semibold text-win'
-                      : 'cn-font-heading text-xl font-semibold text-loss'
+                      ? 'font-heading text-xl font-semibold text-win'
+                      : 'font-heading text-xl font-semibold text-loss'
                   }
                 >
                   {match.result}
