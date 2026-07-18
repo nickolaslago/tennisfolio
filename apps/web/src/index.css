@@ -67,6 +67,13 @@
   --color-highlight: var(--highlight);
   --color-highlight-foreground: var(--highlight-foreground);
 
+  /* Liquid Glass — translucent raised-surface treatment. Exposed so wrappers
+       can reach for bg-glass / border-glass utilities alongside the .glass
+       utility (defined below) that carries the backdrop-blur + sheen. */
+  --color-glass: var(--glass-surface);
+  --color-glass-foreground: var(--glass-surface-foreground);
+  --color-glass-border: var(--glass-border);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -100,9 +107,9 @@
        these names — only the tier-1 value each one points at. */
   --background: var(--rg-baseline); /* Crisp Baseline White — used generously */
   --foreground: var(--rg-slate); /* body text — Dark Slate/Navy */
-  --card: var(--rg-white); /* cards lift off the baseline-white page */
+  --card: var(--glass-surface); /* raised surfaces are Liquid Glass (see glass tokens) */
   --card-foreground: var(--rg-slate);
-  --popover: var(--rg-white);
+  --popover: var(--glass-surface);
   --popover-foreground: var(--rg-slate);
   --primary: var(--rg-slate); /* primary buttons — Dark Slate/Navy (per spec) */
   --primary-foreground: var(--rg-baseline);
@@ -134,9 +141,24 @@
   --highlight: var(--rg-ochre); /* light accent / call-outs → Suntan Ochre */
   --highlight-foreground: var(--rg-slate); /* dark text — AA on ochre */
 
+  /* ── Tier 2 · Semantic tokens — Liquid Glass surface treatment ─────────
+       Raised surfaces (cards, popovers, menus, dialogs, sidebar, mobile tab
+       bar) render as translucent frosted glass over the Roland-Garros palette
+       instead of flat --rg-white. The brand colours are unchanged — only the
+       surface treatment differs. --card/--popover/--sidebar re-point here so
+       the translucency flows through every shadcn consumer; the .glass utility
+       adds the backdrop-blur + sheen the wrappers apply on top. A solid
+       fallback (below) restores opacity where blur is unsupported or the user
+       prefers reduced transparency, keeping body text and charts at WCAG AA. */
+  --glass-surface: color-mix(in oklab, var(--rg-white) 72%, transparent);
+  --glass-surface-foreground: var(--rg-slate);
+  --glass-border: color-mix(in oklab, var(--rg-slate) 14%, transparent); /* soft rim */
+  --glass-highlight: color-mix(in oklab, var(--rg-white) 70%, transparent); /* top sheen */
+  --glass-blur: 14px;
+
   /* ── Tier 2 · Semantic tokens — sidebar ────────────────────────────────
        Kept for shadcn compatibility, themed to match. */
-  --sidebar: var(--rg-white);
+  --sidebar: var(--glass-surface);
   --sidebar-foreground: var(--rg-slate);
   --sidebar-primary: var(--rg-slate);
   --sidebar-primary-foreground: var(--rg-baseline);
@@ -164,9 +186,9 @@
        Components never need to know which theme is active. */
   --background: var(--rg-slate-950);
   --foreground: var(--rg-baseline);
-  --card: var(--rg-slate-900);
+  --card: var(--glass-surface); /* raised surfaces are Liquid Glass (see glass tokens) */
   --card-foreground: var(--rg-baseline);
-  --popover: var(--rg-slate-900);
+  --popover: var(--glass-surface);
   --popover-foreground: var(--rg-baseline);
   --primary: var(--rg-baseline);
   --primary-foreground: var(--rg-slate-900);
@@ -186,8 +208,16 @@
   --chart-4: var(--rg-baseline);
   --chart-5: #9aa7ad;
 
+  /* glass (tier 2, dark re-point) — translucent slate over the slate-950 base.
+       Kept dark enough that --foreground (baseline white) stays WCAG AA. */
+  --glass-surface: color-mix(in oklab, var(--rg-slate-900) 62%, transparent);
+  --glass-surface-foreground: var(--rg-baseline);
+  --glass-border: color-mix(in oklab, var(--rg-baseline) 12%, transparent);
+  --glass-highlight: color-mix(in oklab, var(--rg-baseline) 10%, transparent);
+  --glass-blur: 16px;
+
   /* sidebar (tier 2, dark re-point) */
-  --sidebar: var(--rg-slate-900);
+  --sidebar: var(--glass-surface);
   --sidebar-foreground: var(--rg-baseline);
   --sidebar-primary: var(--rg-baseline);
   --sidebar-primary-foreground: var(--rg-slate-900);
@@ -205,6 +235,45 @@
   --loss-foreground: #1a0b08;
   --highlight: var(--rg-ochre);
   --highlight-foreground: var(--rg-slate-900);
+}
+
+/* ── Liquid Glass utility ──────────────────────────────────────────────────
+   Carries the non-colour half of the glass treatment: the backdrop-blur and a
+   1px inner top sheen. Colour comes from the re-pointed --card/--popover/
+   --sidebar tokens, so applying `.glass` to a shadcn surface (via its wrapper)
+   frosts it without touching the vendored primitive. The sheen rides Tailwind's
+   --tw-inset-shadow slot, so it composes with the surfaces' existing ring/shadow
+   utilities rather than overriding them. */
+@utility glass {
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+  --tw-inset-shadow: inset 0 1px 0 0 var(--glass-highlight);
+}
+
+/* ── Solid-colour fallback ─────────────────────────────────────────────────
+   Where backdrop-filter is unsupported, or the viewer prefers reduced
+   transparency, re-point the raised-surface tokens back to their opaque brand
+   values (and drop the blur) so body text and chart content keep full contrast
+   without the frosted effect. Only the surface treatment falls back — the
+   palette is untouched. */
+@supports not (backdrop-filter: blur(1px)) {
+  :root {
+    --glass-surface: var(--rg-white);
+  }
+  .dark {
+    --glass-surface: var(--rg-slate-900);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-surface: var(--rg-white);
+    --glass-blur: 0px;
+  }
+  .dark {
+    --glass-surface: var(--rg-slate-900);
+    --glass-blur: 0px;
+  }
 }
 
 @layer base {

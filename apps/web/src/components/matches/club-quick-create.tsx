@@ -11,7 +11,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@/components/glass/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -20,7 +20,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@/components/glass/select'
 import { useCreateClub } from '@/hooks/use-clubs'
 import type { Club, CourtInput, Environment, Surface } from '@/lib/api/clubs'
 import { fieldErrorsFromApiError } from '@/lib/api/form-errors'

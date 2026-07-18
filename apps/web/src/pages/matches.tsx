@@ -13,14 +13,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
+} from '@/components/glass/alert-dialog'
 import { EntityList, type EntityColumn, type FilterField } from '@/components/data/entity-list'
 import { ErrorState, LoadingState } from '@/components/data/query-state'
 import { RowOptionsMenu } from '@/components/data/row-options-menu'
 import { OpponentHeadToHead } from '@/components/opponents/head-to-head'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/glass/card'
 import {
   Table,
   TableBody,

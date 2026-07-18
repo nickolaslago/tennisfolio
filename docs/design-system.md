@@ -42,6 +42,24 @@ Named by UI role, not by palette colour, and split into two families:
   `--highlight`/`--highlight-foreground`. Match/set results are a first-class
   domain concept here (green = win, clay = loss), so they get dedicated tokens
   instead of being expressed as ad-hoc colours wherever a result is rendered.
+- **Liquid Glass surface tokens** — `--glass-surface`/`--glass-surface-foreground`,
+  `--glass-border`, `--glass-highlight`, and `--glass-blur`. These describe the
+  translucent, frosted treatment shared by every raised surface (cards,
+  popovers, menus, dialogs, the sidebar, the mobile tab bar). They're derived
+  from the same Roland-Garros primitives — a light `--rg-white` mix in `:root`,
+  a `--rg-slate-900` mix in `.dark` — so the brand palette is unchanged; only the
+  surface treatment is. The shadcn surface tokens `--card`, `--popover`, and
+  `--sidebar` re-point at `--glass-surface`, so the translucency flows through
+  every consumer without editing the vendored primitives.
+
+  The colour half of the effect rides these tokens; the non-colour half (the
+  `backdrop-filter` blur plus a 1px inner sheen) lives in the `@utility glass`
+  class, applied through thin wrappers in `src/components/glass/*` rather than by
+  hand-editing `src/components/ui`. Two guards keep text and charts at WCAG AA:
+  `@supports not (backdrop-filter: blur(1px))` and
+  `@media (prefers-reduced-transparency: reduce)` both re-point `--glass-surface`
+  back to the opaque brand colour (and zero the blur), so unsupported browsers
+  and reduced-transparency users get solid surfaces.
 
 Each semantic token mostly points at a tier-1 primitive (`--win: var(--rg-court)`),
 but a few are one-off UI greys with no reuse elsewhere and hold a literal value
