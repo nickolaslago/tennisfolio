@@ -13,7 +13,7 @@ import { EmptyState, ErrorState, LoadingState } from '@/components/data/query-st
 import { RowOptionsMenu } from '@/components/data/row-options-menu'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/glass/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -22,7 +22,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@/components/glass/select'
 import {
   Table,
   TableBody,

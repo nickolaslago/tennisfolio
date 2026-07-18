@@ -12,7 +12,7 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/glass/popover'
 import { cn } from '@/lib/utils'
 
 /** Searchable country picker backed by the fixed `COUNTRY_NAMES` list — writes a clean string into the same free-text field. */
