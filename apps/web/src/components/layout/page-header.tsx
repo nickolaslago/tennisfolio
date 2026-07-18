@@ -15,7 +15,7 @@ export function PageHeader({ title, description, icon, action }: PageHeaderProps
   return (
     <header className="mb-6 flex flex-col gap-1">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="flex items-center gap-2 cn-font-heading text-2xl font-semibold tracking-tight">
+        <h1 className="flex items-center gap-2 font-heading text-2xl font-semibold tracking-tight">
           <EntityIcon value={icon} className="size-6" />
           {title}
         </h1>

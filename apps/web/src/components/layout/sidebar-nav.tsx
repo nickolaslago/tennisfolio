@@ -36,7 +36,7 @@ export function SidebarNav() {
         <span aria-hidden="true" className="text-xl">
           🎾
         </span>
-        <span className="cn-font-heading text-lg font-semibold tracking-tight">Tennisfolio</span>
+        <span className="font-heading text-lg font-semibold tracking-tight">Tennisfolio</span>
       </div>
       <nav aria-label={t('nav.primaryNavLabel')} className="flex-1 overflow-y-auto p-3">
         <ul className="flex flex-col gap-1">
