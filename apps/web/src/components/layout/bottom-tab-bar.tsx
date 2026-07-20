@@ -11,7 +11,7 @@ export function BottomTabBar() {
   return (
     <nav
       aria-label={t('nav.primaryNavLabel')}
-      className="glass fixed inset-x-0 bottom-0 z-40 border-t border-sidebar-border bg-sidebar pb-[env(safe-area-inset-bottom)] text-sidebar-foreground shadow-none md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-sidebar-border bg-sidebar pb-[env(safe-area-inset-bottom)] text-sidebar-foreground md:hidden"
     >
       <ul
         className="grid"

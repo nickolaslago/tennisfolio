@@ -12,7 +12,7 @@ import { WinRateBySurfaceChart } from '@/components/home/win-rate-by-surface-cha
 import { WinRateOverTimeChart } from '@/components/home/win-rate-over-time-chart'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/glass/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useMatches } from '@/hooks/use-matches'
 import {
   useStreaks,

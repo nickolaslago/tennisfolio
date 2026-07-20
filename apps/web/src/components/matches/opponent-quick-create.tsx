@@ -10,7 +10,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/glass/dialog'
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { useCreateOpponent } from '@/hooks/use-opponents'
 import { fieldErrorsFromApiError } from '@/lib/api/form-errors'
