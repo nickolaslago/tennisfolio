@@ -10,7 +10,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/glass/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 const TIMEZONES: string[] = Intl.supportedValuesOf('timeZone')
 

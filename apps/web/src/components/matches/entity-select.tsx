@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/glass/select'
+} from '@/components/ui/select'
 
 export interface EntitySelectOption {
   value: string

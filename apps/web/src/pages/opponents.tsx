@@ -14,7 +14,7 @@ import { RowOptionsMenu } from '@/components/data/row-options-menu'
 import { OpponentHeadToHead } from '@/components/opponents/head-to-head'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/glass/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -22,7 +22,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/glass/select'
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,

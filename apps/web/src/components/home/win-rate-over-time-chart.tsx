@@ -10,7 +10,7 @@ import {
 } from 'recharts'
 import { useTranslation } from 'react-i18next'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/glass/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import type { PeriodWinRate } from '@/lib/api/stats'
 
 interface WinRateOverTimeChartProps {

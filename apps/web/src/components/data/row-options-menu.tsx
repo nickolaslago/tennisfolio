@@ -12,14 +12,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/glass/alert-dialog'
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/glass/dropdown-menu'
+} from '@/components/ui/dropdown-menu'
 
 export interface RowOptionsMenuProps {
   /** Identifies the row for the trigger's aria-label and the delete confirmation copy. */

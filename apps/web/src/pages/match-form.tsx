@@ -21,7 +21,7 @@ import { ClubQuickCreate } from '@/components/matches/club-quick-create'
 import { EntitySelect, type EntitySelectOption } from '@/components/matches/entity-select'
 import { OpponentQuickCreate } from '@/components/matches/opponent-quick-create'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/glass/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -30,7 +30,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/glass/select'
+} from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useClubs } from '@/hooks/use-clubs'
 import { useCreateMatch, useMatch, useUpdateMatch } from '@/hooks/use-matches'

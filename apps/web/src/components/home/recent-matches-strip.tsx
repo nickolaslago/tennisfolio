@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { ErrorState, LoadingState } from '@/components/data/query-state'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/glass/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useMatches } from '@/hooks/use-matches'
 import { useOpponents } from '@/hooks/use-opponents'
 

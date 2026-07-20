@@ -31,7 +31,7 @@ export function SidebarNav() {
   const { t } = useTranslation()
 
   return (
-    <aside className="glass fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:flex">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:flex">
       <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
         <span aria-hidden="true" className="text-xl">
           🎾
