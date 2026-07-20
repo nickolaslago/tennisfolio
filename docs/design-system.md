@@ -53,7 +53,10 @@ skipped over by a component.
 the [`@custom-variant dark`](../apps/web/src/index.css) declaration
 (`&:is(.dark *)`, toggled by [`theme-provider.tsx`](../apps/web/src/components/theme-provider.tsx)
 adding/removing a `.dark` class on `<html>`). Tier-2 names themselves never
-change between light and dark — only what they resolve to.
+change between light and dark — only what they resolve to. The light values
+are scoped `:root, .light`, so a `.light` wrapper inside a dark subtree
+restores them for that subtree — used by the Settings theme preview cards to
+mock each theme regardless of the active one.
 
 ## Tier 3 — Component mappings (`@theme inline`)
 
@@ -78,13 +81,20 @@ rescales every `rounded-*` utility in the app consistently.
 
 ### Typography
 
-`--font-sans` (tier 3, currently `'Geist Variable', sans-serif`) is the base
-family; `--font-heading` aliases it (`var(--font-sans)`). Components use
-`font-heading` for headings and `font-sans` (via the `html { @apply font-sans }`
-base rule) for body text — never a literal font-family string. Because
-`--font-heading` is a separate variable rather than a duplicate literal, a
-future "heading font" user preference (or brand refresh) is a one-line change
-to `--font-heading` in `index.css`, with zero component edits.
+Font families follow the same three tiers as colour. Tier 1 holds the raw
+stacks (`--font-instrument-sans`, `--font-instrument-serif`,
+`--font-ubuntu-mono`, loaded via `@fontsource` imports). Tier 2 is
+`--font-app` — the single active family, defaulting to Instrument Sans and
+re-pointed by the user's font preference via a `data-font` attribute on
+`<html>` (set by [`font-provider.tsx`](../apps/web/src/components/font-provider.tsx),
+persisted under `tennisfolio:font`), exactly like the theme toggles `.dark`.
+Tier 3 exposes `--font-sans: var(--font-app)`, with `--font-heading` aliasing
+it (`var(--font-sans)`). Components use `font-heading` for headings and
+`font-sans` (via the `html { @apply font-sans }` base rule) for body text —
+never a literal font-family string. The `--font-option-*` mappings
+(`font-option-sans`, …) render each selectable family in the settings picker,
+the same way `--radius-lg: var(--radius)` maps a tier-1 scale value straight
+into a utility.
 
 ## Liquid Glass surfaces
 
