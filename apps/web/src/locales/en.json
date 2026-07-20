@@ -501,9 +501,11 @@
   "settings": {
     "pageTitle": "Settings",
     "pageDescription": "Manage how Tennisfolio looks and behaves, and back up your data.",
+    "sectionNavLabel": "Settings sections",
     "general": {
       "title": "General",
       "description": "Regional preferences for dates and the app's language.",
+      "menuDescription": "Timezone and language",
       "timezone": "Timezone",
       "searchTimezone": "Search timezone…",
       "noTimezoneFound": "No timezone found.",
@@ -512,6 +514,7 @@
     "appearance": {
       "title": "Appearance",
       "description": "Choose how Tennisfolio looks on this device.",
+      "menuDescription": "Theme and font family",
       "theme": "Theme",
       "themeDescription": "Select your preferred theme for the application.",
       "themeLight": "Light",
@@ -526,7 +529,8 @@
     },
     "backupExport": {
       "title": "Backup & Export",
-      "description": "Download every match, opponent, club and tournament you've recorded — no lock-in, take your data with you any time."
+      "description": "Download every match, opponent, club and tournament you've recorded — no lock-in, take your data with you any time.",
+      "menuDescription": "Export and import your data"
     }
   },
   "export": {

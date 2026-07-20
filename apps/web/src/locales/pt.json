@@ -501,9 +501,11 @@
   "settings": {
     "pageTitle": "Configurações",
     "pageDescription": "Gerencie a aparência e o comportamento do Tennisfolio, e faça backup dos seus dados.",
+    "sectionNavLabel": "Seções de configurações",
     "general": {
       "title": "Geral",
       "description": "Preferências regionais para datas e o idioma do aplicativo.",
+      "menuDescription": "Fuso horário e idioma",
       "timezone": "Fuso horário",
       "searchTimezone": "Buscar fuso horário…",
       "noTimezoneFound": "Nenhum fuso horário encontrado.",
@@ -512,6 +514,7 @@
     "appearance": {
       "title": "Aparência",
       "description": "Escolha a aparência do Tennisfolio neste dispositivo.",
+      "menuDescription": "Tema e família da fonte",
       "theme": "Tema",
       "themeDescription": "Selecione o tema preferido para o aplicativo.",
       "themeLight": "Claro",
@@ -526,7 +529,8 @@
     },
     "backupExport": {
       "title": "Backup e exportação",
-      "description": "Baixe todas as partidas, adversários, clubes e torneios que você registrou — sem amarras, leve seus dados para onde quiser."
+      "description": "Baixe todas as partidas, adversários, clubes e torneios que você registrou — sem amarras, leve seus dados para onde quiser.",
+      "menuDescription": "Exportar e importar seus dados"
     }
   },
   "export": {
