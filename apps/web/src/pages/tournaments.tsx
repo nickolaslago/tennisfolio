@@ -1,10 +1,11 @@
 import { TOURNAMENT_FORMAT_OPTIONS, isTournamentFormat } from '@tennisfolio/core'
-import { ChevronLeft, Pencil, Trash2, Trophy } from 'lucide-react'
+import { ChevronLeft, Pencil, Trophy } from 'lucide-react'
 import { type FormEvent, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 
+import { ConfirmDeleteDialog } from '@/components/data/confirm-delete-dialog'
 import { EntityIcon } from '@/components/data/entity-icon'
 import { EntityIconPicker } from '@/components/data/entity-icon-picker'
 import { EntityList, type EntityColumn, type FilterField } from '@/components/data/entity-list'
@@ -565,19 +566,16 @@ export function TournamentDetailPage() {
                   {t('common.rowActions.edit')}
                 </Link>
               </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                disabled={deleteTournament.isPending}
-                onClick={() => {
+              <ConfirmDeleteDialog
+                title={t('tournaments.detail.deleteConfirmTitle')}
+                description={t('tournaments.deleteDescription')}
+                pending={deleteTournament.isPending}
+                onConfirm={() =>
                   deleteTournament.mutate(tournament.data.id, {
                     onSuccess: () => navigate('/tournaments'),
                   })
-                }}
-              >
-                <Trash2 aria-hidden="true" data-icon="inline-start" />
-                {t('common.rowActions.delete')}
-              </Button>
+                }
+              />
             </div>
           </div>
           <Card className="mb-6">

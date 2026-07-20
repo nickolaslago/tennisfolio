@@ -1,19 +1,9 @@
-import { ChevronLeft, ClipboardCheck, Pencil, Plus, Trash2 } from 'lucide-react'
+import { ChevronLeft, ClipboardCheck, Pencil, Plus } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/glass/alert-dialog'
+import { ConfirmDeleteDialog } from '@/components/data/confirm-delete-dialog'
 import { EntityList, type EntityColumn, type FilterField } from '@/components/data/entity-list'
 import { ErrorState, LoadingState } from '@/components/data/query-state'
 import { RowOptionsMenu } from '@/components/data/row-options-menu'
@@ -590,33 +580,14 @@ export function MatchDetailPage() {
                   </Link>
                 </Button>
               )}
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="sm" disabled={deleteMatch.isPending}>
-                    <Trash2 aria-hidden="true" data-icon="inline-start" />
-                    {t('common.rowActions.delete')}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>{t('matches.detail.deleteConfirmTitle')}</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {t('matches.deleteDescription')}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-                    <AlertDialogAction
-                      disabled={deleteMatch.isPending}
-                      onClick={() => {
-                        deleteMatch.mutate(match.data.id, { onSuccess: () => navigate('/matches') })
-                      }}
-                    >
-                      {t('common.rowActions.delete')}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <ConfirmDeleteDialog
+                title={t('matches.detail.deleteConfirmTitle')}
+                description={t('matches.deleteDescription')}
+                pending={deleteMatch.isPending}
+                onConfirm={() =>
+                  deleteMatch.mutate(match.data.id, { onSuccess: () => navigate('/matches') })
+                }
+              />
             </div>
           </div>
 
