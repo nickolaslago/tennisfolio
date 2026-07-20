@@ -13,7 +13,7 @@ import { EmptyState, ErrorState, LoadingState } from '@/components/data/query-st
 import { RowOptionsMenu } from '@/components/data/row-options-menu'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/glass/card'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -21,7 +21,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@/components/glass/select'
 import {
   Table,
   TableBody,
@@ -228,7 +228,7 @@ export function TournamentsPage() {
               <div className="flex items-start justify-between gap-2">
                 <Link
                   to={`/tournaments/${t.id}`}
-                  className="flex items-center gap-1.5 cn-font-heading text-base font-medium hover:underline"
+                  className="flex items-center gap-1.5 font-heading text-base font-medium hover:underline"
                 >
                   <EntityIcon value={t.icon} />
                   {t.name}
@@ -418,9 +418,7 @@ function TournamentStandings({ tournamentId }: { tournamentId: number }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="cn-font-heading text-lg font-semibold">
-        {t('tournaments.standings.heading')}
-      </h2>
+      <h2 className="font-heading text-lg font-semibold">{t('tournaments.standings.heading')}</h2>
 
       {standings.isPending ? (
         <LoadingState />
@@ -459,9 +457,7 @@ function TournamentMatches({ tournament }: { tournament: Tournament }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="cn-font-heading text-lg font-semibold">
-          {t('tournaments.matches.heading')}
-        </h2>
+        <h2 className="font-heading text-lg font-semibold">{t('tournaments.matches.heading')}</h2>
         {matches.isPending || matches.isError ? null : (
           <p className="text-sm text-muted-foreground">
             {t('tournaments.matches.recordSummary', { wins, losses, count: items.length })}

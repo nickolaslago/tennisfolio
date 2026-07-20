@@ -13,14 +13,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
+} from '@/components/glass/alert-dialog'
 import { EntityList, type EntityColumn, type FilterField } from '@/components/data/entity-list'
 import { ErrorState, LoadingState } from '@/components/data/query-state'
 import { RowOptionsMenu } from '@/components/data/row-options-menu'
 import { OpponentHeadToHead } from '@/components/opponents/head-to-head'
 import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/glass/card'
 import {
   Table,
   TableBody,
@@ -343,7 +343,7 @@ export function MatchesPage() {
               <div className="flex items-start justify-between gap-2">
                 <Link
                   to={`/matches/${m.id}`}
-                  className="cn-font-heading text-base font-medium hover:underline"
+                  className="font-heading text-base font-medium hover:underline"
                 >
                   {m.match_date}
                 </Link>
@@ -626,7 +626,7 @@ export function MatchDetailPage() {
             <OpponentHeadToHead opponentId={match.data.opponent_id} />
           </div>
 
-          <h2 className="mb-3 cn-font-heading text-lg font-semibold">
+          <h2 className="mb-3 font-heading text-lg font-semibold">
             {t('matches.detail.setBySet')}
           </h2>
           <SetBreakdown sets={match.data.sets} />

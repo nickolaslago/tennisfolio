@@ -6,9 +6,9 @@ import { cn } from '@/lib/utils'
 
 function sidebarLinkClassName(isActive: boolean) {
   return cn(
-    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors outline-none focus-visible:ring-3 focus-visible:ring-sidebar-ring/50',
+    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ease-out outline-none focus-visible:ring-3 focus-visible:ring-sidebar-ring/50 active:scale-98 motion-reduce:transition-none motion-reduce:active:scale-100',
     isActive
-      ? 'bg-sidebar-primary text-sidebar-primary-foreground'
+      ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-md'
       : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
   )
 }
@@ -26,17 +26,21 @@ function SidebarNavLink({ item, label }: { item: NavItem; label: string }) {
   )
 }
 
-/** Desktop navigation: fixed left sidebar, hidden below the md breakpoint. */
+/**
+ * Desktop navigation: floating Liquid Glass panel pinned to the left edge,
+ * hidden below the md breakpoint. Fill comes from the glass-repointed
+ * --sidebar token; `glass` adds the frost + sheen on top.
+ */
 export function SidebarNav() {
   const { t } = useTranslation()
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:flex">
+    <aside className="glass fixed inset-y-3 left-3 z-40 hidden w-60 flex-col overflow-hidden rounded-2xl bg-sidebar text-sidebar-foreground shadow-lg ring-1 ring-sidebar-border md:flex">
       <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
         <span aria-hidden="true" className="text-xl">
           🎾
         </span>
-        <span className="cn-font-heading text-lg font-semibold tracking-tight">Tennisfolio</span>
+        <span className="font-heading text-lg font-semibold tracking-tight">Tennisfolio</span>
       </div>
       <nav aria-label={t('nav.primaryNavLabel')} className="flex-1 overflow-y-auto p-3">
         <ul className="flex flex-col gap-1">

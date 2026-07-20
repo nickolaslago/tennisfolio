@@ -21,7 +21,7 @@ import { ClubQuickCreate } from '@/components/matches/club-quick-create'
 import { EntitySelect, type EntitySelectOption } from '@/components/matches/entity-select'
 import { OpponentQuickCreate } from '@/components/matches/opponent-quick-create'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/glass/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -30,7 +30,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@/components/glass/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useClubs } from '@/hooks/use-clubs'
 import { useCreateMatch, useMatch, useUpdateMatch } from '@/hooks/use-matches'
@@ -905,15 +905,15 @@ function SavedMatchPanel({
             )}
             <div className="flex flex-col gap-0.5">
               {isScheduled ? (
-                <span className="cn-font-heading text-xl font-semibold text-highlight">
+                <span className="font-heading text-xl font-semibold text-highlight">
                   {t('matches.tabs.scheduled')}
                 </span>
               ) : (
                 <span
                   className={
                     match.result === 'Win'
-                      ? 'cn-font-heading text-xl font-semibold text-win'
-                      : 'cn-font-heading text-xl font-semibold text-loss'
+                      ? 'font-heading text-xl font-semibold text-win'
+                      : 'font-heading text-xl font-semibold text-loss'
                   }
                 >
                   {match.result}

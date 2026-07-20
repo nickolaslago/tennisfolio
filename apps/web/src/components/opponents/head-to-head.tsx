@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { ErrorState, LoadingState } from '@/components/data/query-state'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/glass/card'
 import { useMatches } from '@/hooks/use-matches'
 import { useWinRate, useWinRateBySurface } from '@/hooks/use-stats'
 
@@ -20,7 +20,7 @@ export function OpponentHeadToHead({ opponentId }: { opponentId: number }) {
   return (
     <Card>
       <CardContent className="flex flex-col gap-4">
-        <h2 className="cn-font-heading text-lg font-semibold">{t('opponents.headToHead.title')}</h2>
+        <h2 className="font-heading text-lg font-semibold">{t('opponents.headToHead.title')}</h2>
 
         {isPending ? (
           <LoadingState />

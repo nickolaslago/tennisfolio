@@ -10,7 +10,7 @@ import {
 } from 'recharts'
 import { useTranslation } from 'react-i18next'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/glass/card'
 import type { PeriodWinRate } from '@/lib/api/stats'
 
 interface WinRateOverTimeChartProps {
@@ -38,7 +38,7 @@ function TooltipContent({
   if (!active || !payload?.length) return null
   const point = payload[0].payload
   return (
-    <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
+    <div className="glass rounded-lg border border-glass-border bg-popover px-3 py-2 text-xs shadow-md">
       <p className="font-medium text-popover-foreground">{formatPeriod(point.period)}</p>
       <p className="text-muted-foreground">
         {winRateLabel}: {point.wins}-{point.losses} ·{' '}
