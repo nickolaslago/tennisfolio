@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { EntityIcon } from '@/components/data/entity-icon'
 import { ErrorState, LoadingState } from '@/components/data/query-state'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/glass/card'
 import { useMatches } from '@/hooks/use-matches'
 import { useOpponents } from '@/hooks/use-opponents'
 import { useTournaments } from '@/hooks/use-tournaments'

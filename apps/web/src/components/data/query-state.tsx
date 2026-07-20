@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/glass/card'
 import { ApiError } from '@/lib/api/errors'
 
 /** Shared loading/empty/error conventions for query-backed views — no page should hand-roll these. */
