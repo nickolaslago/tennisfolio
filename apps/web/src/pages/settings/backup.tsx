@@ -1,11 +1,7 @@
 import { Download, FileJson, FileSpreadsheet, Upload } from 'lucide-react'
-import { useState, type ChangeEvent, type ReactNode } from 'react'
+import { useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PageHeader } from '@/components/layout/page-header'
-import { PreferenceCard, PreferenceCardGroup } from '@/components/settings/preference-card'
-import { ThemePreviewCard } from '@/components/settings/theme-preview-card'
-import { TimezoneCombobox } from '@/components/settings/timezone-combobox'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,175 +12,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/glass/alert-dialog'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/glass/card'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/glass/select'
-import { useFont, type Font } from '@/hooks/use-font'
-import { useTheme, type Theme } from '@/hooks/use-theme'
-import { useTimezone } from '@/hooks/use-timezone'
-import { cn } from '@/lib/utils'
 import { downloadCsvExport, downloadJsonExport } from '@/lib/api/export'
 import { importData, type ImportResult } from '@/lib/api/import'
-import { useDocumentTitle } from '@/lib/use-document-title'
-import i18n from '@/i18n'
-
-const LANGUAGE_OPTIONS: { code: string; label: string }[] = [
-  { code: 'en', label: 'English' },
-  { code: 'pt', label: 'Português' },
-]
-
-const THEME_OPTIONS: { value: Theme; labelKey: string }[] = [
-  { value: 'light', labelKey: 'settings.appearance.themeLight' },
-  { value: 'dark', labelKey: 'settings.appearance.themeDark' },
-  { value: 'system', labelKey: 'settings.appearance.themeSystem' },
-]
-
-const FONT_OPTIONS: { value: Font; labelKey: string; fontClass: string }[] = [
-  { value: 'sans', labelKey: 'settings.appearance.fontSans', fontClass: 'font-option-sans' },
-  { value: 'serif', labelKey: 'settings.appearance.fontSerif', fontClass: 'font-option-serif' },
-  { value: 'mono', labelKey: 'settings.appearance.fontMono', fontClass: 'font-option-mono' },
-]
-
-function SettingsSection({
-  title,
-  description,
-  children,
-}: {
-  title: string
-  description: string
-  children: ReactNode
-}) {
-  return (
-    <section className="flex flex-col gap-4">
-      <div>
-        <h2 className="font-heading text-lg font-semibold">{title}</h2>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-      {children}
-    </section>
-  )
-}
-
-function GeneralSection() {
-  const { t } = useTranslation()
-  const [timezone, setTimezone] = useTimezone()
-
-  return (
-    <SettingsSection
-      title={t('settings.general.title')}
-      description={t('settings.general.description')}
-    >
-      <Card>
-        <CardContent className="grid gap-5 sm:grid-cols-2">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="settings-timezone">{t('settings.general.timezone')}</Label>
-            <TimezoneCombobox id="settings-timezone" value={timezone} onChange={setTimezone} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="settings-language">{t('settings.general.language')}</Label>
-            <Select
-              value={i18n.language}
-              onValueChange={(value) => void i18n.changeLanguage(value)}
-            >
-              <SelectTrigger id="settings-language" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {LANGUAGE_OPTIONS.map((language) => (
-                  <SelectItem key={language.code} value={language.code}>
-                    {language.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-    </SettingsSection>
-  )
-}
-
-function AppearanceSection() {
-  const { t } = useTranslation()
-  const { theme, setTheme } = useTheme()
-  const { font, setFont } = useFont()
-
-  return (
-    <SettingsSection
-      title={t('settings.appearance.title')}
-      description={t('settings.appearance.description')}
-    >
-      <Card>
-        <CardContent className="flex flex-col gap-8">
-          <div className="flex flex-col gap-3">
-            <div>
-              <Label id="settings-font-label">{t('settings.appearance.fontFamily')}</Label>
-              <p className="text-sm text-muted-foreground">
-                {t('settings.appearance.fontFamilyDescription')}
-              </p>
-            </div>
-            <PreferenceCardGroup
-              aria-labelledby="settings-font-label"
-              value={font}
-              onValueChange={(value) => setFont(value as Font)}
-            >
-              {FONT_OPTIONS.map((option) => (
-                <PreferenceCard
-                  key={option.value}
-                  value={option.value}
-                  title={t(option.labelKey)}
-                  className="h-20"
-                >
-                  <span
-                    className={cn(
-                      'flex h-full items-center justify-center bg-background text-3xl text-foreground',
-                      option.fontClass,
-                    )}
-                  >
-                    Aa
-                  </span>
-                </PreferenceCard>
-              ))}
-            </PreferenceCardGroup>
-            <p className="w-full max-w-md rounded-lg border bg-background px-4 py-3 text-sm text-muted-foreground">
-              {t('settings.appearance.fontPreview')}
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <div>
-              <Label id="settings-theme-label">{t('settings.appearance.theme')}</Label>
-              <p className="text-sm text-muted-foreground">
-                {t('settings.appearance.themeDescription')}
-              </p>
-            </div>
-            <PreferenceCardGroup
-              aria-labelledby="settings-theme-label"
-              value={theme}
-              onValueChange={(value) => setTheme(value as Theme)}
-            >
-              {THEME_OPTIONS.map((option) => (
-                <ThemePreviewCard
-                  key={option.value}
-                  theme={option.value}
-                  title={t(option.labelKey)}
-                />
-              ))}
-            </PreferenceCardGroup>
-          </div>
-        </CardContent>
-      </Card>
-    </SettingsSection>
-  )
-}
+import { SettingsSection } from '@/pages/settings/settings-section'
 
 function ImportSubsection() {
   const { t } = useTranslation()
@@ -310,7 +144,7 @@ function ImportSubsection() {
 
 type DownloadKind = 'csv' | 'json'
 
-function BackupExportSection() {
+export function BackupSettingsPage() {
   const { t } = useTranslation()
   const [pending, setPending] = useState<DownloadKind | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -394,21 +228,5 @@ function BackupExportSection() {
 
       <ImportSubsection />
     </SettingsSection>
-  )
-}
-
-export function SettingsPage() {
-  const { t } = useTranslation()
-  useDocumentTitle(t('settings.pageTitle'))
-
-  return (
-    <>
-      <PageHeader title={t('settings.pageTitle')} description={t('settings.pageDescription')} />
-      <div className="flex flex-col gap-8">
-        <GeneralSection />
-        <AppearanceSection />
-        <BackupExportSection />
-      </div>
-    </>
   )
 }

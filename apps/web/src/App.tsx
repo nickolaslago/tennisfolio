@@ -7,7 +7,11 @@ import { MatchFormPage } from '@/pages/match-form'
 import { MatchDetailPage, MatchesPage } from '@/pages/matches'
 import { NotFoundPage } from '@/pages/not-found'
 import { OpponentDetailPage, OpponentFormPage, OpponentsPage } from '@/pages/opponents'
-import { SettingsPage } from '@/pages/settings'
+import { AppearanceSettingsPage } from '@/pages/settings/appearance'
+import { BackupSettingsPage } from '@/pages/settings/backup'
+import { GeneralSettingsPage } from '@/pages/settings/general'
+import { SettingsIndexPage } from '@/pages/settings/settings-index'
+import { SettingsLayout } from '@/pages/settings/settings-layout'
 import { TournamentDetailPage, TournamentFormPage, TournamentsPage } from '@/pages/tournaments'
 
 const router = createBrowserRouter([
@@ -32,7 +36,16 @@ const router = createBrowserRouter([
       { path: 'tournaments/new', element: <TournamentFormPage /> },
       { path: 'tournaments/:id/edit', element: <TournamentFormPage /> },
       { path: 'tournaments/:id', element: <TournamentDetailPage /> },
-      { path: 'settings', element: <SettingsPage /> },
+      {
+        path: 'settings',
+        element: <SettingsLayout />,
+        children: [
+          { index: true, element: <SettingsIndexPage /> },
+          { path: 'general', element: <GeneralSettingsPage /> },
+          { path: 'appearance', element: <AppearanceSettingsPage /> },
+          { path: 'backup', element: <BackupSettingsPage /> },
+        ],
+      },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
