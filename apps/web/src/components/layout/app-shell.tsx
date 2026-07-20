@@ -5,15 +5,20 @@ import { BottomTabBar } from '@/components/layout/bottom-tab-bar'
 import { SidebarNav } from '@/components/layout/sidebar-nav'
 
 /**
- * App shell: left sidebar on ≥md viewports, bottom tab bar below md.
- * Both navs are always mounted — visibility switches purely on viewport
- * width via responsive utilities, so no reload or JS is involved.
+ * App shell: floating glass sidebar on ≥md viewports, floating glass tab bar
+ * below md. Both navs are always mounted — visibility switches purely on
+ * viewport width via responsive utilities, so no reload or JS is involved.
+ *
+ * The fixed bg-ambient layer paints the brand-hued wash the Liquid Glass
+ * surfaces refract; it sits behind the (position: relative) content wrapper
+ * and is inert to pointer events.
  */
 export function AppShell() {
   const { t } = useTranslation()
 
   return (
     <div className="min-h-svh bg-background text-foreground">
+      <div aria-hidden="true" className="bg-ambient pointer-events-none fixed inset-0" />
       <a
         href="#main-content"
         className="sr-only rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50"
@@ -21,10 +26,10 @@ export function AppShell() {
         {t('nav.skipToContent')}
       </a>
       <SidebarNav />
-      <div className="md:pl-60">
+      <div className="relative md:pl-66">
         <main
           id="main-content"
-          className="mx-auto w-full max-w-5xl px-4 py-6 pb-24 md:px-8 md:py-8"
+          className="mx-auto w-full max-w-5xl px-4 py-6 pb-32 md:px-8 md:py-8 md:pb-8"
         >
           <Outlet />
         </main>

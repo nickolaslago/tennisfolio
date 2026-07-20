@@ -86,6 +86,32 @@ base rule) for body text — never a literal font-family string. Because
 future "heading font" user preference (or brand refresh) is a one-line change
 to `--font-heading` in `index.css`, with zero component edits.
 
+## Liquid Glass surfaces
+
+Raised surfaces (cards, popovers, dropdown menus, dialogs, the desktop
+sidebar, the mobile tab bar, chart tooltips) use a translucent "Liquid Glass"
+treatment instead of flat `--rg-white` fills. It's built from four tier-2
+tokens — `--glass-surface`, `--glass-border`, `--glass-highlight`,
+`--glass-blur` — plus `--ambient`, the brand-hued backdrop wash the glass
+refracts (painted once by the app shell via the `bg-ambient` utility). All are
+derived from tier-1 palette primitives with `color-mix()`, and `.dark`
+re-points them like every other tier-2 token.
+
+The colour half flows through the existing shadcn contract:
+`--card`/`--popover`/`--sidebar` point at `--glass-surface`, so vendored
+primitives pick it up untouched. The non-colour half (backdrop-blur +
+saturation + inner top sheen) is the tier-3 `glass` utility, applied by the
+wrappers in [`src/components/glass/`](../apps/web/src/components/glass/) —
+import raised surfaces from there (`@/components/glass/card`, …), never by
+hand-editing `src/components/ui/*`. The sheen rides Tailwind's
+`--tw-inset-shadow` slot so it composes with each surface's own ring/shadow.
+
+Fallbacks: `@supports not (backdrop-filter: blur(1px))` and
+`@media (prefers-reduced-transparency: reduce)` re-point `--glass-surface`
+(and `--glass-border`) back to the opaque values, so unsupported browsers and
+users who opt out get the pre-glass solid surfaces at full WCAG AA contrast —
+again a token re-point, with zero component branches.
+
 ## Naming conventions
 
 - **Primitives** are prefixed `--rg-` (Roland-Garros) so they're unmistakable in
