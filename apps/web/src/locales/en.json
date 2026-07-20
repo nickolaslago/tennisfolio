@@ -513,9 +513,16 @@
       "title": "Appearance",
       "description": "Choose how Tennisfolio looks on this device.",
       "theme": "Theme",
+      "themeDescription": "Select your preferred theme for the application.",
       "themeLight": "Light",
       "themeDark": "Dark",
-      "themeSystem": "System"
+      "themeSystem": "System",
+      "fontFamily": "Font family",
+      "fontFamilyDescription": "Choose the font family used throughout the interface.",
+      "fontSans": "Instrument Sans",
+      "fontSerif": "Instrument Serif",
+      "fontMono": "Ubuntu Mono",
+      "fontPreview": "The quick brown fox jumps over the lazy net — 0123456789"
     },
     "backupExport": {
       "title": "Backup & Export",
