@@ -315,6 +315,7 @@
       "backToOpponents": "Back to Opponents",
       "pageTitleFallback": "Opponent",
       "invalidId": "\"{{id}}\" is not a valid opponent id.",
+      "deleteConfirmTitle": "Delete this opponent?",
       "ageRange": "Age range",
       "notes": "Notes"
     },
@@ -386,7 +387,8 @@
     "detail": {
       "backToClubs": "Back to Clubs",
       "pageTitleFallback": "Club",
-      "invalidId": "\"{{id}}\" is not a valid club id."
+      "invalidId": "\"{{id}}\" is not a valid club id.",
+      "deleteConfirmTitle": "Delete this club?"
     },
     "form": {
       "backToClub": "Back to club",
@@ -470,6 +472,7 @@
       "backToTournaments": "Back to Tournaments",
       "pageTitleFallback": "Tournament",
       "invalidId": "\"{{id}}\" is not a valid tournament id.",
+      "deleteConfirmTitle": "Delete this tournament?",
       "format": "Format",
       "notes": "Notes"
     },

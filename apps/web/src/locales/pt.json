@@ -315,6 +315,7 @@
       "backToOpponents": "Voltar para Adversários",
       "pageTitleFallback": "Adversário",
       "invalidId": "\"{{id}}\" não é um id de adversário válido.",
+      "deleteConfirmTitle": "Excluir este adversário?",
       "ageRange": "Faixa etária",
       "notes": "Notas"
     },
@@ -386,7 +387,8 @@
     "detail": {
       "backToClubs": "Voltar para Clubes",
       "pageTitleFallback": "Clube",
-      "invalidId": "\"{{id}}\" não é um id de clube válido."
+      "invalidId": "\"{{id}}\" não é um id de clube válido.",
+      "deleteConfirmTitle": "Excluir este clube?"
     },
     "form": {
       "backToClub": "Voltar para o clube",
@@ -470,6 +472,7 @@
       "backToTournaments": "Voltar para Torneios",
       "pageTitleFallback": "Torneio",
       "invalidId": "\"{{id}}\" não é um id de torneio válido.",
+      "deleteConfirmTitle": "Excluir este torneio?",
       "format": "Formato",
       "notes": "Notas"
     },
