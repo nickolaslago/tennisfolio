@@ -9,6 +9,7 @@ import { NotFoundPage } from '@/pages/not-found'
 import { OpponentDetailPage, OpponentFormPage, OpponentsPage } from '@/pages/opponents'
 import { AppearanceSettingsPage } from '@/pages/settings/appearance'
 import { BackupSettingsPage } from '@/pages/settings/backup'
+import { DangerZoneSettingsPage } from '@/pages/settings/danger-zone'
 import { GeneralSettingsPage } from '@/pages/settings/general'
 import { SettingsIndexPage } from '@/pages/settings/settings-index'
 import { SettingsLayout } from '@/pages/settings/settings-layout'
@@ -44,6 +45,7 @@ const router = createBrowserRouter([
           { path: 'general', element: <GeneralSettingsPage /> },
           { path: 'appearance', element: <AppearanceSettingsPage /> },
           { path: 'backup', element: <BackupSettingsPage /> },
+          { path: 'danger-zone', element: <DangerZoneSettingsPage /> },
         ],
       },
       { path: '*', element: <NotFoundPage /> },

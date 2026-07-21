@@ -534,6 +534,11 @@
       "title": "Backup & Export",
       "description": "Download every match, opponent, club and tournament you've recorded — no lock-in, take your data with you any time.",
       "menuDescription": "Export and import your data"
+    },
+    "dangerZone": {
+      "title": "Danger zone",
+      "description": "Irreversible actions. Proceed with caution.",
+      "menuDescription": "Permanently delete your data"
     }
   },
   "export": {
@@ -565,5 +570,19 @@
     "successSkipped_one": "{{count}} row was skipped — it didn't match the expected format.",
     "successSkipped_other": "{{count}} rows were skipped — they didn't match the expected format.",
     "importFailed": "Import failed."
+  },
+  "dangerZone": {
+    "deleteAllData": {
+      "title": "Delete all data",
+      "description": "Permanently delete every match, opponent, club, and tournament in your portfolio. Consider exporting a backup first — see Backup & Export above.",
+      "button": "Delete all data",
+      "pending": "Deleting…",
+      "confirmTitle": "Delete all data?",
+      "confirmDescription": "This will permanently delete every match, opponent, club, and tournament you've recorded. This can't be undone. If you haven't already, export a backup before continuing.",
+      "confirmInputLabel": "Type \"{{phrase}}\" to confirm",
+      "confirmAction": "Delete all data",
+      "successMessage": "All data has been deleted.",
+      "failed": "Failed to delete data."
+    }
   }
 }
