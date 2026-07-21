@@ -142,18 +142,15 @@
   --card-foreground: var(--rg-slate);
   --popover: var(--glass-surface);
   --popover-foreground: var(--rg-slate);
-  --primary: var(--rg-slate); /* primary buttons — Dark Slate/Navy (per spec) */
-  --primary-foreground: var(--rg-baseline);
+  /* --primary, --accent, --ring (and their -foreground pairs) are
+       accent-driven — see the "Accent preference" section below. */
   --secondary: var(--rg-court); /* secondary buttons — Classic Court Green */
   --secondary-foreground: var(--rg-baseline);
   --muted: #e4e7e9; /* soft cool grey — tab list, table zebra/hover */
   --muted-foreground: #55636d; /* secondary text / placeholders (AA on bg) */
-  --accent: #f3ded7; /* soft clay wash — subtle hover surface (menus) */
-  --accent-foreground: var(--rg-slate);
   --destructive: var(--rg-clay); /* destructive actions — Clay Terracotta */
   --border: #d3d8db; /* light slate tint (see note in PR/report) */
   --input: #d3d8db;
-  --ring: var(--rg-ochre); /* focus ring — Suntan Ochre */
   --chart-1: var(--rg-clay);
   --chart-2: var(--rg-court);
   --chart-3: var(--rg-ochre);
@@ -169,8 +166,7 @@
   --win-foreground: var(--rg-baseline);
   --loss: var(--rg-clay); /* a lost match / set  → Clay Terracotta */
   --loss-foreground: var(--rg-baseline);
-  --highlight: var(--rg-ochre); /* light accent / call-outs → Suntan Ochre */
-  --highlight-foreground: var(--rg-slate); /* dark text — AA on ochre */
+  /* --highlight (light accent / call-outs) is accent-driven — see below. */
 
   /* ── Tier 2 · Semantic tokens — Liquid Glass surface treatment ─────────
        Raised surfaces (cards, popovers, menus, dialogs, sidebar, mobile tab
@@ -212,12 +208,9 @@
        Kept for shadcn compatibility, themed to match. */
   --sidebar: var(--glass-surface);
   --sidebar-foreground: var(--rg-slate);
-  --sidebar-primary: var(--rg-slate);
-  --sidebar-primary-foreground: var(--rg-baseline);
-  --sidebar-accent: #f3ded7;
-  --sidebar-accent-foreground: var(--rg-slate);
   --sidebar-border: var(--glass-border);
-  --sidebar-ring: var(--rg-ochre);
+  /* --sidebar-primary, --sidebar-accent, --sidebar-ring (and -foreground
+       pairs) are accent-driven — see the "Accent preference" section below. */
 }
 
 /* ── Font preference — tier-2 re-point ─────────────────────────────────────
@@ -254,18 +247,15 @@
   --card-foreground: var(--rg-baseline);
   --popover: var(--glass-surface);
   --popover-foreground: var(--rg-baseline);
-  --primary: var(--rg-baseline);
-  --primary-foreground: var(--rg-slate-900);
+  /* --primary, --accent, --ring (and -foreground pairs) are accent-driven —
+       see the "Accent preference" section below (dark re-point). */
   --secondary: var(--rg-court-bright);
   --secondary-foreground: #0b140f;
   --muted: var(--rg-slate-800);
   --muted-foreground: #9aa7ad;
-  --accent: #3a2620; /* dark clay wash — subtle hover surface (menus) */
-  --accent-foreground: var(--rg-baseline);
   --destructive: var(--rg-clay-bright);
   --border: var(--rg-slate-700);
   --input: var(--rg-slate-700);
-  --ring: var(--rg-ochre);
   --chart-1: var(--rg-clay-bright);
   --chart-2: var(--rg-court-bright);
   --chart-3: var(--rg-ochre);
@@ -299,12 +289,9 @@
   /* sidebar (tier 2, dark re-point) */
   --sidebar: var(--glass-surface);
   --sidebar-foreground: var(--rg-baseline);
-  --sidebar-primary: var(--rg-baseline);
-  --sidebar-primary-foreground: var(--rg-slate-900);
-  --sidebar-accent: var(--rg-slate-800);
-  --sidebar-accent-foreground: var(--rg-baseline);
   --sidebar-border: var(--glass-border);
-  --sidebar-ring: var(--rg-ochre);
+  /* --sidebar-primary, --sidebar-accent, --sidebar-ring (and -foreground
+       pairs) are accent-driven — see the "Accent preference" section below. */
 
   /* brand tokens (tier 2, dark re-point) */
   --surface: var(--rg-slate-950);
@@ -313,8 +300,120 @@
   --win-foreground: #0b140f;
   --loss: var(--rg-clay-bright);
   --loss-foreground: #1a0b08;
+  /* --highlight (and -foreground) is accent-driven — see below. */
+}
+
+/* ── Accent preference — tier-2 re-point ───────────────────────────────────
+   accent-provider.tsx stamps data-accent on <html> (clay | grass | hard) —
+   the three tennis-court surfaces. Each choice re-points the accent-driven
+   tier-2 tokens (--primary, --accent, --ring, --highlight, their -foreground
+   pairs, and the matching --sidebar-* set) that feed primary buttons, active
+   nav states, focus rings, and links. Clay is the default (bare :root/.dark,
+   plus its own explicit selector) and carries the original Roland-Garros
+   values; Grass and Hard rotate the same oklch lightness/chroma structure to
+   green and blue so contrast is preserved. Light blocks come first, then the
+   dark re-points — equal specificity, so source order lets .dark win when
+   both the theme class and the accent attribute sit on <html>.
+
+   Every value is theme-scoped: the dark blocks pair each accent hue with dark
+   surfaces exactly as the base .dark re-point does. */
+
+/* Clay (default) — light */
+:root,
+:root[data-accent='clay'] {
+  --primary: var(--rg-slate);
+  --primary-foreground: var(--rg-baseline);
+  --accent: #f3ded7; /* soft clay wash — subtle hover surface (menus) */
+  --accent-foreground: var(--rg-slate);
+  --ring: var(--rg-ochre); /* focus ring — Suntan Ochre */
+  --highlight: var(--rg-ochre); /* light accent / call-outs → Suntan Ochre */
+  --highlight-foreground: var(--rg-slate); /* dark text — AA on ochre */
+  --sidebar-primary: var(--rg-slate);
+  --sidebar-primary-foreground: var(--rg-baseline);
+  --sidebar-accent: #f3ded7;
+  --sidebar-accent-foreground: var(--rg-slate);
+  --sidebar-ring: var(--rg-ochre);
+}
+
+/* Grass — light */
+:root[data-accent='grass'] {
+  --primary: oklch(0.3 0.075 150);
+  --primary-foreground: var(--rg-baseline);
+  --accent: oklch(0.9157 0.028 150);
+  --accent-foreground: var(--rg-slate);
+  --ring: oklch(0.68 0.15 150);
+  --highlight: oklch(0.68 0.15 150);
+  --highlight-foreground: var(--rg-slate);
+  --sidebar-primary: oklch(0.3 0.075 150);
+  --sidebar-primary-foreground: var(--rg-baseline);
+  --sidebar-accent: oklch(0.9157 0.028 150);
+  --sidebar-accent-foreground: var(--rg-slate);
+  --sidebar-ring: oklch(0.68 0.15 150);
+}
+
+/* Hard — light */
+:root[data-accent='hard'] {
+  --primary: oklch(0.31 0.085 255);
+  --primary-foreground: var(--rg-baseline);
+  --accent: oklch(0.9157 0.028 255);
+  --accent-foreground: var(--rg-slate);
+  --ring: oklch(0.66 0.15 255);
+  --highlight: oklch(0.66 0.15 255);
+  --highlight-foreground: var(--rg-slate);
+  --sidebar-primary: oklch(0.31 0.085 255);
+  --sidebar-primary-foreground: var(--rg-baseline);
+  --sidebar-accent: oklch(0.9157 0.028 255);
+  --sidebar-accent-foreground: var(--rg-slate);
+  --sidebar-ring: oklch(0.66 0.15 255);
+}
+
+/* Clay (default) — dark */
+.dark,
+.dark[data-accent='clay'] {
+  --primary: var(--rg-baseline);
+  --primary-foreground: var(--rg-slate-900);
+  --accent: #3a2620; /* dark clay wash — subtle hover surface (menus) */
+  --accent-foreground: var(--rg-baseline);
+  --ring: var(--rg-ochre);
   --highlight: var(--rg-ochre);
   --highlight-foreground: var(--rg-slate-900);
+  --sidebar-primary: var(--rg-baseline);
+  --sidebar-primary-foreground: var(--rg-slate-900);
+  --sidebar-accent: var(--rg-slate-800);
+  --sidebar-accent-foreground: var(--rg-baseline);
+  --sidebar-ring: var(--rg-ochre);
+}
+
+/* Grass — dark */
+.dark[data-accent='grass'] {
+  --primary: oklch(0.68 0.145 150);
+  --primary-foreground: var(--rg-slate-900);
+  --accent: oklch(0.3 0.04 150);
+  --accent-foreground: var(--rg-baseline);
+  --ring: oklch(0.68 0.15 150);
+  --highlight: oklch(0.68 0.15 150);
+  --highlight-foreground: var(--rg-slate-900);
+  --sidebar-primary: oklch(0.68 0.145 150);
+  --sidebar-primary-foreground: var(--rg-slate-900);
+  --sidebar-accent: oklch(0.32 0.045 150);
+  --sidebar-accent-foreground: var(--rg-baseline);
+  --sidebar-ring: oklch(0.68 0.15 150);
+}
+
+/* Hard — dark */
+.dark[data-accent='hard'] {
+  --primary: oklch(0.7 0.13 255);
+  --primary-foreground: var(--rg-slate-900);
+  --accent: oklch(0.3 0.04 255);
+  --accent-foreground: var(--rg-baseline);
+  --ring: oklch(0.66 0.15 255);
+  --highlight: oklch(0.66 0.15 255);
+  --highlight-foreground: var(--rg-slate-900);
+  --sidebar-primary: oklch(0.7 0.13 255);
+  --sidebar-primary-foreground: var(--rg-slate-900);
+  --sidebar-accent: oklch(0.32 0.045 255);
+  --sidebar-accent-foreground: var(--rg-baseline);
+  --sidebar-ring: oklch(0.66 0.15 255);
 }
 
 /* ── Liquid Glass utilities (tier 3) ───────────────────────────────────────

@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tennisfolio</title>
     <script>
-      // Applied before React mounts so the correct theme is there on first paint.
+      // Applied before React mounts so the correct theme and accent are there
+      // on first paint.
       ;(function () {
         try {
           var stored = localStorage.getItem('tennisfolio:theme')
@@ -14,6 +15,9 @@
             stored === 'dark' ||
             (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
           document.documentElement.classList.toggle('dark', dark)
+          var accent = localStorage.getItem('tennisfolio:accent')
+          document.documentElement.dataset.accent =
+            accent === 'grass' || accent === 'hard' ? accent : 'clay'
         } catch (e) {}
       })()
     </script>

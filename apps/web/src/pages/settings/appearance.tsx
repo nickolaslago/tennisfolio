@@ -1,9 +1,11 @@
 import { useTranslation } from 'react-i18next'
 
 import { Card, CardContent } from '@/components/glass/card'
+import { AccentSwatchCard } from '@/components/settings/accent-swatch-card'
 import { PreferenceCard, PreferenceCardGroup } from '@/components/settings/preference-card'
 import { ThemePreviewCard } from '@/components/settings/theme-preview-card'
 import { Label } from '@/components/ui/label'
+import { useAccent, type Accent } from '@/hooks/use-accent'
 import { useFont, type Font } from '@/hooks/use-font'
 import { useTheme, type Theme } from '@/hooks/use-theme'
 import { cn } from '@/lib/utils'
@@ -21,10 +23,34 @@ const FONT_OPTIONS: { value: Font; labelKey: string; fontClass: string }[] = [
   { value: 'mono', labelKey: 'settings.appearance.fontMono', fontClass: 'font-option-mono' },
 ]
 
+// Preview swatches mirror the light-theme accent values in index.css. They are
+// literal so each card shows its own accent regardless of the active one.
+const ACCENT_OPTIONS: { value: Accent; labelKey: string; primary: string; highlight: string }[] = [
+  {
+    value: 'clay',
+    labelKey: 'settings.appearance.accentClay',
+    primary: 'var(--rg-slate)',
+    highlight: 'var(--rg-ochre)',
+  },
+  {
+    value: 'grass',
+    labelKey: 'settings.appearance.accentGrass',
+    primary: 'oklch(0.3 0.075 150)',
+    highlight: 'oklch(0.68 0.15 150)',
+  },
+  {
+    value: 'hard',
+    labelKey: 'settings.appearance.accentHard',
+    primary: 'oklch(0.31 0.085 255)',
+    highlight: 'oklch(0.66 0.15 255)',
+  },
+]
+
 export function AppearanceSettingsPage() {
   const { t } = useTranslation()
   const { theme, setTheme } = useTheme()
   const { font, setFont } = useFont()
+  const { accent, setAccent } = useAccent()
 
   return (
     <SettingsSection
@@ -85,6 +111,30 @@ export function AppearanceSettingsPage() {
                   key={option.value}
                   theme={option.value}
                   title={t(option.labelKey)}
+                />
+              ))}
+            </PreferenceCardGroup>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <div>
+              <Label id="settings-accent-label">{t('settings.appearance.accent')}</Label>
+              <p className="text-sm text-muted-foreground">
+                {t('settings.appearance.accentDescription')}
+              </p>
+            </div>
+            <PreferenceCardGroup
+              aria-labelledby="settings-accent-label"
+              value={accent}
+              onValueChange={(value) => setAccent(value as Accent)}
+            >
+              {ACCENT_OPTIONS.map((option) => (
+                <AccentSwatchCard
+                  key={option.value}
+                  accent={option.value}
+                  title={t(option.labelKey)}
+                  primary={option.primary}
+                  highlight={option.highlight}
                 />
               ))}
             </PreferenceCardGroup>
