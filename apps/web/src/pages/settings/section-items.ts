@@ -1,4 +1,4 @@
-import { DatabaseBackup, Globe, Palette, type LucideIcon } from 'lucide-react'
+import { DatabaseBackup, Globe, Palette, TriangleAlert, type LucideIcon } from 'lucide-react'
 
 export interface SettingsSectionItem {
   to: string
@@ -9,8 +9,7 @@ export interface SettingsSectionItem {
 
 /**
  * Registry backing both the mobile section list (`/settings`) and the desktop
- * left-hand section menu. Add a new entry here to add a section — e.g. the
- * Danger zone (DAT-138) once it lands.
+ * left-hand section menu. Add a new entry here to add a section.
  */
 export const settingsSectionItems: SettingsSectionItem[] = [
   {
@@ -30,5 +29,11 @@ export const settingsSectionItems: SettingsSectionItem[] = [
     icon: DatabaseBackup,
     titleKey: 'settings.backupExport.title',
     descriptionKey: 'settings.backupExport.menuDescription',
+  },
+  {
+    to: '/settings/danger-zone',
+    icon: TriangleAlert,
+    titleKey: 'settings.dangerZone.title',
+    descriptionKey: 'settings.dangerZone.menuDescription',
   },
 ]

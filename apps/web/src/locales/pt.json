@@ -534,6 +534,11 @@
       "title": "Backup e exportação",
       "description": "Baixe todas as partidas, adversários, clubes e torneios que você registrou — sem amarras, leve seus dados para onde quiser.",
       "menuDescription": "Exportar e importar seus dados"
+    },
+    "dangerZone": {
+      "title": "Zona de perigo",
+      "description": "Ações irreversíveis. Prossiga com cautela.",
+      "menuDescription": "Excluir permanentemente seus dados"
     }
   },
   "export": {
@@ -550,6 +555,20 @@
       "title": "JSON",
       "description": "Um único arquivo JSON com todas as tabelas, com as partidas aninhadas junto com seus sets. Ideal para scripts ou para alimentar outra ferramenta.",
       "download": "Baixar JSON"
+    }
+  },
+  "dangerZone": {
+    "deleteAllData": {
+      "title": "Excluir todos os dados",
+      "description": "Exclua permanentemente todas as partidas, adversários, clubes e torneios do seu portfólio. Considere exportar um backup antes — veja Backup e exportação acima.",
+      "button": "Excluir todos os dados",
+      "pending": "Excluindo…",
+      "confirmTitle": "Excluir todos os dados?",
+      "confirmDescription": "Isso excluirá permanentemente todas as partidas, adversários, clubes e torneios que você registrou. Essa ação não pode ser desfeita. Se ainda não o fez, exporte um backup antes de continuar.",
+      "confirmInputLabel": "Digite \"{{phrase}}\" para confirmar",
+      "confirmAction": "Excluir todos os dados",
+      "successMessage": "Todos os dados foram excluídos.",
+      "failed": "Falha ao excluir os dados."
     }
   }
 }
