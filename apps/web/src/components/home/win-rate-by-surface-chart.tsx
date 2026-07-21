@@ -135,8 +135,15 @@ export function WinRateBySurfaceChart({ data }: WinRateBySurfaceChartProps) {
                   name={matchesPlayedLabel}
                   fill="var(--muted-foreground)"
                   radius={[4, 4, 0, 0]}
-                  maxBarSize={20}
-                />
+                  maxBarSize={56}
+                >
+                  <LabelList
+                    dataKey="matches"
+                    position="top"
+                    fill="var(--foreground)"
+                    fontSize={12}
+                  />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
