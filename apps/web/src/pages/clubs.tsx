@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 
+import { ConfirmDeleteDialog } from '@/components/data/confirm-delete-dialog'
 import { CountryCombobox } from '@/components/data/country-combobox'
 import { EntityIcon } from '@/components/data/entity-icon'
 import { EntityIconPicker } from '@/components/data/entity-icon-picker'
@@ -432,19 +433,16 @@ export function ClubDetailPage() {
                   {t('common.rowActions.edit')}
                 </Link>
               </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                disabled={deleteClub.isPending}
-                onClick={() => {
+              <ConfirmDeleteDialog
+                title={t('clubs.detail.deleteConfirmTitle')}
+                description={t('clubs.deleteDescription')}
+                pending={deleteClub.isPending}
+                onConfirm={() => {
                   deleteClub.mutate(club.data.id, {
                     onSuccess: () => navigate('/clubs'),
                   })
                 }}
-              >
-                <Trash2 aria-hidden="true" data-icon="inline-start" />
-                {t('common.rowActions.delete')}
-              </Button>
+              />
             </div>
           </div>
           <Card className="mb-6">
