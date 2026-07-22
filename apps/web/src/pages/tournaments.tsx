@@ -1,5 +1,5 @@
 import { TOURNAMENT_FORMAT_OPTIONS, isTournamentFormat } from '@tennisfolio/core'
-import { ChevronLeft, Pencil, Trophy } from 'lucide-react'
+import { ChevronLeft, Handshake, Pencil, Trophy } from 'lucide-react'
 import { type FormEvent, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -45,15 +45,26 @@ import {
 import { useClub, useClubs } from '@/hooks/use-clubs'
 import { useLastOrganiser } from '@/hooks/use-last-organiser'
 import { useMatches } from '@/hooks/use-matches'
+import { useOpponents } from '@/hooks/use-opponents'
 import { useUrlFilters } from '@/hooks/use-url-filters'
 import type { Match } from '@/lib/api/matches'
 import type { StandingsRow } from '@/lib/api/tournaments'
+import { computeStandings, FRIENDLIES_ID, isFriendliesId } from '@/lib/friendlies'
 import { sortByLabel } from '@/lib/sort-options'
 import { useDocumentTitle } from '@/lib/use-document-title'
 
 function dateRange(tournament: Tournament) {
   if (!tournament.start_date && !tournament.end_date) return '—'
   return `${tournament.start_date ?? '—'} – ${tournament.end_date ?? '—'}`
+}
+
+/** The pinned virtual "Friendlies" entry in the list — not a real tournament. */
+type FriendliesRow = { id: typeof FRIENDLIES_ID }
+/** A row in the tournaments list: either a real tournament or the Friendlies entry. */
+type TournamentRow = Tournament | FriendliesRow
+
+function isFriendliesRow(row: TournamentRow): row is FriendliesRow {
+  return row.id === FRIENDLIES_ID
 }
 
 const FILTER_FIELD_IDS = ['club_id', 'status'] as const
@@ -140,50 +151,59 @@ export function TournamentsPage() {
     />
   )
 
-  const columns: EntityColumn<Tournament>[] = [
+  const columns: EntityColumn<TournamentRow>[] = [
     {
       id: 'name',
       header: translate('tournaments.columns.name'),
-      sortValue: (t) => t.name.toLowerCase(),
-      cell: (t) => (
-        <Link
-          to={`/tournaments/${t.id}`}
-          className="flex items-center gap-1.5 font-medium hover:underline"
-        >
-          <EntityIcon value={t.icon} />
-          {t.name}
-        </Link>
-      ),
+      sortValue: (row) => (isFriendliesRow(row) ? '' : row.name.toLowerCase()),
+      cell: (row) =>
+        isFriendliesRow(row) ? (
+          <Link
+            to={`/tournaments/${FRIENDLIES_ID}`}
+            className="flex items-center gap-1.5 font-medium hover:underline"
+          >
+            <Handshake aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+            {translate('tournaments.friendlies.name')}
+          </Link>
+        ) : (
+          <Link
+            to={`/tournaments/${row.id}`}
+            className="flex items-center gap-1.5 font-medium hover:underline"
+          >
+            <EntityIcon value={row.icon} />
+            {row.name}
+          </Link>
+        ),
     },
     {
       id: 'season',
       header: translate('tournaments.columns.season'),
-      sortValue: (t) => t.season,
-      cell: (t) => t.season ?? '—',
+      sortValue: (row) => (isFriendliesRow(row) ? null : row.season),
+      cell: (row) => (isFriendliesRow(row) ? '—' : (row.season ?? '—')),
     },
     {
       id: 'tournament_type',
       header: translate('tournaments.columns.type'),
-      sortValue: (t) => t.tournament_type,
-      cell: (t) => t.tournament_type,
+      sortValue: (row) => (isFriendliesRow(row) ? '' : row.tournament_type),
+      cell: (row) => (isFriendliesRow(row) ? '—' : row.tournament_type),
     },
     {
       id: 'organiser',
       header: translate('tournaments.columns.organiser'),
-      sortValue: (t) => t.organiser ?? '',
-      cell: (t) => t.organiser ?? '—',
+      sortValue: (row) => (isFriendliesRow(row) ? '' : (row.organiser ?? '')),
+      cell: (row) => (isFriendliesRow(row) ? '—' : (row.organiser ?? '—')),
     },
     {
       id: 'club',
       header: translate('tournaments.columns.hostClub'),
-      sortValue: (t) => clubName(t.club_id),
-      cell: (t) => clubName(t.club_id) ?? '—',
+      sortValue: (row) => (isFriendliesRow(row) ? null : clubName(row.club_id)),
+      cell: (row) => (isFriendliesRow(row) ? '—' : (clubName(row.club_id) ?? '—')),
     },
     {
       id: 'dates',
       header: translate('tournaments.columns.dates'),
-      sortValue: (t) => t.start_date,
-      cell: (t) => dateRange(t),
+      sortValue: (row) => (isFriendliesRow(row) ? null : row.start_date),
+      cell: (row) => (isFriendliesRow(row) ? '—' : dateRange(row)),
     },
   ]
 
@@ -193,19 +213,22 @@ export function TournamentsPage() {
         title={translate('tournaments.pageTitle')}
         description={translate('tournaments.pageDescription')}
       />
-      <EntityList
+      <EntityList<TournamentRow>
         entityKey="tournaments"
         items={items}
+        pinnedItems={[{ id: FRIENDLIES_ID }]}
         isPending={tournaments.isPending}
         isError={tournaments.isError}
         error={tournaments.error}
         onRetry={() => void tournaments.refetch()}
         columns={columns}
-        rowActions={rowOptions}
-        getSearchText={(t) =>
-          `${t.name} ${t.season ?? ''} ${t.tournament_type} ${t.organiser ?? ''} ${
-            clubName(t.club_id) ?? ''
-          }`
+        rowActions={(row) => (isFriendliesRow(row) ? null : rowOptions(row))}
+        getSearchText={(row) =>
+          isFriendliesRow(row)
+            ? translate('tournaments.friendlies.name')
+            : `${row.name} ${row.season ?? ''} ${row.tournament_type} ${row.organiser ?? ''} ${
+                clubName(row.club_id) ?? ''
+              }`
         }
         searchPlaceholder={translate('tournaments.filterPlaceholder')}
         filters={{
@@ -223,52 +246,71 @@ export function TournamentsPage() {
           to: '/tournaments/new',
           icon: Trophy,
         }}
-        renderCard={(t) => (
-          <Card className="h-full">
-            <CardContent className="flex flex-col gap-3">
-              <div className="flex items-start justify-between gap-2">
+        renderCard={(row) =>
+          isFriendliesRow(row) ? (
+            <Card className="h-full">
+              <CardContent className="flex flex-col gap-3">
                 <Link
-                  to={`/tournaments/${t.id}`}
+                  to={`/tournaments/${FRIENDLIES_ID}`}
                   className="flex items-center gap-1.5 font-heading text-base font-medium hover:underline"
                 >
-                  <EntityIcon value={t.icon} />
-                  {t.name}
+                  <Handshake aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+                  {translate('tournaments.friendlies.name')}
                 </Link>
-                {rowOptions(t)}
-              </div>
-              <dl className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <dt className="text-muted-foreground">
-                    {translate('tournaments.columns.season')}
-                  </dt>
-                  <dd>{t.season ?? '—'}</dd>
+                <p className="text-sm text-muted-foreground">
+                  {translate('tournaments.friendlies.cardDescription')}
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="h-full">
+              <CardContent className="flex flex-col gap-3">
+                <div className="flex items-start justify-between gap-2">
+                  <Link
+                    to={`/tournaments/${row.id}`}
+                    className="flex items-center gap-1.5 font-heading text-base font-medium hover:underline"
+                  >
+                    <EntityIcon value={row.icon} />
+                    {row.name}
+                  </Link>
+                  {rowOptions(row)}
                 </div>
-                <div>
-                  <dt className="text-muted-foreground">{translate('tournaments.columns.type')}</dt>
-                  <dd>{t.tournament_type}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground">
-                    {translate('tournaments.columns.organiser')}
-                  </dt>
-                  <dd>{t.organiser ?? '—'}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground">
-                    {translate('tournaments.columns.hostClub')}
-                  </dt>
-                  <dd>{clubName(t.club_id) ?? '—'}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground">
-                    {translate('tournaments.columns.dates')}
-                  </dt>
-                  <dd>{dateRange(t)}</dd>
-                </div>
-              </dl>
-            </CardContent>
-          </Card>
-        )}
+                <dl className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <dt className="text-muted-foreground">
+                      {translate('tournaments.columns.season')}
+                    </dt>
+                    <dd>{row.season ?? '—'}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">
+                      {translate('tournaments.columns.type')}
+                    </dt>
+                    <dd>{row.tournament_type}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">
+                      {translate('tournaments.columns.organiser')}
+                    </dt>
+                    <dd>{row.organiser ?? '—'}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">
+                      {translate('tournaments.columns.hostClub')}
+                    </dt>
+                    <dd>{clubName(row.club_id) ?? '—'}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">
+                      {translate('tournaments.columns.dates')}
+                    </dt>
+                    <dd>{dateRange(row)}</dd>
+                  </div>
+                </dl>
+              </CardContent>
+            </Card>
+          )
+        }
       />
     </>
   )
@@ -413,36 +455,74 @@ function StandingsTable({ rows }: { rows: StandingsRow[] }) {
   )
 }
 
-function TournamentStandings({ tournamentId }: { tournamentId: number }) {
+function StandingsSection({
+  rows,
+  isPending,
+  isError,
+  error,
+  onRetry,
+}: {
+  rows: StandingsRow[]
+  isPending: boolean
+  isError: boolean
+  error: unknown
+  onRetry: () => void
+}) {
   const { t } = useTranslation()
-  const standings = useTournamentStandings(tournamentId)
 
   return (
     <div className="flex flex-col gap-4">
       <h2 className="font-heading text-lg font-semibold">{t('tournaments.standings.heading')}</h2>
 
-      {standings.isPending ? (
+      {isPending ? (
         <LoadingState />
-      ) : standings.isError ? (
-        <ErrorState error={standings.error} onRetry={() => void standings.refetch()} />
-      ) : standings.data.length === 0 ? (
+      ) : isError ? (
+        <ErrorState error={error} onRetry={onRetry} />
+      ) : rows.length === 0 ? (
         <EmptyState
           title={t('tournaments.standings.emptyState.title')}
           description={t('tournaments.standings.emptyState.description')}
         />
       ) : (
-        <StandingsTable rows={standings.data} />
+        <StandingsTable rows={rows} />
       )}
     </div>
   )
 }
 
-function TournamentMatches({ tournament }: { tournament: Tournament }) {
+function TournamentStandings({ tournamentId }: { tournamentId: number }) {
+  const standings = useTournamentStandings(tournamentId)
+
+  return (
+    <StandingsSection
+      rows={standings.data ?? []}
+      isPending={standings.isPending}
+      isError={standings.isError}
+      error={standings.error}
+      onRetry={() => void standings.refetch()}
+    />
+  )
+}
+
+function MatchesSection({
+  matches,
+  isPending,
+  isError,
+  error,
+  onRetry,
+  isKnockout,
+}: {
+  matches: Match[]
+  isPending: boolean
+  isError: boolean
+  error: unknown
+  onRetry: () => void
+  isKnockout: boolean
+}) {
   const { t } = useTranslation()
-  const matches = useMatches({ tournament_id: tournament.id })
   const [filter, setFilter] = useState<ResultFilter>('all')
 
-  const items = matches.data?.items ?? []
+  const items = matches
   const filtered = items.filter((match) => {
     if (filter === 'wins') return match.result === 'Win'
     if (filter === 'losses') return match.result === 'Loss'
@@ -452,24 +532,23 @@ function TournamentMatches({ tournament }: { tournament: Tournament }) {
   const wins = items.filter((m) => m.result === 'Win').length
   const losses = items.filter((m) => m.result === 'Loss').length
 
-  const isKnockout = tournament.tournament_type === 'Knockout Tournament'
   const groups = isKnockout ? groupByStage(filtered, t) : null
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-heading text-lg font-semibold">{t('tournaments.matches.heading')}</h2>
-        {matches.isPending || matches.isError ? null : (
+        {isPending || isError ? null : (
           <p className="text-sm text-muted-foreground">
             {t('tournaments.matches.recordSummary', { wins, losses, count: items.length })}
           </p>
         )}
       </div>
 
-      {matches.isPending ? (
+      {isPending ? (
         <LoadingState />
-      ) : matches.isError ? (
-        <ErrorState error={matches.error} onRetry={() => void matches.refetch()} />
+      ) : isError ? (
+        <ErrorState error={error} onRetry={onRetry} />
       ) : items.length === 0 ? (
         <EmptyState
           title={t('tournaments.matches.emptyState.title')}
@@ -521,6 +600,21 @@ function TournamentMatches({ tournament }: { tournament: Tournament }) {
         </>
       )}
     </div>
+  )
+}
+
+function TournamentMatches({ tournament }: { tournament: Tournament }) {
+  const matches = useMatches({ tournament_id: tournament.id })
+
+  return (
+    <MatchesSection
+      matches={matches.data?.items ?? []}
+      isPending={matches.isPending}
+      isError={matches.isError}
+      error={matches.error}
+      onRetry={() => void matches.refetch()}
+      isKnockout={tournament.tournament_type === 'Knockout Tournament'}
+    />
   )
 }
 
@@ -636,6 +730,79 @@ export function TournamentDetailPage() {
   )
 }
 
+/**
+ * Detail view for the virtual "Friendlies" entry: the same layout as a real
+ * tournament, but scoped to matches with no tournament (`tournament_id === null`).
+ * Both the match list and the standings are derived client-side on read.
+ */
+export function FriendliesDetailPage() {
+  const { t } = useTranslation()
+  useDocumentTitle(t('tournaments.friendlies.name'))
+
+  // The API can't filter matches by a null tournament, so fetch a page and
+  // keep only the friendly (no-tournament) matches.
+  const matches = useMatches({ limit: 200 })
+  const opponents = useOpponents()
+
+  const friendlyMatches = useMemo(
+    () => (matches.data?.items ?? []).filter((m) => m.tournament_id === null),
+    [matches.data],
+  )
+  const opponentsById = useMemo(
+    () => new Map((opponents.data?.items ?? []).map((o) => [o.id, o])),
+    [opponents.data],
+  )
+  const standings = useMemo(
+    () => computeStandings(friendlyMatches, opponentsById),
+    [friendlyMatches, opponentsById],
+  )
+
+  const retry = () => {
+    void matches.refetch()
+    void opponents.refetch()
+  }
+
+  return (
+    <>
+      <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
+        <Link to="/tournaments">
+          <ChevronLeft aria-hidden="true" data-icon="inline-start" />
+          {t('tournaments.detail.backToTournaments')}
+        </Link>
+      </Button>
+
+      <header className="mb-6 flex flex-col gap-1">
+        <h1 className="flex items-center gap-2 font-heading text-2xl font-semibold tracking-tight">
+          <Handshake aria-hidden="true" className="size-6 text-muted-foreground" />
+          {t('tournaments.friendlies.name')}
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          {t('tournaments.friendlies.detailDescription')}
+        </p>
+      </header>
+
+      <div className="mb-6">
+        <StandingsSection
+          rows={standings}
+          isPending={matches.isPending || opponents.isPending}
+          isError={matches.isError || opponents.isError}
+          error={matches.error ?? opponents.error}
+          onRetry={retry}
+        />
+      </div>
+
+      <MatchesSection
+        matches={friendlyMatches}
+        isPending={matches.isPending}
+        isError={matches.isError}
+        error={matches.error}
+        onRetry={() => void matches.refetch()}
+        isKnockout={false}
+      />
+    </>
+  )
+}
+
 function tournamentTypeOptions(t: TFunction): { value: TournamentType; label: string }[] {
   return [
     { value: 'Knockout Tournament', label: t('tournaments.form.typeKnockout') },
@@ -726,6 +893,11 @@ export function TournamentFormPage() {
   const tournament = useTournament(isEdit ? tournamentId : NaN)
 
   if (!isEdit) return <TournamentForm mode="create" />
+
+  // "Friendlies" is a virtual entry, never a real tournament — it has no edit form.
+  if (isFriendliesId(id)) {
+    return <ErrorState error={new Error(t('tournaments.detail.invalidId', { id }))} />
+  }
 
   if (!Number.isFinite(tournamentId)) {
     return <ErrorState error={new Error(t('tournaments.detail.invalidId', { id }))} />

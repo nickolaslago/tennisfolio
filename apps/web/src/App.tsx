@@ -13,7 +13,12 @@ import { DangerZoneSettingsPage } from '@/pages/settings/danger-zone'
 import { GeneralSettingsPage } from '@/pages/settings/general'
 import { SettingsIndexPage } from '@/pages/settings/settings-index'
 import { SettingsLayout } from '@/pages/settings/settings-layout'
-import { TournamentDetailPage, TournamentFormPage, TournamentsPage } from '@/pages/tournaments'
+import {
+  FriendliesDetailPage,
+  TournamentDetailPage,
+  TournamentFormPage,
+  TournamentsPage,
+} from '@/pages/tournaments'
 
 const router = createBrowserRouter([
   {
@@ -35,6 +40,7 @@ const router = createBrowserRouter([
       { path: 'clubs/:id', element: <ClubDetailPage /> },
       { path: 'tournaments', element: <TournamentsPage /> },
       { path: 'tournaments/new', element: <TournamentFormPage /> },
+      { path: 'tournaments/friendlies', element: <FriendliesDetailPage /> },
       { path: 'tournaments/:id/edit', element: <TournamentFormPage /> },
       { path: 'tournaments/:id', element: <TournamentDetailPage /> },
       {
