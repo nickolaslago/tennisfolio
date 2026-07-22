@@ -7,8 +7,7 @@ import { SettingsSectionMenu } from '@/pages/settings/settings-section-menu'
  * `/settings` itself. On desktop the section menu is always visible in
  * `SettingsLayout`, so landing here just redirects into the first section.
  * On mobile — where that menu is hidden — this renders the section list
- * instead, matching the "menu of sections" drill-down from the Wealthfolio
- * reference.
+ * instead as a "menu of sections" drill-down.
  */
 export function SettingsIndexPage() {
   const isDesktop = useMediaQuery('(min-width: 768px)')
