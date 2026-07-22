@@ -415,6 +415,11 @@
     "filterPlaceholder": "Filtrar torneios…",
     "addTournament": "Adicionar torneio",
     "addFirstTournament": "Adicione seu primeiro torneio",
+    "friendlies": {
+      "name": "Amistosos",
+      "cardDescription": "Partidas amistosas jogadas sem torneio.",
+      "detailDescription": "Suas partidas amistosas — jogadas sem torneio."
+    },
     "filters": {
       "statusLabel": "Status",
       "statusUpcoming": "Futuro",

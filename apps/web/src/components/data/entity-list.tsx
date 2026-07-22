@@ -94,6 +94,12 @@ export interface EntityListProps<T extends EntityRow> {
   entityKey: string
 
   items: T[]
+  /**
+   * Rows rendered first and exempt from search, sort, and the empty state — for
+   * virtual entries that must always be visible (e.g. a pinned "Friendlies" row).
+   * They still flow through `columns`, `renderCard`, and `rowActions`.
+   */
+  pinnedItems?: T[]
   isPending: boolean
   isError?: boolean
   error?: unknown
@@ -344,6 +350,7 @@ function FilterChips({ fields, values, onRemove }: Omit<EntityListFilters, 'onCh
 export function EntityList<T extends EntityRow>({
   entityKey,
   items,
+  pinnedItems = [],
   isPending,
   isError,
   error,
@@ -390,10 +397,12 @@ export function EntityList<T extends EntityRow>({
     })
   }
 
+  const rows = [...pinnedItems, ...sorted]
+
   if (isPending) return <LoadingState />
   if (isError) return <ErrorState error={error} onRetry={onRetry} />
 
-  if (items.length === 0) {
+  if (items.length === 0 && pinnedItems.length === 0) {
     return (
       <EmptyState
         title={emptyTitle}
@@ -455,7 +464,7 @@ export function EntityList<T extends EntityRow>({
         </div>
       </div>
 
-      {sorted.length === 0 ? (
+      {rows.length === 0 ? (
         <p className="py-8 text-center text-sm text-muted-foreground">
           {t('common.entityList.noMatchesFor', { query })}
         </p>
@@ -503,7 +512,7 @@ export function EntityList<T extends EntityRow>({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sorted.map((item) => (
+                {rows.map((item) => (
                   <TableRow key={item.id}>
                     {columns.map((column) => (
                       <TableCell key={column.id} className={column.className}>
@@ -521,7 +530,7 @@ export function EntityList<T extends EntityRow>({
         </Card>
       ) : (
         <div className={cn(cardGridClassName ?? DEFAULT_CARD_GRID)}>
-          {sorted.map((item) => (
+          {rows.map((item) => (
             <div key={item.id}>{renderCard(item)}</div>
           ))}
         </div>

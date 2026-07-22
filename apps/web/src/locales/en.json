@@ -415,6 +415,11 @@
     "filterPlaceholder": "Filter tournaments…",
     "addTournament": "Add tournament",
     "addFirstTournament": "Add your first tournament",
+    "friendlies": {
+      "name": "Friendlies",
+      "cardDescription": "Friendly matches played with no tournament.",
+      "detailDescription": "Your friendly matches — played with no tournament."
+    },
     "filters": {
       "statusLabel": "Status",
       "statusUpcoming": "Upcoming",
