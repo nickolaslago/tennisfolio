@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/glass/card'
 import { PreferenceCard, PreferenceCardGroup } from '@/components/settings/preference-card'
 import { ThemePreviewCard } from '@/components/settings/theme-preview-card'
 import { Label } from '@/components/ui/label'
+import { useAccent, type Accent } from '@/hooks/use-accent'
 import { useFont, type Font } from '@/hooks/use-font'
 import { useTheme, type Theme } from '@/hooks/use-theme'
 import { cn } from '@/lib/utils'
@@ -21,10 +22,21 @@ const FONT_OPTIONS: { value: Font; labelKey: string; fontClass: string }[] = [
   { value: 'mono', labelKey: 'settings.appearance.fontMono', fontClass: 'font-option-mono' },
 ]
 
+const ACCENT_OPTIONS: { value: Accent; labelKey: string; swatchClass: string }[] = [
+  { value: 'clay', labelKey: 'settings.appearance.accentClay', swatchClass: 'accent-swatch-clay' },
+  {
+    value: 'grass',
+    labelKey: 'settings.appearance.accentGrass',
+    swatchClass: 'accent-swatch-grass',
+  },
+  { value: 'hard', labelKey: 'settings.appearance.accentHard', swatchClass: 'accent-swatch-hard' },
+]
+
 export function AppearanceSettingsPage() {
   const { t } = useTranslation()
   const { theme, setTheme } = useTheme()
   const { font, setFont } = useFont()
+  const { accent, setAccent } = useAccent()
 
   return (
     <SettingsSection
@@ -86,6 +98,33 @@ export function AppearanceSettingsPage() {
                   theme={option.value}
                   title={t(option.labelKey)}
                 />
+              ))}
+            </PreferenceCardGroup>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <div>
+              <Label id="settings-accent-label">{t('settings.appearance.accent')}</Label>
+              <p className="text-sm text-muted-foreground">
+                {t('settings.appearance.accentDescription')}
+              </p>
+            </div>
+            <PreferenceCardGroup
+              aria-labelledby="settings-accent-label"
+              value={accent}
+              onValueChange={(value) => setAccent(value as Accent)}
+            >
+              {ACCENT_OPTIONS.map((option) => (
+                <PreferenceCard
+                  key={option.value}
+                  value={option.value}
+                  title={t(option.labelKey)}
+                  className="h-20"
+                >
+                  <span
+                    className={cn('accent-swatch block h-full w-full', option.swatchClass)}
+                  />
+                </PreferenceCard>
               ))}
             </PreferenceCardGroup>
           </div>

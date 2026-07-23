@@ -522,7 +522,7 @@
     "appearance": {
       "title": "Appearance",
       "description": "Choose how Tennisfolio looks on this device.",
-      "menuDescription": "Theme and font family",
+      "menuDescription": "Theme, accent colour and font family",
       "theme": "Theme",
       "themeDescription": "Select your preferred theme for the application.",
       "themeLight": "Light",
@@ -533,7 +533,12 @@
       "fontSans": "Instrument Sans",
       "fontSerif": "Instrument Serif",
       "fontMono": "Ubuntu Mono",
-      "fontPreview": "The quick brown fox jumps over the lazy net — 0123456789"
+      "fontPreview": "The quick brown fox jumps over the lazy net — 0123456789",
+      "accent": "Accent colour",
+      "accentDescription": "Pick a tennis-court surface to colour buttons, links and highlights.",
+      "accentClay": "Clay",
+      "accentGrass": "Grass",
+      "accentHard": "Hard"
     },
     "backupExport": {
       "title": "Backup & Export",

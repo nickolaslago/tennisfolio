@@ -317,6 +317,86 @@
   --highlight-foreground: var(--rg-slate-900);
 }
 
+/* ── Accent preference — tier-2 re-point ───────────────────────────────────
+   accent-provider.tsx stamps data-accent on <html> (tennis-court surfaces:
+   clay · grass · hard). Each accent re-points only the accent-driven tier-2
+   tokens — the ones that carry the brand hue through the UI:
+
+     --primary / --sidebar-primary   primary buttons, links, active nav, skip link
+     --ring / --sidebar-ring         focus rings
+     --accent / --sidebar-accent     hover surfaces (menus, sidebar rows)
+     --highlight                     call-outs / list bullets
+
+   Clay is the default: no attribute (or data-accent="clay") keeps the
+   :root / .dark values above, exactly like the sans font default — so only
+   grass and hard need override blocks. Grass and Hard are derived from Clay
+   in oklch, holding each token's lightness (and thus its contrast against its
+   foreground) constant and rotating the hue to green (~150) / blue (~250);
+   only --primary is given real chroma, since Clay's primary is a near-neutral
+   navy. Light blocks come first so the .dark blocks (equal specificity) win
+   in dark mode. */
+:root[data-accent='grass'] {
+  --primary: oklch(0.32 0.09 152);
+  --accent: oklch(0.916 0.025 150);
+  --ring: oklch(0.684 0.152 150);
+  --highlight: oklch(0.684 0.152 150);
+  --sidebar-primary: oklch(0.32 0.09 152);
+  --sidebar-accent: oklch(0.916 0.025 150);
+  --sidebar-ring: oklch(0.684 0.152 150);
+}
+
+:root[data-accent='hard'] {
+  --primary: oklch(0.32 0.11 252);
+  --accent: oklch(0.916 0.025 250);
+  --ring: oklch(0.684 0.13 250);
+  --highlight: oklch(0.684 0.13 250);
+  --sidebar-primary: oklch(0.32 0.11 252);
+  --sidebar-accent: oklch(0.916 0.025 250);
+  --sidebar-ring: oklch(0.684 0.13 250);
+}
+
+.dark[data-accent='grass'] {
+  --primary: oklch(0.8 0.15 150);
+  --accent: oklch(0.291 0.033 150);
+  --ring: oklch(0.684 0.152 150);
+  --highlight: oklch(0.684 0.152 150);
+  --sidebar-primary: oklch(0.8 0.15 150);
+  --sidebar-accent: oklch(0.33 0.033 150);
+  --sidebar-ring: oklch(0.684 0.152 150);
+}
+
+.dark[data-accent='hard'] {
+  --primary: oklch(0.78 0.13 250);
+  --accent: oklch(0.291 0.033 250);
+  --ring: oklch(0.684 0.13 250);
+  --highlight: oklch(0.684 0.13 250);
+  --sidebar-primary: oklch(0.78 0.13 250);
+  --sidebar-accent: oklch(0.33 0.033 250);
+  --sidebar-ring: oklch(0.684 0.13 250);
+}
+
+/* ── Accent swatch previews (tier 3) ───────────────────────────────────────
+   The Appearance picker renders one swatch per accent. Each class carries the
+   accent's two signature hues — its ring/highlight (the distinguishing court
+   surface colour) and its primary — as a diagonal wash, mirroring the oklch
+   values in the data-accent blocks above so the swatch stays in sync with the
+   live theme without re-pointing the app-wide tokens. */
+.accent-swatch {
+  background-image: linear-gradient(135deg, var(--swatch) 0%, var(--swatch-2) 100%);
+}
+.accent-swatch-clay {
+  --swatch: var(--rg-ochre);
+  --swatch-2: var(--rg-slate);
+}
+.accent-swatch-grass {
+  --swatch: oklch(0.684 0.152 150);
+  --swatch-2: oklch(0.32 0.09 152);
+}
+.accent-swatch-hard {
+  --swatch: oklch(0.684 0.13 250);
+  --swatch-2: oklch(0.32 0.11 252);
+}
+
 /* ── Liquid Glass utilities (tier 3) ───────────────────────────────────────
    `.glass` carries the non-colour half of the treatment: backdrop-blur with a
    saturation boost, and a 1px inner top sheen. Colour comes from the
