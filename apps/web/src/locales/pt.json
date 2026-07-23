@@ -522,7 +522,7 @@
     "appearance": {
       "title": "Aparência",
       "description": "Escolha a aparência do Tennisfolio neste dispositivo.",
-      "menuDescription": "Tema e família da fonte",
+      "menuDescription": "Tema, cor de destaque e família da fonte",
       "theme": "Tema",
       "themeDescription": "Selecione o tema preferido para o aplicativo.",
       "themeLight": "Claro",
@@ -533,7 +533,12 @@
       "fontSans": "Instrument Sans",
       "fontSerif": "Instrument Serif",
       "fontMono": "Ubuntu Mono",
-      "fontPreview": "Um pequeno jabuti xereta viu dez cegonhas felizes — 0123456789"
+      "fontPreview": "Um pequeno jabuti xereta viu dez cegonhas felizes — 0123456789",
+      "accent": "Cor de destaque",
+      "accentDescription": "Escolha uma superfície de quadra para colorir botões, links e destaques.",
+      "accentClay": "Saibro",
+      "accentGrass": "Grama",
+      "accentHard": "Dura"
     },
     "backupExport": {
       "title": "Backup e exportação",
