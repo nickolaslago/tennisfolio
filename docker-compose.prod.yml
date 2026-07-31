@@ -17,8 +17,7 @@ services:
       retries: 10
 
   api:
-    build:
-      context: ./apps/api
+    image: ghcr.io/nickolaslago/tennisfolio-api:${TENNISFOLIO_VERSION:-latest}
     restart: unless-stopped
     depends_on:
       db:
@@ -34,9 +33,7 @@ services:
       retries: 10
 
   web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
+    image: ghcr.io/nickolaslago/tennisfolio-web:${TENNISFOLIO_VERSION:-latest}
     restart: unless-stopped
     depends_on:
       api:
