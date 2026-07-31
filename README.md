@@ -71,7 +71,8 @@ cd apps/web && pnpm install && pnpm dev
 
 ### Or with Docker
 
-`docker compose up` builds and runs the whole stack — Postgres, the API and the web app — each in its own container:
+For local development, `docker compose up` builds and runs the whole stack — Postgres, the API
+and the web app — each in its own container, from source:
 
 ```sh
 docker compose up
@@ -79,6 +80,36 @@ docker compose up
 
 - Web: http://localhost:3000
 - API: http://localhost:8000/docs
+
+#### One-command install (prebuilt images)
+
+For a quick install that doesn't build from source, `docker-compose.prod.yml` pulls prebuilt,
+multi-arch (amd64 + arm64) images published to GHCR on every tagged release:
+
+```sh
+curl -O https://raw.githubusercontent.com/nickolaslago/tennisfolio/main/docker-compose.prod.yml
+docker compose -f docker-compose.prod.yml up -d
+```
+
+- Web: http://localhost:3000
+- API: http://localhost:8000/docs
+
+Both compose files read the same environment variables (see `.env.example`):
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `POSTGRES_USER` | `tennisfolio` | Postgres role used by the `db` service |
+| `POSTGRES_PASSWORD` | `tennisfolio` | Postgres password — change this for anything beyond local use |
+| `POSTGRES_DB` | `tennisfolio` | Database name |
+| `POSTGRES_PORT` | `5432` | Host port mapped to Postgres |
+| `TENNISFOLIO_DATABASE_URL` | derived from the vars above | Full DB URL the API connects with; override to point at an external Postgres instance |
+| `API_PORT` | `8000` | Host port mapped to the API |
+| `WEB_PORT` | `3000` | Host port mapped to the web app |
+| `TENNISFOLIO_VERSION` | `latest` | Image tag to pull in `docker-compose.prod.yml` — pin to a semver tag (e.g. `v0.3.0`) for reproducible upgrades |
+
+Match data lives in the `pgdata` named volume (mounted at `/var/lib/postgresql/data` in the `db`
+container) — back it up with `docker run --rm -v tennisfolio_pgdata:/data -v $PWD:/backup alpine tar czf /backup/pgdata.tar.gz /data`,
+or point `TENNISFOLIO_DATABASE_URL` at your own externally-managed Postgres instance instead.
 
 ## Roadmap
 
