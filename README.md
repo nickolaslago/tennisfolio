@@ -2,6 +2,16 @@
 
 *An open-source, local-first tennis performance tracker. Your matches, your data, on your device.*
 
+[![Release](https://img.shields.io/github/v/release/nickolaslago/tennisfolio?include_prereleases&sort=semver)](https://github.com/nickolaslago/tennisfolio/releases)
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue)](./LICENSE)
+
+**[Landing page](https://nickolaslago.github.io/tennisfolio/)** · **[Install](#one-command-install-prebuilt-images)** · **[Changelog](./CHANGELOG.md)**
+
+> **Status: Alpha (`v0.1.0-alpha`).** The folio core, stats dashboard and
+> self-hosted install are all usable day-to-day. It's local-first and
+> single-device by design — no account, no cloud, no sync. See the
+> [changelog](./CHANGELOG.md) for what's included and the known limitations.
+
 ## What we're building
 
 Tennisfolio is an open-source app for recording and analysing your own tennis matches. You log opponents, clubs, tournaments, matches and sets; the app derives results, streaks and win-rates and shows them back to you. No account, no cloud, no third-party analytics, no subscription — the database is a single local file you own, or a Postgres instance running in your own Docker container.
@@ -88,7 +98,8 @@ multi-arch (amd64 + arm64) images published to GHCR on every tagged release:
 
 ```sh
 curl -O https://raw.githubusercontent.com/nickolaslago/tennisfolio/main/docker-compose.prod.yml
-docker compose -f docker-compose.prod.yml up -d
+# pin to a release for reproducible installs (omit to track `latest`)
+TENNISFOLIO_VERSION=v0.1.0-alpha docker compose -f docker-compose.prod.yml up -d
 ```
 
 - Web: http://localhost:3000
