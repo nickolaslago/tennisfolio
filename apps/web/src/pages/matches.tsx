@@ -130,6 +130,17 @@ export function MatchesPage() {
 
   const matches = useMatches(matchParams)
 
+  // The status tab and filter fields are applied server-side, so an empty
+  // response here means "filtered to zero", not "no matches logged". Ignore the
+  // client-side search query — EntityList handles that on its own.
+  const isFiltered = status !== null || FILTER_FIELD_IDS.some((id) => Boolean(filterValues[id]))
+  const noResultsMessage =
+    status === 'scheduled'
+      ? t('matches.noResults.scheduled')
+      : status === 'played'
+        ? t('matches.noResults.played')
+        : undefined
+
   const opponentsById = useMemo(
     () => new Map((opponents.data?.items ?? []).map((o) => [o.id, o])),
     [opponents.data],
@@ -318,6 +329,8 @@ export function MatchesPage() {
           onChange: setFilterValue,
           onRemove: removeValue,
         }}
+        isFiltered={isFiltered}
+        noResultsMessage={noResultsMessage}
         defaultSort={{ columnId: 'date', direction: 'desc' }}
         emptyTitle={t('matches.emptyState.title')}
         emptyDescription={t('matches.emptyState.description')}

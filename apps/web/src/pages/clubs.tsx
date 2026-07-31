@@ -187,6 +187,7 @@ export function ClubsPage() {
           onChange: setFilterValue,
           onRemove: removeValue,
         }}
+        isFiltered={FILTER_FIELD_IDS.some((id) => Boolean(filterValues[id]))}
         defaultSort={{ columnId: 'name', direction: 'asc' }}
         emptyTitle={t('clubs.emptyState.title')}
         emptyDescription={t('clubs.emptyState.description')}

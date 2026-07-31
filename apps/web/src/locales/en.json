@@ -33,6 +33,7 @@
       "cardView": "Card view",
       "viewModeLabel": "View mode",
       "noMatchesFor": "No matches for “{{query}}”.",
+      "noResultsForFilters": "No results for the selected filters.",
       "sortBy": "Sort by {{header}}",
       "filters": {
         "button": "Filters",
@@ -137,6 +138,10 @@
       "all": "All",
       "played": "Played",
       "scheduled": "Scheduled"
+    },
+    "noResults": {
+      "scheduled": "No scheduled matches.",
+      "played": "No played matches."
     },
     "columns": {
       "date": "Date",
