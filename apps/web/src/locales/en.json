@@ -510,6 +510,7 @@
     "pageTitle": "Settings",
     "pageDescription": "Manage how Tennisfolio looks and behaves, and back up your data.",
     "sectionNavLabel": "Settings sections",
+    "backToSettings": "Back to Settings",
     "general": {
       "title": "General",
       "description": "Regional preferences for dates and the app's language.",

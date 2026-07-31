@@ -510,6 +510,7 @@
     "pageTitle": "Configurações",
     "pageDescription": "Gerencie a aparência e o comportamento do Tennisfolio, e faça backup dos seus dados.",
     "sectionNavLabel": "Seções de configurações",
+    "backToSettings": "Voltar para Configurações",
     "general": {
       "title": "Geral",
       "description": "Preferências regionais para datas e o idioma do aplicativo.",
