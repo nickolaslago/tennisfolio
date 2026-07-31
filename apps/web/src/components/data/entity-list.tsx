@@ -123,6 +123,15 @@ export interface EntityListProps<T extends EntityRow> {
   /** Page-specific controls (e.g. a status toggle) rendered inline in the toolbar. */
   toolbarExtra?: ReactNode
 
+  /**
+   * True when server-side filters/tabs are narrowing `items`, so an empty result
+   * means "filtered to zero", not "no data at all". Keeps the toolbar visible and
+   * shows an inline "no results" message instead of the first-run empty state.
+   */
+  isFiltered?: boolean
+  /** Overrides the inline "no results" copy shown when `isFiltered` empties the list. */
+  noResultsMessage?: string
+
   emptyTitle: string
   emptyDescription?: string
   createAction?: CreateAction
@@ -362,6 +371,8 @@ export function EntityList<T extends EntityRow>({
   searchPlaceholder,
   filters,
   toolbarExtra,
+  isFiltered = false,
+  noResultsMessage,
   emptyTitle,
   emptyDescription,
   createAction,
@@ -402,7 +413,10 @@ export function EntityList<T extends EntityRow>({
   if (isPending) return <LoadingState />
   if (isError) return <ErrorState error={error} onRetry={onRetry} />
 
-  if (items.length === 0 && pinnedItems.length === 0) {
+  // Only the genuine first-run case (no data and no active filters) gets the
+  // full-page empty state. When filters are active, fall through so the toolbar
+  // stays visible and the user can clear them — see the `rows.length === 0` branch.
+  if (items.length === 0 && pinnedItems.length === 0 && !isFiltered) {
     return (
       <EmptyState
         title={emptyTitle}
@@ -466,7 +480,9 @@ export function EntityList<T extends EntityRow>({
 
       {rows.length === 0 ? (
         <p className="py-8 text-center text-sm text-muted-foreground">
-          {t('common.entityList.noMatchesFor', { query })}
+          {query
+            ? t('common.entityList.noMatchesFor', { query })
+            : (noResultsMessage ?? t('common.entityList.noResultsForFilters'))}
         </p>
       ) : view === 'table' ? (
         <Card>

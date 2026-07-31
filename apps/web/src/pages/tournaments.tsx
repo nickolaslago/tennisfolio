@@ -237,6 +237,10 @@ export function TournamentsPage() {
           onChange: setFilterValue,
           onRemove: removeValue,
         }}
+        // `club_id` narrows the list server-side; `status` is applied client-side
+        // above. The pinned Friendlies row keeps the list non-empty regardless,
+        // but pass this for consistency with the other list pages.
+        isFiltered={Boolean(filterValues.club_id)}
         defaultSort={{ columnId: 'name', direction: 'asc' }}
         emptyTitle={translate('tournaments.emptyState.title')}
         emptyDescription={translate('tournaments.emptyState.description')}

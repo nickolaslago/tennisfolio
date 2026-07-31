@@ -33,6 +33,7 @@
       "cardView": "Visualização em cartões",
       "viewModeLabel": "Modo de visualização",
       "noMatchesFor": "Nenhum resultado para “{{query}}”.",
+      "noResultsForFilters": "Nenhum resultado para os filtros selecionados.",
       "sortBy": "Ordenar por {{header}}",
       "filters": {
         "button": "Filtros",
@@ -137,6 +138,10 @@
       "all": "Todas",
       "played": "Jogadas",
       "scheduled": "Agendadas"
+    },
+    "noResults": {
+      "scheduled": "Nenhuma partida agendada.",
+      "played": "Nenhuma partida jogada."
     },
     "columns": {
       "date": "Data",

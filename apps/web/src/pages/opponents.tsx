@@ -162,6 +162,7 @@ export function OpponentsPage() {
           onChange: setFilterValue,
           onRemove: removeValue,
         }}
+        isFiltered={FILTER_FIELD_IDS.some((id) => Boolean(filterValues[id]))}
         defaultSort={{ columnId: 'name', direction: 'asc' }}
         emptyTitle={t('opponents.emptyState.title')}
         emptyDescription={t('opponents.emptyState.description')}
