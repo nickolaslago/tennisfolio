@@ -23,13 +23,13 @@ const FONT_OPTIONS: { value: Font; labelKey: string; fontClass: string }[] = [
 ]
 
 const ACCENT_OPTIONS: { value: Accent; labelKey: string; swatchClass: string }[] = [
-  { value: 'clay', labelKey: 'settings.appearance.accentClay', swatchClass: 'accent-swatch-clay' },
+  { value: 'clay', labelKey: 'settings.appearance.accentClay', swatchClass: 'court-swatch-clay' },
   {
     value: 'grass',
     labelKey: 'settings.appearance.accentGrass',
-    swatchClass: 'accent-swatch-grass',
+    swatchClass: 'court-swatch-grass',
   },
-  { value: 'hard', labelKey: 'settings.appearance.accentHard', swatchClass: 'accent-swatch-hard' },
+  { value: 'hard', labelKey: 'settings.appearance.accentHard', swatchClass: 'court-swatch-hard' },
 ]
 
 export function AppearanceSettingsPage() {
@@ -122,7 +122,7 @@ export function AppearanceSettingsPage() {
                   className="h-20"
                 >
                   <span
-                    className={cn('accent-swatch block h-full w-full', option.swatchClass)}
+                    className={cn('court-swatch block h-full w-full', option.swatchClass)}
                   />
                 </PreferenceCard>
               ))}

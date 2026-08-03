@@ -142,18 +142,18 @@
   --card-foreground: var(--rg-slate);
   --popover: var(--glass-surface);
   --popover-foreground: var(--rg-slate);
-  --primary: var(--rg-slate); /* primary buttons — Dark Slate/Navy (per spec) */
+  --primary: oklch(0.32 0.1 33); /* primary buttons — Clay Terracotta (clay accent default) */
   --primary-foreground: var(--rg-baseline);
   --secondary: var(--rg-court); /* secondary buttons — Classic Court Green */
   --secondary-foreground: var(--rg-baseline);
   --muted: #e4e7e9; /* soft cool grey — tab list, table zebra/hover */
   --muted-foreground: #55636d; /* secondary text / placeholders (AA on bg) */
-  --accent: #f3ded7; /* soft clay wash — subtle hover surface (menus) */
+  --accent: oklch(0.916 0.025 33); /* soft clay wash — subtle hover surface (menus) */
   --accent-foreground: var(--rg-slate);
   --destructive: var(--rg-clay); /* destructive actions — Clay Terracotta */
   --border: #d3d8db; /* light slate tint (see note in PR/report) */
   --input: #d3d8db;
-  --ring: var(--rg-ochre); /* focus ring — Suntan Ochre */
+  --ring: oklch(0.684 0.152 33); /* focus ring — Clay Terracotta */
   --chart-1: var(--rg-clay);
   --chart-2: var(--rg-court);
   --chart-3: var(--rg-ochre);
@@ -169,8 +169,8 @@
   --win-foreground: var(--rg-baseline);
   --loss: var(--rg-clay); /* a lost match / set  → Clay Terracotta */
   --loss-foreground: var(--rg-baseline);
-  --highlight: var(--rg-ochre); /* light accent / call-outs → Suntan Ochre */
-  --highlight-foreground: var(--rg-slate); /* dark text — AA on ochre */
+  --highlight: oklch(0.684 0.152 33); /* light accent / call-outs → Clay Terracotta (clay accent default) */
+  --highlight-foreground: var(--rg-slate); /* dark text — AA on clay */
 
   /* ── Tier 2 · Semantic tokens — Liquid Glass surface treatment ─────────
        Raised surfaces (cards, popovers, menus, dialogs, sidebar, mobile tab
@@ -212,12 +212,12 @@
        Kept for shadcn compatibility, themed to match. */
   --sidebar: var(--glass-surface);
   --sidebar-foreground: var(--rg-slate);
-  --sidebar-primary: var(--rg-slate);
+  --sidebar-primary: oklch(0.32 0.1 33);
   --sidebar-primary-foreground: var(--rg-baseline);
-  --sidebar-accent: #f3ded7;
+  --sidebar-accent: oklch(0.916 0.025 33);
   --sidebar-accent-foreground: var(--rg-slate);
   --sidebar-border: var(--glass-border);
-  --sidebar-ring: var(--rg-ochre);
+  --sidebar-ring: oklch(0.684 0.152 33);
 }
 
 /* ── Font preference — tier-2 re-point ─────────────────────────────────────
@@ -254,18 +254,18 @@
   --card-foreground: var(--rg-baseline);
   --popover: var(--glass-surface);
   --popover-foreground: var(--rg-baseline);
-  --primary: var(--rg-baseline);
+  --primary: oklch(0.78 0.13 33); /* Clay Terracotta, brightened for dark bg (clay accent default) */
   --primary-foreground: var(--rg-slate-900);
   --secondary: var(--rg-court-bright);
   --secondary-foreground: #0b140f;
   --muted: var(--rg-slate-800);
   --muted-foreground: #9aa7ad;
-  --accent: #3a2620; /* dark clay wash — subtle hover surface (menus) */
+  --accent: oklch(0.291 0.033 33); /* dark clay wash — subtle hover surface (menus) */
   --accent-foreground: var(--rg-baseline);
   --destructive: var(--rg-clay-bright);
   --border: var(--rg-slate-700);
   --input: var(--rg-slate-700);
-  --ring: var(--rg-ochre);
+  --ring: oklch(0.684 0.152 33);
   --chart-1: var(--rg-clay-bright);
   --chart-2: var(--rg-court-bright);
   --chart-3: var(--rg-ochre);
@@ -299,12 +299,12 @@
   /* sidebar (tier 2, dark re-point) */
   --sidebar: var(--glass-surface);
   --sidebar-foreground: var(--rg-baseline);
-  --sidebar-primary: var(--rg-baseline);
+  --sidebar-primary: oklch(0.78 0.13 33);
   --sidebar-primary-foreground: var(--rg-slate-900);
-  --sidebar-accent: var(--rg-slate-800);
+  --sidebar-accent: oklch(0.33 0.033 33);
   --sidebar-accent-foreground: var(--rg-baseline);
   --sidebar-border: var(--glass-border);
-  --sidebar-ring: var(--rg-ochre);
+  --sidebar-ring: oklch(0.684 0.152 33);
 
   /* brand tokens (tier 2, dark re-point) */
   --surface: var(--rg-slate-950);
@@ -313,7 +313,7 @@
   --win-foreground: #0b140f;
   --loss: var(--rg-clay-bright);
   --loss-foreground: #1a0b08;
-  --highlight: var(--rg-ochre);
+  --highlight: oklch(0.684 0.152 33);
   --highlight-foreground: var(--rg-slate-900);
 }
 
@@ -327,14 +327,25 @@
      --accent / --sidebar-accent     hover surfaces (menus, sidebar rows)
      --highlight                     call-outs / list bullets
 
-   Clay is the default: no attribute (or data-accent="clay") keeps the
-   :root / .dark values above, exactly like the sans font default — so only
-   grass and hard need override blocks. Grass and Hard are derived from Clay
-   in oklch, holding each token's lightness (and thus its contrast against its
-   foreground) constant and rotating the hue to green (~150) / blue (~250);
-   only --primary is given real chroma, since Clay's primary is a near-neutral
-   navy. Light blocks come first so the .dark blocks (equal specificity) win
-   in dark mode. */
+   Clay is the default: no attribute (or data-accent="clay") renders the same
+   clay/terracotta hue (~33), exactly like the sans font default — the
+   :root / .dark values above already carry it, and the explicit
+   [data-accent='clay'] blocks below restate the same values so the attribute
+   form matches the no-attribute default exactly. Grass and Hard are derived
+   from Clay in oklch, holding each token's lightness (and thus its contrast
+   against its foreground) constant and rotating the hue to green (~150) /
+   blue (~250). Light blocks come first so the .dark blocks (equal
+   specificity) win in dark mode. */
+:root[data-accent='clay'] {
+  --primary: oklch(0.32 0.1 33);
+  --accent: oklch(0.916 0.025 33);
+  --ring: oklch(0.684 0.152 33);
+  --highlight: oklch(0.684 0.152 33);
+  --sidebar-primary: oklch(0.32 0.1 33);
+  --sidebar-accent: oklch(0.916 0.025 33);
+  --sidebar-ring: oklch(0.684 0.152 33);
+}
+
 :root[data-accent='grass'] {
   --primary: oklch(0.32 0.09 152);
   --accent: oklch(0.916 0.025 150);
@@ -353,6 +364,16 @@
   --sidebar-primary: oklch(0.32 0.11 252);
   --sidebar-accent: oklch(0.916 0.025 250);
   --sidebar-ring: oklch(0.684 0.13 250);
+}
+
+.dark[data-accent='clay'] {
+  --primary: oklch(0.78 0.13 33);
+  --accent: oklch(0.291 0.033 33);
+  --ring: oklch(0.684 0.152 33);
+  --highlight: oklch(0.684 0.152 33);
+  --sidebar-primary: oklch(0.78 0.13 33);
+  --sidebar-accent: oklch(0.33 0.033 33);
+  --sidebar-ring: oklch(0.684 0.152 33);
 }
 
 .dark[data-accent='grass'] {
@@ -380,19 +401,25 @@
    accent's two signature hues — its ring/highlight (the distinguishing court
    surface colour) and its primary — as a diagonal wash, mirroring the oklch
    values in the data-accent blocks above so the swatch stays in sync with the
-   live theme without re-pointing the app-wide tokens. */
-.accent-swatch {
+   live theme without re-pointing the app-wide tokens.
+
+   Named `court-swatch*` rather than `accent-swatch*`: Tailwind v4 ships an
+   `accent-<color>` utility (for the CSS `accent-color` property), so a
+   `accent-swatch`/`accent-swatch-clay` pair gets parsed by tailwind-merge as
+   two conflicting values of that group — `cn()` silently drops the base
+   class, leaving the swatch blank. `court-swatch` doesn't collide. */
+.court-swatch {
   background-image: linear-gradient(135deg, var(--swatch) 0%, var(--swatch-2) 100%);
 }
-.accent-swatch-clay {
-  --swatch: var(--rg-ochre);
-  --swatch-2: var(--rg-slate);
+.court-swatch-clay {
+  --swatch: oklch(0.684 0.152 33);
+  --swatch-2: oklch(0.32 0.1 33);
 }
-.accent-swatch-grass {
+.court-swatch-grass {
   --swatch: oklch(0.684 0.152 150);
   --swatch-2: oklch(0.32 0.09 152);
 }
-.accent-swatch-hard {
+.court-swatch-hard {
   --swatch: oklch(0.684 0.13 250);
   --swatch-2: oklch(0.32 0.11 252);
 }
