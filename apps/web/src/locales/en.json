@@ -53,7 +53,14 @@
     "opponents": "Opponents",
     "clubs": "Clubs",
     "tournaments": "Tournaments",
-    "settings": "Settings"
+    "settings": "Settings",
+    "quickCreate": {
+      "label": "Create",
+      "newMatch": "New match",
+      "newOpponent": "New opponent",
+      "newClub": "New club",
+      "newTournament": "New tournament"
+    }
   },
   "notFound": {
     "title": "Page not found",
