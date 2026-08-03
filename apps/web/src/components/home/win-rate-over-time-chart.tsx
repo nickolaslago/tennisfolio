@@ -106,7 +106,7 @@ export function WinRateOverTimeChart({ data }: WinRateOverTimeChartProps) {
                       matchesPlayedLabel={matchesPlayedLabel}
                     />
                   }
-                  cursor={{ stroke: 'var(--border)' }}
+                  cursor={{ stroke: 'var(--chart-grid)' }}
                 />
                 <Legend
                   verticalAlign="top"
@@ -120,7 +120,7 @@ export function WinRateOverTimeChart({ data }: WinRateOverTimeChartProps) {
                   yAxisId="matches"
                   dataKey="matches"
                   name={matchesPlayedLabel}
-                  fill="var(--muted-foreground)"
+                  fill="var(--chart-neutral)"
                   fillOpacity={0.18}
                   radius={[2, 2, 0, 0]}
                   maxBarSize={24}
@@ -130,10 +130,15 @@ export function WinRateOverTimeChart({ data }: WinRateOverTimeChartProps) {
                   type="monotone"
                   dataKey="win_rate"
                   name={winRateLabel}
-                  stroke="var(--win)"
+                  stroke="var(--chart-accent)"
                   strokeWidth={2}
-                  dot={{ r: 4, fill: 'var(--win)', stroke: 'var(--card)', strokeWidth: 2 }}
-                  activeDot={{ r: 5, fill: 'var(--win)', stroke: 'var(--card)', strokeWidth: 2 }}
+                  dot={{ r: 4, fill: 'var(--chart-accent)', stroke: 'var(--card)', strokeWidth: 2 }}
+                  activeDot={{
+                    r: 5,
+                    fill: 'var(--chart-accent)',
+                    stroke: 'var(--card)',
+                    strokeWidth: 2,
+                  }}
                 />
               </ComposedChart>
             </ResponsiveContainer>

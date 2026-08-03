@@ -4,9 +4,16 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Seeded with the light background; theme-color.ts replaces it with the
+         accent-tinted --theme-color token as soon as the providers mount. -->
+    <meta name="theme-color" content="#f1f3f4" />
     <title>Tennisfolio</title>
     <script>
-      // Applied before React mounts so the correct theme is there on first paint.
+      // Applied before React mounts so the correct theme and accent are there
+      // on first paint. The two colours below are the --background values for
+      // each theme (--rg-baseline / --rg-slate-950): a stand-in for the browser
+      // top bar until the stylesheet has loaded and theme-color.ts can read the
+      // real, accent-tinted token.
       ;(function () {
         try {
           var stored = localStorage.getItem('tennisfolio:theme')
@@ -14,6 +21,14 @@
             stored === 'dark' ||
             (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
           document.documentElement.classList.toggle('dark', dark)
+
+          var accent = localStorage.getItem('tennisfolio:accent')
+          if (accent === 'grass' || accent === 'hard') {
+            document.documentElement.dataset.accent = accent
+          }
+
+          var meta = document.querySelector('meta[name="theme-color"]')
+          if (meta) meta.content = dark ? '#101c24' : '#f1f3f4'
         } catch (e) {}
       })()
     </script>
