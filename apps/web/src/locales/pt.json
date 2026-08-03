@@ -53,7 +53,14 @@
     "opponents": "Adversários",
     "clubs": "Clubes",
     "tournaments": "Torneios",
-    "settings": "Configurações"
+    "settings": "Configurações",
+    "quickCreate": {
+      "label": "Criar",
+      "newMatch": "Nova partida",
+      "newOpponent": "Novo adversário",
+      "newClub": "Novo clube",
+      "newTournament": "Novo torneio"
+    }
   },
   "notFound": {
     "title": "Página não encontrada",
