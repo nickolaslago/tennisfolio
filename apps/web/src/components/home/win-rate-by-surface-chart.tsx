@@ -70,7 +70,7 @@ export function WinRateBySurfaceChart({ data }: WinRateBySurfaceChartProps) {
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={points} margin={{ top: 20, right: 12, left: 0, bottom: 0 }}>
-                <CartesianGrid vertical={false} stroke="var(--border)" />
+                <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
                 <XAxis
                   dataKey="surface"
                   tickLine={false}
@@ -103,7 +103,7 @@ export function WinRateBySurfaceChart({ data }: WinRateBySurfaceChartProps) {
                       matchesPlayedLabel={matchesPlayedLabel}
                     />
                   }
-                  cursor={{ fill: 'var(--border)', fillOpacity: 0.3 }}
+                  cursor={{ fill: 'var(--chart-grid)', fillOpacity: 0.3 }}
                 />
                 <Legend
                   verticalAlign="top"
@@ -117,7 +117,7 @@ export function WinRateBySurfaceChart({ data }: WinRateBySurfaceChartProps) {
                   yAxisId="winRate"
                   dataKey="win_rate"
                   name={winRateLabel}
-                  fill="var(--chart-2)"
+                  fill="var(--chart-accent)"
                   radius={[4, 4, 0, 0]}
                   maxBarSize={56}
                 >
@@ -133,7 +133,7 @@ export function WinRateBySurfaceChart({ data }: WinRateBySurfaceChartProps) {
                   yAxisId="matches"
                   dataKey="matches"
                   name={matchesPlayedLabel}
-                  fill="var(--muted-foreground)"
+                  fill="var(--chart-neutral)"
                   radius={[4, 4, 0, 0]}
                   maxBarSize={56}
                 >

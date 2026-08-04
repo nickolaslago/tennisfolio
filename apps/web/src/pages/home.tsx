@@ -71,6 +71,7 @@ export function HomePage() {
       <PageHeader
         title={t('home.pageTitle')}
         description={t('home.pageDescription')}
+        logoOnMobile
         action={
           <Button
             asChild

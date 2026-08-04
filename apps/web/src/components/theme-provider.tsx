@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 
 import { ThemeContext, type Theme } from '@/hooks/use-theme'
+import { syncThemeColor } from '@/lib/theme-color'
 
 const STORAGE_KEY = 'tennisfolio:theme'
 
@@ -23,6 +24,8 @@ function applyTheme(theme: Theme) {
     'dark',
     theme === 'dark' || (theme === 'system' && prefersDark()),
   )
+  // The browser's top bar tracks --theme-color, which .dark re-points.
+  syncThemeColor()
 }
 
 /** Applies the user's light/dark/system theme preference to the document and keeps it persisted. */

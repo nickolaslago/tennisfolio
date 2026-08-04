@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 
 import { AccentContext, type Accent } from '@/hooks/use-accent'
+import { syncThemeColor } from '@/lib/theme-color'
 
 const STORAGE_KEY = 'tennisfolio:accent'
 
@@ -15,14 +16,16 @@ function readStoredAccent(): Accent {
 }
 
 function applyAccent(accent: Accent) {
-  // index.css re-points the accent-driven tokens (--primary, --ring, --accent,
-  // --highlight, and their sidebar twins) off this attribute; the absence of
-  // the attribute means the clay default.
+  // index.css points the accent-driven tokens (--primary, --secondary, --ring,
+  // --accent, --highlight, --chart-accent, the ambient wash, the browser's top
+  // bar, and the sidebar twins) at the matching court ramp off this attribute;
+  // the absence of the attribute means the clay default.
   if (accent === 'clay') {
     delete document.documentElement.dataset.accent
   } else {
     document.documentElement.dataset.accent = accent
   }
+  syncThemeColor()
 }
 
 /** Applies the user's accent-colour preference to the document and keeps it persisted. */
