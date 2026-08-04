@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { BottomTabBar } from '@/components/layout/bottom-tab-bar'
+import { QuickCreateFab } from '@/components/layout/quick-create-fab'
 import { SidebarNav } from '@/components/layout/sidebar-nav'
 
 /**
@@ -34,6 +35,7 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
+      <QuickCreateFab />
       <BottomTabBar />
     </div>
   )
