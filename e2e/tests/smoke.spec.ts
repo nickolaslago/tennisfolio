@@ -23,6 +23,13 @@ test('opponent -> club -> match -> derived result -> view toggle', async ({ page
   await test.step('create a club', async () => {
     await page.goto('/clubs/new')
     await page.getByLabel('Name').fill(clubName)
+
+    // A club needs at least one complete (surface, environment) court to save.
+    await page.getByRole('combobox', { name: 'Surface' }).click()
+    await page.getByRole('option', { name: 'Clay' }).click()
+    await page.getByRole('combobox', { name: 'Environment' }).click()
+    await page.getByRole('option', { name: 'Outdoor' }).click()
+
     await page.getByRole('button', { name: 'Add club' }).click()
     await expect(page).toHaveURL(/\/clubs\/\d+$/)
     await expect(page.getByRole('heading', { name: clubName })).toBeVisible()
