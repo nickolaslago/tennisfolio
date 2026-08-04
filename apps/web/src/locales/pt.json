@@ -585,6 +585,20 @@
       "download": "Baixar JSON"
     }
   },
+  "import": {
+    "title": "Importar",
+    "description": "Restaure a partir de um arquivo de exportação do Tennisfolio (.json ou os CSVs compactados). Isso substitui tudo o que está atualmente no seu portfólio.",
+    "filePickerLabel": "Arquivo de exportação",
+    "importing": "Importando…",
+    "confirmTitle": "Substituir todos os dados?",
+    "confirmDescription": "Importar \"{{filename}}\" excluirá permanentemente todas as partidas, adversários, clubes e torneios que você tem atualmente, substituindo-os pelo conteúdo deste arquivo. Essa ação não pode ser desfeita.",
+    "confirmAction": "Substituir dados",
+    "successTitle": "Importação concluída",
+    "successSummary": "{{clubs}} clubes, {{opponents}} adversários, {{tournaments}} torneios, {{matches}} partidas, {{sets}} sets importados.",
+    "successSkipped_one": "{{count}} linha foi ignorada — não correspondia ao formato esperado.",
+    "successSkipped_other": "{{count}} linhas foram ignoradas — não correspondiam ao formato esperado.",
+    "importFailed": "Falha na importação."
+  },
   "dangerZone": {
     "deleteAllData": {
       "title": "Excluir todos os dados",
