@@ -141,7 +141,6 @@
   --court-clay-signature: var(--rg-ochre);
   --court-clay-surface: #f3ded7; /* soft clay wash */
   --court-clay-sidebar-surface: #f3ded7;
-  --court-clay-solid: var(--rg-court);
   --court-clay-chart: oklch(0.6 0.15 52);
   --court-clay-wash-1: var(--rg-ochre);
   --court-clay-wash-2: var(--rg-clay);
@@ -333,7 +332,6 @@
   --court-clay-signature: var(--rg-ochre);
   --court-clay-surface: #3a2620; /* dark clay wash */
   --court-clay-sidebar-surface: var(--rg-slate-800);
-  --court-clay-solid: var(--rg-court-bright);
   --court-clay-chart: oklch(0.76 0.14 62);
   --court-clay-wash-1: var(--rg-ochre);
   --court-clay-wash-2: var(--rg-clay-bright);
