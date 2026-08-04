@@ -6,6 +6,13 @@ onward the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+
+- Trusted release pipeline for the published Docker images: SLSA build provenance
+  (`mode=max`) and SPDX SBOM attestations, keyless cosign signing of every pushed digest
+  via GitHub OIDC, a Trivy scan that fails the release on fixable HIGH/CRITICAL CVEs, and
+  an opt-in Docker Hub mirror alongside GHCR. The README documents how to verify all of it.
+
 ## [0.1.0-alpha] — 2026-07-31
 
 The first public release of Tennisfolio — an open-source, local-first tennis

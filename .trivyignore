@@ -1,0 +1,12 @@
+# CVEs accepted for the published Tennisfolio images.
+#
+# The release workflow (.github/workflows/release.yml) fails on HIGH/CRITICAL
+# findings that have a fix available; unfixed CVEs are reported but don't block
+# a release. Add an entry here only when a fixable finding is genuinely not
+# exploitable for us, with a one-line reason and a link, e.g.
+#
+#   # CVE-2024-0000 — only reachable via the CLI entrypoint, which we don't ship.
+#   CVE-2024-0000
+#
+# Keep this file empty otherwise: an unexplained exception is a silent
+# regression in what we're telling users they can trust.

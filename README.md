@@ -122,6 +122,55 @@ Match data lives in the `pgdata` named volume (mounted at `/var/lib/postgresql/d
 container) — back it up with `docker run --rm -v tennisfolio_pgdata:/data -v $PWD:/backup alpine tar czf /backup/pgdata.tar.gz /data`,
 or point `TENNISFOLIO_DATABASE_URL` at your own externally-managed Postgres instance instead.
 
+#### Verifying what you pulled
+
+Every published image is built by [`.github/workflows/release.yml`](./.github/workflows/release.yml)
+on a `v*` tag, scanned for HIGH/CRITICAL CVEs, and then signed — so you can check that the
+image you're about to run really came from this repo and not from someone who pushed a tag
+that looks like ours. Nothing below needs an account or a key; substitute `tennisfolio-web` for
+the API image as needed.
+
+Releases are also mirrored to Docker Hub as `docker.io/nickolaslago/tennisfolio-{api,web}` —
+same tags, same digests, same signatures — so any reference below works against either
+registry. Swap the image in `docker-compose.prod.yml` if you'd rather pull from Hub.
+
+**Signature.** Images are signed with [cosign](https://docs.sigstore.dev/) keyless signing, so
+the certificate itself records which workflow, in which repo, at which ref did the signing —
+verify against that identity rather than a bare "is it signed" check:
+
+```sh
+cosign verify \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  --certificate-identity-regexp '^https://github\.com/nickolaslago/tennisfolio/\.github/workflows/release\.yml@refs/tags/v' \
+  ghcr.io/nickolaslago/tennisfolio-api:latest
+```
+
+**Provenance + SBOM.** Each manifest carries a [SLSA](https://slsa.dev/) build provenance
+attestation (`mode=max` — the full build definition, including the source commit and the
+Dockerfile that produced it) and an SPDX software bill of materials:
+
+```sh
+# what built it, from which commit
+docker buildx imagetools inspect ghcr.io/nickolaslago/tennisfolio-api:latest \
+  --format '{{ json .Provenance }}'
+
+# every package inside it
+docker buildx imagetools inspect ghcr.io/nickolaslago/tennisfolio-api:latest \
+  --format '{{ json .SBOM }}'
+```
+
+**Vulnerabilities.** The release job runs [Trivy](https://trivy.dev/) against the pushed
+digest and fails the release on fixable HIGH/CRITICAL findings, so a published tag has already
+passed the gate. To re-run the same scan yourself:
+
+```sh
+trivy image --severity CRITICAL,HIGH --ignore-unfixed ghcr.io/nickolaslago/tennisfolio-api:latest
+```
+
+Unfixed CVEs are reported but don't block a release — there's no action a release could take
+on them. Deliberate exceptions to the gate live in [`.trivyignore`](./.trivyignore), each with
+a reason.
+
 ## Roadmap
 
 **Phase 0 — Foundations.** Repo scaffold, SQLite schema + migrations, seed importer that ingests the exported Notion CSVs so the existing history isn't lost.
@@ -151,6 +200,14 @@ To make the green pipeline required before merging, turn on branch protection fo
 **Settings → Branches → Add branch protection rule**: require the `api`, `web`, `core`, and
 `e2e` status checks to pass (and "Require branches to be up to date before merging") before a
 PR can be merged.
+
+Pushing a `v*` tag runs `.github/workflows/release.yml`, which builds both images multi-arch,
+pushes them with provenance + SBOM attestations, scans them with Trivy, and signs the digests
+with cosign — see [Verifying what you pulled](#verifying-what-you-pulled) for the other end of
+that. The Docker Hub mirror is opt-in: set the `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`
+repository secrets (**Settings → Secrets and variables → Actions**, using a Docker Hub access
+token with Read/Write scope) and the same tags get pushed and signed on both registries. Without
+those secrets the release still succeeds and publishes to GHCR only, logging a warning.
 
 ## License
 
