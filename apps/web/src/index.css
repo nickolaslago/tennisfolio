@@ -112,6 +112,9 @@
   --rg-ochre: #e3783b; /* Suntan Ochre         — light accent            */
   --rg-slate: #1c2d37; /* Dark Slate / Navy    — text, borders, primary  */
   --rg-white: #ffffff; /* raised surfaces (cards, popovers, dropdowns)   */
+  --court-clay-solid: #682518; /* Clay court, deepened to --rg-court's lightness
+       so --secondary keeps the same contrast against --secondary-foreground
+       once the accent-driven re-point below points --secondary here. */
 
   /* ── Tier 1 · Primitives — court-surface accent ramps ─────────────────
        One ramp per selectable accent (clay · grass · hard), each covering
@@ -198,7 +201,8 @@
   --popover-foreground: var(--rg-slate);
   --primary: oklch(0.32 0.1 33); /* primary buttons — Clay Terracotta (clay accent default) */
   --primary-foreground: var(--rg-baseline);
-  --secondary: var(--court-clay-solid); /* secondary buttons / filter chips / toolbar toggles */
+  --secondary: var(--court-clay-solid); /* filter chips / toolbar toggles — accent-driven,
+       see the [data-accent] re-points below; clay is the default court */
   --secondary-foreground: var(--rg-baseline);
   --muted: #e4e7e9; /* soft cool grey — tab list, table zebra/hover */
   --muted-foreground: #55636d; /* secondary text / placeholders (AA on bg) */
@@ -318,6 +322,8 @@
   --rg-slate-700: #324752; /* borders */
   --rg-clay-bright: #e2694f; /* Clay Terracotta, brightened for dark bg */
   --rg-court-bright: #2e9e5b; /* Classic Court Green, brightened for dark bg */
+  --court-clay-solid: #cd624b; /* Clay court, dark-mode variant — holds
+       --rg-court-bright's lightness so --secondary keeps its contrast */
 
   /* Court-surface accent ramps (tier 1, dark re-point) — same eight roles as
        :root, brightened where a value sits on the slate-950 base. Because the
@@ -367,7 +373,8 @@
   --popover-foreground: var(--rg-baseline);
   --primary: oklch(0.78 0.13 33); /* Clay Terracotta, brightened for dark bg (clay accent default) */
   --primary-foreground: var(--rg-slate-900);
-  --secondary: var(--court-clay-solid);
+  --secondary: var(--court-clay-solid); /* filter chips / toolbar toggles — accent-driven,
+       see the [data-accent] re-points below; clay is the default court */
   --secondary-foreground: #0b140f;
   --muted: var(--rg-slate-800);
   --muted-foreground: #9aa7ad;
@@ -445,27 +452,28 @@
      --ring / --sidebar-ring         focus rings
      --accent / --sidebar-accent     hover surfaces (menus, sidebar rows)
      --highlight                     call-outs / list bullets
-     --chart-accent                  the emphasis series in the home charts
-     --ambient-1/2/3                 the app-shell backdrop wash
-     --theme-color                   the mobile browser's top bar
+     --secondary                     filter chips / toolbar toggles (table/card)
 
-   Clay is the default: no attribute (or data-accent="clay") renders the same
-   clay/terracotta hue (~33), exactly like the sans font default — the
-   :root / .dark values above already carry it, and the explicit
-   [data-accent='clay'] blocks below restate the same values so the attribute
-   form matches the no-attribute default exactly. Grass and Hard are derived
-   from Clay in oklch, holding each token's lightness (and thus its contrast
-   against its foreground) constant and rotating the hue to green (~150) /
-   blue (~250). Light blocks come first so the .dark blocks (equal
-   specificity) win in dark mode. */
-:root[data-accent='clay'] {
-  --primary: oklch(0.32 0.1 33);
-  --accent: oklch(0.916 0.025 33);
-  --ring: oklch(0.684 0.152 33);
-  --highlight: oklch(0.684 0.152 33);
-  --sidebar-primary: oklch(0.32 0.1 33);
-  --sidebar-accent: oklch(0.916 0.025 33);
-  --sidebar-ring: oklch(0.684 0.152 33);
+   Clay is the default: no attribute (or data-accent="clay") keeps the
+   :root / .dark values above, exactly like the sans font default — so only
+   grass and hard need override blocks. Grass and Hard are derived from Clay
+   in oklch, holding each token's lightness (and thus its contrast against its
+   foreground) constant and rotating the hue to green (~150) / blue (~250);
+   only --primary is given real chroma, since Clay's primary is a near-neutral
+   navy. --secondary follows the same rule as the rest: Grass reuses the
+   existing Classic Court Green primitives (a real tennis court colour, not a
+   derived hue), while Hard gets its own oklch pair at --secondary's
+   lightness. Light blocks come first so the .dark blocks (equal specificity)
+   win in dark mode. */
+:root[data-accent='grass'] {
+  --primary: oklch(0.32 0.09 152);
+  --accent: oklch(0.916 0.025 150);
+  --ring: oklch(0.684 0.152 150);
+  --highlight: oklch(0.684 0.152 150);
+  --secondary: var(--rg-court);
+  --sidebar-primary: oklch(0.32 0.09 152);
+  --sidebar-accent: oklch(0.916 0.025 150);
+  --sidebar-ring: oklch(0.684 0.152 150);
 }
 
 :root[data-accent='hard'] {
@@ -473,56 +481,32 @@
   --accent: oklch(0.916 0.025 250);
   --ring: oklch(0.684 0.13 250);
   --highlight: oklch(0.684 0.13 250);
-  --secondary: var(--court-hard-solid);
+  --secondary: oklch(0.3616 0.1 252);
   --sidebar-primary: oklch(0.32 0.11 252);
   --sidebar-accent: oklch(0.916 0.025 250);
   --sidebar-ring: oklch(0.684 0.13 250);
 }
 
-.dark[data-accent='clay'] {
-  --primary: oklch(0.78 0.13 33);
-  --accent: oklch(0.291 0.033 33);
-  --ring: oklch(0.684 0.152 33);
-  --highlight: oklch(0.684 0.152 33);
-  --sidebar-primary: oklch(0.78 0.13 33);
-  --sidebar-accent: oklch(0.33 0.033 33);
-  --sidebar-ring: oklch(0.684 0.152 33);
+.dark[data-accent='grass'] {
+  --primary: oklch(0.8 0.15 150);
+  --accent: oklch(0.291 0.033 150);
+  --ring: oklch(0.684 0.152 150);
+  --highlight: oklch(0.684 0.152 150);
+  --secondary: var(--rg-court-bright);
+  --sidebar-primary: oklch(0.8 0.15 150);
+  --sidebar-accent: oklch(0.33 0.033 150);
+  --sidebar-ring: oklch(0.684 0.152 150);
 }
 
-:root[data-accent='grass'],
-:root[data-accent='grass'] .light,
-:root[data-accent='grass'] .dark {
-  --primary: var(--court-grass-primary);
-  --secondary: var(--court-grass-solid);
-  --accent: var(--court-grass-surface);
-  --ring: var(--court-grass-signature);
-  --highlight: var(--court-grass-signature);
-  --chart-accent: var(--court-grass-chart);
-  --ambient-1: var(--court-grass-wash-1);
-  --ambient-2: var(--court-grass-wash-2);
-  --ambient-3: var(--court-grass-wash-3);
-  --theme-color: var(--court-grass-chrome);
-  --sidebar-primary: var(--court-grass-primary);
-  --sidebar-accent: var(--court-grass-sidebar-surface);
-  --sidebar-ring: var(--court-grass-signature);
-}
-
-:root[data-accent='hard'],
-:root[data-accent='hard'] .light,
-:root[data-accent='hard'] .dark {
-  --primary: var(--court-hard-primary);
-  --secondary: var(--court-hard-solid);
-  --accent: var(--court-hard-surface);
-  --ring: var(--court-hard-signature);
-  --highlight: var(--court-hard-signature);
-  --chart-accent: var(--court-hard-chart);
-  --ambient-1: var(--court-hard-wash-1);
-  --ambient-2: var(--court-hard-wash-2);
-  --ambient-3: var(--court-hard-wash-3);
-  --theme-color: var(--court-hard-chrome);
-  --sidebar-primary: var(--court-hard-primary);
-  --sidebar-accent: var(--court-hard-sidebar-surface);
-  --sidebar-ring: var(--court-hard-signature);
+.dark[data-accent='hard'] {
+  --primary: oklch(0.78 0.13 250);
+  --accent: oklch(0.291 0.033 250);
+  --ring: oklch(0.684 0.13 250);
+  --highlight: oklch(0.684 0.13 250);
+  --secondary: oklch(0.6206 0.12 250);
+  --sidebar-primary: oklch(0.78 0.13 250);
+  --sidebar-accent: oklch(0.33 0.033 250);
+  --sidebar-ring: oklch(0.684 0.13 250);
 }
 
 /* ── Accent swatch previews (tier 3) ───────────────────────────────────────
