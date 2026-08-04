@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
+import { Logo } from '@/components/brand/logo'
 import { navItems, settingsNavItem, type NavItem } from '@/components/layout/nav-items'
 import { cn } from '@/lib/utils'
 
@@ -36,11 +37,8 @@ export function SidebarNav() {
 
   return (
     <aside className="glass fixed inset-y-3 left-3 z-40 hidden w-60 flex-col overflow-hidden rounded-2xl bg-sidebar text-sidebar-foreground shadow-lg ring-1 ring-sidebar-border md:flex">
-      <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
-        <span aria-hidden="true" className="text-xl">
-          🎾
-        </span>
-        <span className="font-heading text-lg font-semibold tracking-tight">Tennisfolio</span>
+      <div className="flex h-16 items-center border-b border-sidebar-border px-5">
+        <Logo className="h-7" />
       </div>
       <nav aria-label={t('nav.primaryNavLabel')} className="flex-1 overflow-y-auto p-3">
         <ul className="flex flex-col gap-1">
