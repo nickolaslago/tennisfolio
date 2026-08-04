@@ -1,0 +1,616 @@
+{
+  "common": {
+    "optional": "(facoltativo)",
+    "somethingWentWrong": "Qualcosa è andato storto.",
+    "loading": "Caricamento…",
+    "couldntLoad": "Impossibile caricare questo elemento",
+    "tryAgain": "Riprova",
+    "selectCountry": "Seleziona paese…",
+    "searchCountries": "Cerca paesi…",
+    "noCountryFound": "Nessun paese trovato.",
+    "clear": "Cancella",
+    "cancel": "Annulla",
+    "close": "Chiudi",
+    "addNew": "Aggiungi nuovo",
+    "searchableSelect": {
+      "placeholder": "Seleziona…",
+      "searchPlaceholder": "Cerca…",
+      "noResults": "Nessun risultato trovato."
+    },
+    "rowActions": {
+      "actionsFor": "Azioni per {{label}}",
+      "edit": "Modifica",
+      "duplicate": "Duplica",
+      "delete": "Elimina",
+      "deleteConfirmTitle": "Eliminare {{label}}?"
+    },
+    "iconPicker": {
+      "chooseIcon": "Scegli icona",
+      "dialogTitle": "Scegli un'icona",
+      "dialogDescription": "Scegli un'emoji o un'icona colorata.",
+      "emojiTab": "Emoji",
+      "iconTab": "Icona",
+      "iconColorLabel": "Colore dell'icona"
+    },
+    "entityList": {
+      "filterPlaceholder": "Filtra…",
+      "tableView": "Vista tabella",
+      "cardView": "Vista schede",
+      "viewModeLabel": "Modalità di visualizzazione",
+      "noMatchesFor": "Nessun risultato per “{{query}}”.",
+      "noResultsForFilters": "Nessun risultato per i filtri selezionati.",
+      "sortBy": "Ordina per {{header}}",
+      "filters": {
+        "button": "Filtri",
+        "fieldLabel": "Campo",
+        "valueLabel": "Valore",
+        "selectValue": "Seleziona valore…",
+        "addFilter": "Aggiungi filtro",
+        "removeFilter": "Rimuovi filtro {{label}}"
+      }
+    }
+  },
+  "nav": {
+    "skipToContent": "Vai al contenuto",
+    "primaryNavLabel": "Principale",
+    "home": "Home",
+    "matches": "Partite",
+    "opponents": "Avversari",
+    "clubs": "Circoli",
+    "tournaments": "Tornei",
+    "settings": "Impostazioni",
+    "quickCreate": {
+      "label": "Crea",
+      "newMatch": "Nuova partita",
+      "newOpponent": "Nuovo avversario",
+      "newClub": "Nuovo circolo",
+      "newTournament": "Nuovo torneo"
+    }
+  },
+  "notFound": {
+    "title": "Pagina non trovata",
+    "description": "Quella palla è uscita lunga — non c'è nulla a questo indirizzo.",
+    "backToHome": "Torna alla Home"
+  },
+  "home": {
+    "pageTitle": "Home",
+    "pageDescription": "Il tuo portfolio tennistico a colpo d'occhio — partite recenti, forma e cosa c'è in programma.",
+    "viewAll": "Vedi tutto",
+    "opponentFallback": "Avversario n. {{id}}",
+    "vsOpponent": "vs {{opponent}}",
+    "emptyState": {
+      "title": "Benvenuto su Tennisfolio 🎾",
+      "description": "La tua dashboard delle prestazioni comparirà qui non appena registrerai una partita — percentuale di vittorie, serie, grafici e cosa c'è in programma.",
+      "cta": "Registra la tua prima partita"
+    },
+    "stats": {
+      "overallWinRate": "Percentuale di vittorie complessiva",
+      "currentStreak": "Serie attuale",
+      "currentStreakDescription": "Risultati consecutivi",
+      "matchesThisSeason": "Partite in questa stagione",
+      "tiebreakRecord": "Bilancio al tie-break"
+    },
+    "recentMatches": {
+      "title": "Partite recenti",
+      "description": "I tuoi ultimi risultati.",
+      "empty": "Ancora nessuna partita giocata."
+    },
+    "winRateBySurface": {
+      "title": "Percentuale di vittorie per superficie",
+      "description": "Come variano i risultati tra le superfici su cui hai giocato.",
+      "empty": "Ancora nessuna suddivisione per superficie — registra partite con una superficie per vederla qui.",
+      "winRate": "Percentuale di vittorie",
+      "matchesPlayed": "Partite giocate"
+    },
+    "resultsDistribution": {
+      "title": "Distribuzione dei risultati",
+      "description": "Ogni partita giocata, suddivisa per risultato.",
+      "empty": "Gioca la tua prima partita per vedere qui la suddivisione dei tuoi risultati.",
+      "ariaLabel": "{{wins}} vittorie, {{losses}} sconfitte su {{matches}} partite",
+      "wins": "Vittorie",
+      "losses": "Sconfitte"
+    },
+    "winRateOverTime": {
+      "title": "Percentuale di vittorie nel tempo",
+      "description": "Percentuale di vittorie mensile su tutte le partite giocate.",
+      "empty": "Gioca qualche partita per vedere qui l'andamento della tua forma.",
+      "winRate": "Percentuale di vittorie",
+      "matchesPlayed": "Partite giocate"
+    },
+    "nextEvents": {
+      "upcomingMatches": {
+        "title": "Prossime partite",
+        "description": "Partite programmate ancora da giocare.",
+        "empty": "Nessuna partita programmata in calendario."
+      },
+      "tournaments": {
+        "title": "Tornei",
+        "description": "Cosa è attivo o in arrivo.",
+        "empty": "Nessun torneo attivo o in arrivo."
+      },
+      "tournamentActive": "Attivo",
+      "tournamentUpcoming": "In arrivo"
+    }
+  },
+  "matches": {
+    "pageTitle": "Partite",
+    "pageDescription": "Tutte le partite che hai giocato, con punteggi e risultati derivati — oltre a ciò che è in programma.",
+    "opponentFallback": "Avversario n. {{id}}",
+    "setScore": "Punteggio del set",
+    "logMatch": "Registra partita",
+    "logFirstMatch": "Registra la tua prima partita",
+    "deleteDescription": "Questo rimuove definitivamente la partita e i punteggi dei suoi set. Non può essere annullato.",
+    "filterPlaceholder": "Filtra partite…",
+    "filters": {
+      "statusLabel": "Stato della partita",
+      "dateFromLabel": "Da",
+      "dateToLabel": "A"
+    },
+    "tabs": {
+      "all": "Tutte",
+      "played": "Giocate",
+      "scheduled": "Programmate"
+    },
+    "noResults": {
+      "scheduled": "Nessuna partita programmata.",
+      "played": "Nessuna partita giocata."
+    },
+    "columns": {
+      "date": "Data",
+      "opponent": "Avversario",
+      "club": "Circolo",
+      "tournament": "Torneo",
+      "surface": "Superficie",
+      "result": "Risultato"
+    },
+    "rowOptions": {
+      "matchLabel": "partita del {{date}}"
+    },
+    "emptyState": {
+      "title": "Nessuna partita trovata",
+      "description": "Nessuna partita corrisponde a questi filtri — prova a modificarli, oppure registra la tua prima partita."
+    },
+    "opponentQuickCreate": {
+      "title": "Nuovo avversario",
+      "description": "Aggiungi giusto il necessario per registrare la partita — potrai completare il resto più tardi.",
+      "firstName": "Nome",
+      "lastName": "Cognome",
+      "lastNameRequired": "Il cognome è obbligatorio.",
+      "adding": "Aggiunta in corso…",
+      "addOpponent": "Aggiungi avversario"
+    },
+    "clubQuickCreate": {
+      "title": "Nuovo circolo",
+      "description": "Aggiungi giusto il necessario per registrare la partita — la superficie si compila automaticamente una volta scelto questo circolo.",
+      "name": "Nome",
+      "city": "Città",
+      "nameRequired": "Il nome è obbligatorio.",
+      "adding": "Aggiunta in corso…",
+      "addClub": "Aggiungi circolo"
+    },
+    "detail": {
+      "backToMatches": "Torna a Partite",
+      "pageTitleFallback": "Partita",
+      "vsOpponent": "vs {{opponent}}",
+      "invalidId": "\"{{id}}\" non è un id di partita valido.",
+      "deleteConfirmTitle": "Eliminare questa partita?",
+      "setBySet": "Set per set",
+      "noSets": "Nessun set registrato — completa questa partita con un punteggio per vedere il dettaglio set per set.",
+      "duration": "Durata",
+      "durationValue": "{{minutes}} min",
+      "notes": "Note",
+      "yes": "Sì",
+      "setColumns": {
+        "set": "Set",
+        "games": "Game",
+        "tiebreak": "Tie-break"
+      }
+    }
+  },
+  "matchForm": {
+    "pageTitleLog": "Registra partita",
+    "invalidId": "\"{{id}}\" non è un id di partita valido.",
+    "backToMatch": "Torna alla partita",
+    "backToMatches": "Torna a Partite",
+    "opponentFallback": "Avversario n. {{id}}",
+    "titles": {
+      "complete": "Completa partita",
+      "edit": "Modifica partita",
+      "log": "Registra una partita"
+    },
+    "descriptions": {
+      "edit": "Aggiorna il punteggio o i dettagli — set e risultato vengono ricalcolati automaticamente.",
+      "complete": "Aggiungi il punteggio per trasformare questa partita programmata in un risultato giocato.",
+      "log": "Registra una partita completa — avversario, set e dettagli — da un'unica schermata."
+    },
+    "sections": {
+      "whereAndWhat": "Dove e cosa",
+      "details": "Dettagli"
+    },
+    "fields": {
+      "opponentPlaceholder": "Seleziona avversario",
+      "newOpponent": "Nuovo avversario",
+      "scheduleToggle": "Programma per dopo — salva senza punteggio",
+      "scheduleModeNotice": "Questa partita verrà salvata nel tuo calendario. Aggiungi il punteggio più tardi dalla pagina Partite per vedere il risultato.",
+      "scoringType": "Tipo di punteggio",
+      "setLabel": "Set {{n}}",
+      "setGamesWonLabel": "Game vinti nel set {{n}}",
+      "setGamesLostLabel": "Game persi nel set {{n}}",
+      "setOptional": "facoltativo",
+      "pointsLabel": "Punti",
+      "pointsWonLabel": "Punti vinti",
+      "pointsLostLabel": "Punti persi",
+      "scoreHintDefault": "Prima i tuoi game — compila ogni set giocato.",
+      "clubPlaceholder": "Seleziona circolo",
+      "noClub": "Nessun circolo",
+      "newClub": "Nuovo circolo",
+      "surfacePlaceholder": "Seleziona superficie",
+      "friendlyNoTournament": "Amichevole (senza torneo)",
+      "stage": "Fase",
+      "stageHint": "Solo per i tornei — es. QF, SF, F",
+      "stagePlaceholder": "es. QF",
+      "duration": "Durata",
+      "durationHint": "In minuti",
+      "durationPlaceholder": "es. 90",
+      "notes": "Note",
+      "notesPlaceholder": "Com'è andata, su cosa lavorare…",
+      "court": "Campo",
+      "courtPlaceholder": "Seleziona un campo",
+      "courtPickClubFirst": "Scegli prima un circolo",
+      "courtNone": "Questo circolo non ha ancora campi."
+    },
+    "scorePreview": {
+      "prefix": "Corrisponde a un",
+      "summary_one": "{{formatted}} · {{count}} set",
+      "summary_other": "{{formatted}} · {{count}} set"
+    },
+    "actions": {
+      "saving": "Salvataggio…",
+      "saveScore": "Salva punteggio",
+      "scheduleMatch": "Programma partita",
+      "saveMatch": "Salva partita"
+    },
+    "validation": {
+      "pickOpponent": "Scegli un avversario.",
+      "pickDate": "Scegli una data.",
+      "durationWhole": "La durata deve essere un numero intero di minuti.",
+      "fillBothNumbers": "Compila entrambi i numeri per ogni {{unit}}, oppure svuotalo.",
+      "trailingOnly": "Solo gli ultimi set possono essere lasciati vuoti.",
+      "enterScoreOrSchedule": "Inserisci un punteggio, oppure passa alla modalità di programmazione.",
+      "invalidScore": "Punteggio non valido.",
+      "units": {
+        "set": "set",
+        "score": "punteggio"
+      }
+    },
+    "savedPanel": {
+      "scheduledTitle": "Partita programmata",
+      "savedTitle": "Partita salvata",
+      "scheduledDescription": "Salvata nel tuo calendario — aggiungi il punteggio non appena verrà giocata.",
+      "savedDescription": "Ecco il risultato, derivato dal punteggio che hai inserito.",
+      "vsOpponentAndDate": "vs {{opponent}} · {{date}}",
+      "logAnother": "Registra un'altra partita"
+    }
+  },
+  "opponents": {
+    "pageTitle": "Avversari",
+    "pageDescription": "I giocatori che hai affrontato e i vostri bilanci negli scontri diretti.",
+    "deleteDescription": "Questo rimuove definitivamente l'avversario. Non può essere annullato.",
+    "filterPlaceholder": "Filtra avversari…",
+    "addOpponent": "Aggiungi avversario",
+    "addFirstOpponent": "Aggiungi il tuo primo avversario",
+    "columns": {
+      "name": "Nome",
+      "nationality": "Nazionalità",
+      "handedness": "Mano dominante",
+      "level": "Livello"
+    },
+    "emptyState": {
+      "title": "Ancora nessun avversario",
+      "description": "Aggiungi i giocatori che hai affrontato per iniziare a tenere traccia degli scontri diretti."
+    },
+    "matches": {
+      "heading": "Partite",
+      "recordSummary_one": "{{wins}}–{{losses}} ({{count}} partita)",
+      "recordSummary_other": "{{wins}}–{{losses}} ({{count}} partite)",
+      "filterByResultLabel": "Filtra per risultato",
+      "noFilterMatches": "Nessuna partita per questo filtro.",
+      "columns": {
+        "score": "Punteggio"
+      },
+      "filters": {
+        "all": "Tutte",
+        "wins": "Vittorie",
+        "losses": "Sconfitte"
+      },
+      "emptyState": {
+        "title": "Ancora nessuna partita",
+        "description": "Le partite giocate contro questo avversario compariranno qui."
+      }
+    },
+    "detail": {
+      "backToOpponents": "Torna ad Avversari",
+      "pageTitleFallback": "Avversario",
+      "invalidId": "\"{{id}}\" non è un id di avversario valido.",
+      "deleteConfirmTitle": "Eliminare questo avversario?",
+      "ageRange": "Fascia d'età",
+      "notes": "Note"
+    },
+    "form": {
+      "backToOpponent": "Torna all'avversario",
+      "editTitle": "Modifica avversario",
+      "lastNameRequired": "Il cognome è obbligatorio.",
+      "icon": "Icona",
+      "firstName": "Nome",
+      "lastName": "Cognome",
+      "levelPlaceholder": "es. 4.5 NTRP, campione del circolo…",
+      "handednessPlaceholder": "Seleziona mano dominante",
+      "handednessRight": "Destro",
+      "handednessLeft": "Mancino",
+      "ageRangePlaceholder": "Seleziona fascia d'età",
+      "saveChanges": "Salva modifiche"
+    },
+    "headToHead": {
+      "title": "Scontro diretto",
+      "noMatchesYet": "Ancora nessuna partita",
+      "winRateSummary_one": "{{percent}}% di vittorie, {{count}} partita",
+      "winRateSummary_other": "{{percent}}% di vittorie, {{count}} partite",
+      "last5": "Ultime 5",
+      "bySurface": "Per superficie",
+      "matchTooltip": "{{date}} · {{score}}",
+      "resultWinShort": "V",
+      "resultLossShort": "S"
+    }
+  },
+  "clubs": {
+    "pageTitle": "Circoli",
+    "pageDescription": "I circoli e i campi dove si svolgono le tue partite.",
+    "deleteDescription": "Questo rimuove definitivamente il circolo. Non può essere annullato.",
+    "filterPlaceholder": "Filtra circoli…",
+    "addClub": "Aggiungi circolo",
+    "addFirstClub": "Aggiungi il tuo primo circolo",
+    "columns": {
+      "name": "Nome",
+      "city": "Città",
+      "country": "Paese",
+      "surface": "Superficie",
+      "environment": "Ambiente",
+      "courts": "Campi"
+    },
+    "emptyState": {
+      "title": "Ancora nessun circolo",
+      "description": "Aggiungi i circoli e i campi dove giochi per iniziare a tenere traccia dei bilanci per sede."
+    },
+    "matches": {
+      "heading": "Partite in questo circolo",
+      "recordSummary_one": "{{wins}}–{{losses}} ({{count}} partita)",
+      "recordSummary_other": "{{wins}}–{{losses}} ({{count}} partite)",
+      "recordBySurface": "Bilancio per superficie",
+      "filterByResultLabel": "Filtra per risultato",
+      "noFilterMatches": "Nessuna partita per questo filtro.",
+      "columns": {
+        "score": "Punteggio"
+      },
+      "filters": {
+        "all": "Tutte",
+        "wins": "Vittorie",
+        "losses": "Sconfitte"
+      },
+      "emptyState": {
+        "title": "Ancora nessuna partita",
+        "description": "Le partite giocate in questo circolo compariranno qui."
+      }
+    },
+    "detail": {
+      "backToClubs": "Torna a Circoli",
+      "pageTitleFallback": "Circolo",
+      "invalidId": "\"{{id}}\" non è un id di circolo valido.",
+      "deleteConfirmTitle": "Eliminare questo circolo?"
+    },
+    "form": {
+      "backToClub": "Torna al circolo",
+      "editTitle": "Modifica circolo",
+      "nameRequired": "Il nome è obbligatorio.",
+      "icon": "Icona",
+      "environmentPlaceholder": "Seleziona ambiente",
+      "environmentIndoor": "Al coperto",
+      "environmentOutdoor": "All'aperto",
+      "saveChanges": "Salva modifiche",
+      "courts": "Campi",
+      "courtsHint": "Aggiungi almeno un campo. Ognuno deve avere una combinazione unica di superficie e ambiente.",
+      "courtsRequired": "Aggiungi almeno un campo.",
+      "courtIncomplete": "Ogni campo richiede sia una superficie che un ambiente.",
+      "courtDuplicate": "Ogni campo deve avere una combinazione unica di superficie e ambiente.",
+      "addCourt": "Aggiungi campo",
+      "removeCourt": "Rimuovi campo"
+    }
+  },
+  "tournaments": {
+    "pageTitle": "Tornei",
+    "pageDescription": "Tornei e leghe a cui hai partecipato, passati e futuri.",
+    "deleteDescription": "Questo rimuove definitivamente il torneo. Non può essere annullato.",
+    "filterPlaceholder": "Filtra tornei…",
+    "addTournament": "Aggiungi torneo",
+    "addFirstTournament": "Aggiungi il tuo primo torneo",
+    "friendlies": {
+      "name": "Amichevoli",
+      "cardDescription": "Partite amichevoli giocate senza torneo.",
+      "detailDescription": "Le tue partite amichevoli — giocate senza torneo."
+    },
+    "filters": {
+      "statusLabel": "Stato",
+      "statusUpcoming": "In arrivo",
+      "statusOngoing": "In corso",
+      "statusCompleted": "Concluso"
+    },
+    "columns": {
+      "name": "Nome",
+      "season": "Stagione",
+      "type": "Tipo",
+      "organiser": "Organizzatore",
+      "hostClub": "Circolo ospitante",
+      "dates": "Date"
+    },
+    "emptyState": {
+      "title": "Ancora nessun torneo",
+      "description": "Aggiungi i tornei e le leghe a cui hai partecipato per iniziare a tenere traccia delle partite per fase."
+    },
+    "matches": {
+      "heading": "Partite",
+      "recordSummary_one": "{{wins}}–{{losses}} ({{count}} partita)",
+      "recordSummary_other": "{{wins}}–{{losses}} ({{count}} partite)",
+      "filterByResultLabel": "Filtra per risultato",
+      "noFilterMatches": "Nessuna partita per questo filtro.",
+      "unspecifiedStage": "Non specificata",
+      "columns": {
+        "score": "Punteggio"
+      },
+      "filters": {
+        "all": "Tutte",
+        "wins": "Vittorie",
+        "losses": "Sconfitte"
+      },
+      "emptyState": {
+        "title": "Ancora nessuna partita",
+        "description": "Le partite giocate in questo torneo compariranno qui."
+      }
+    },
+    "standings": {
+      "heading": "Classifica",
+      "emptyState": {
+        "title": "Ancora nessuna classifica",
+        "description": "Gioca una partita in questa lega per vedere la tabella di classifica."
+      },
+      "columns": {
+        "opponent": "Avversario",
+        "wins": "V",
+        "losses": "S",
+        "winPct": "% Vitt.",
+        "sets": "Set",
+        "games": "Game"
+      }
+    },
+    "detail": {
+      "backToTournaments": "Torna a Tornei",
+      "pageTitleFallback": "Torneo",
+      "invalidId": "\"{{id}}\" non è un id di torneo valido.",
+      "deleteConfirmTitle": "Eliminare questo torneo?",
+      "format": "Formato",
+      "notes": "Note"
+    },
+    "form": {
+      "backToTournament": "Torna al torneo",
+      "editTitle": "Modifica torneo",
+      "nameRequired": "Il nome è obbligatorio.",
+      "typeRequired": "Il tipo di torneo è obbligatorio.",
+      "endDateAfterStart": "La data di fine deve essere uguale o successiva alla data di inizio.",
+      "icon": "Icona",
+      "seasonPlaceholder": "es. 2026",
+      "typeLabel": "Tipo di torneo",
+      "typePlaceholder": "Seleziona tipo di torneo",
+      "typeKnockout": "Torneo a eliminazione diretta",
+      "typeRanking": "Lega a classifica",
+      "formatLabel": "Formato",
+      "formatPlaceholder": "Seleziona formato",
+      "formatCustom": "Personalizzato",
+      "customFormatLabel": "Formato personalizzato",
+      "customFormatPlaceholder": "es. Girone all'italiana, poi eliminazione diretta",
+      "organiserPlaceholder": "es. Riverside Tennis Club",
+      "hostClubPlaceholder": "Seleziona circolo ospitante",
+      "noHostClub": "Nessun circolo ospitante",
+      "startDate": "Data di inizio",
+      "endDate": "Data di fine",
+      "saveChanges": "Salva modifiche"
+    }
+  },
+  "settings": {
+    "pageTitle": "Impostazioni",
+    "pageDescription": "Gestisci l'aspetto e il comportamento di Tennisfolio, e fai il backup dei tuoi dati.",
+    "sectionNavLabel": "Sezioni delle impostazioni",
+    "backToSettings": "Torna a Impostazioni",
+    "general": {
+      "title": "Generale",
+      "description": "Preferenze regionali per le date e la lingua dell'app.",
+      "menuDescription": "Fuso orario e lingua",
+      "timezone": "Fuso orario",
+      "searchTimezone": "Cerca fuso orario…",
+      "noTimezoneFound": "Nessun fuso orario trovato.",
+      "language": "Lingua"
+    },
+    "appearance": {
+      "title": "Aspetto",
+      "description": "Scegli l'aspetto di Tennisfolio su questo dispositivo.",
+      "menuDescription": "Tema, colore d'accento e famiglia di font",
+      "theme": "Tema",
+      "themeDescription": "Seleziona il tema preferito per l'applicazione.",
+      "themeLight": "Chiaro",
+      "themeDark": "Scuro",
+      "themeSystem": "Sistema",
+      "fontFamily": "Famiglia di font",
+      "fontFamilyDescription": "Scegli la famiglia di font usata in tutta l'interfaccia.",
+      "fontSans": "Instrument Sans",
+      "fontSerif": "Instrument Serif",
+      "fontMono": "Ubuntu Mono",
+      "fontPreview": "Ma la volpe, col suo balzo, ha raggiunto il quieto Fido — 0123456789",
+      "accent": "Colore d'accento",
+      "accentDescription": "Scegli una superficie da campo da tennis per colorare pulsanti, link ed evidenziazioni.",
+      "accentClay": "Terra rossa",
+      "accentGrass": "Erba",
+      "accentHard": "Cemento"
+    },
+    "backupExport": {
+      "title": "Backup ed esportazione",
+      "description": "Scarica ogni partita, avversario, circolo e torneo che hai registrato — senza vincoli, porta con te i tuoi dati in qualsiasi momento.",
+      "menuDescription": "Esporta e importa i tuoi dati"
+    },
+    "dangerZone": {
+      "title": "Zona pericolosa",
+      "description": "Azioni irreversibili. Procedi con cautela.",
+      "menuDescription": "Elimina definitivamente i tuoi dati"
+    }
+  },
+  "export": {
+    "downloadFailed": "Download non riuscito.",
+    "preparing": "Preparazione…",
+    "footerPrefix": "Consulta",
+    "footerSuffix": "per lo schema completo di entrambi i formati.",
+    "csv": {
+      "title": "CSV (zippato)",
+      "description": "Cinque file CSV — circoli, avversari, tornei, partite, set — zippati insieme. Usa lo stesso layout di colonne accettato dall'importatore dei dati iniziali, quindi può essere reimportato così com'è.",
+      "download": "Scarica CSV"
+    },
+    "json": {
+      "title": "JSON",
+      "description": "Un unico file JSON con ogni tabella, con le partite annidate insieme ai loro set. Ideale per script o per alimentare un altro strumento.",
+      "download": "Scarica JSON"
+    }
+  },
+  "import": {
+    "title": "Importa",
+    "description": "Ripristina da un file di esportazione Tennisfolio (.json o i CSV zippati). Questo sostituisce tutto ciò che è attualmente nel tuo portfolio.",
+    "filePickerLabel": "File di esportazione",
+    "importing": "Importazione…",
+    "confirmTitle": "Sostituire tutti i dati?",
+    "confirmDescription": "L'importazione di \"{{filename}}\" eliminerà definitivamente ogni partita, avversario, circolo e torneo attualmente presenti, sostituendoli con il contenuto di questo file. Non può essere annullato.",
+    "confirmAction": "Sostituisci dati",
+    "successTitle": "Importazione completata",
+    "successSummary": "{{clubs}} circoli, {{opponents}} avversari, {{tournaments}} tornei, {{matches}} partite, {{sets}} set importati.",
+    "successSkipped_one": "{{count}} riga è stata saltata — non corrispondeva al formato previsto.",
+    "successSkipped_other": "{{count}} righe sono state saltate — non corrispondevano al formato previsto.",
+    "importFailed": "Importazione non riuscita."
+  },
+  "dangerZone": {
+    "deleteAllData": {
+      "title": "Elimina tutti i dati",
+      "description": "Elimina definitivamente ogni partita, avversario, circolo e torneo del tuo portfolio. Valuta di esportare prima un backup — vedi Backup ed esportazione sopra.",
+      "button": "Elimina tutti i dati",
+      "pending": "Eliminazione…",
+      "confirmTitle": "Eliminare tutti i dati?",
+      "confirmDescription": "Questo eliminerà definitivamente ogni partita, avversario, circolo e torneo che hai registrato. Non può essere annullato. Se non l'hai già fatto, esporta un backup prima di continuare.",
+      "confirmInputLabel": "Digita \"{{phrase}}\" per confermare",
+      "confirmAction": "Elimina tutti i dati",
+      "successMessage": "Tutti i dati sono stati eliminati.",
+      "failed": "Impossibile eliminare i dati."
+    }
+  }
+}

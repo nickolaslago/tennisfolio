@@ -11,6 +11,10 @@ import i18n from '@/i18n'
 const LANGUAGE_OPTIONS: { value: string; label: string }[] = [
   { value: 'en', label: 'English' },
   { value: 'pt', label: 'Português' },
+  { value: 'de', label: 'Deutsch' },
+  { value: 'fr', label: 'Français' },
+  { value: 'it', label: 'Italiano' },
+  { value: 'nl', label: 'Nederlands' },
 ]
 
 export function GeneralSettingsPage() {

@@ -1,0 +1,616 @@
+{
+  "common": {
+    "optional": "(optioneel)",
+    "somethingWentWrong": "Er is iets misgegaan.",
+    "loading": "Laden…",
+    "couldntLoad": "Kon dit niet laden",
+    "tryAgain": "Opnieuw proberen",
+    "selectCountry": "Land selecteren…",
+    "searchCountries": "Landen zoeken…",
+    "noCountryFound": "Geen land gevonden.",
+    "clear": "Wissen",
+    "cancel": "Annuleren",
+    "close": "Sluiten",
+    "addNew": "Nieuw toevoegen",
+    "searchableSelect": {
+      "placeholder": "Selecteren…",
+      "searchPlaceholder": "Zoeken…",
+      "noResults": "Geen resultaten gevonden."
+    },
+    "rowActions": {
+      "actionsFor": "Acties voor {{label}}",
+      "edit": "Bewerken",
+      "duplicate": "Dupliceren",
+      "delete": "Verwijderen",
+      "deleteConfirmTitle": "{{label}} verwijderen?"
+    },
+    "iconPicker": {
+      "chooseIcon": "Icoon kiezen",
+      "dialogTitle": "Kies een icoon",
+      "dialogDescription": "Kies een emoji of een gekleurd icoon.",
+      "emojiTab": "Emoji",
+      "iconTab": "Icoon",
+      "iconColorLabel": "Iconkleur"
+    },
+    "entityList": {
+      "filterPlaceholder": "Filteren…",
+      "tableView": "Tabelweergave",
+      "cardView": "Kaartweergave",
+      "viewModeLabel": "Weergavemodus",
+      "noMatchesFor": "Geen resultaten voor “{{query}}”.",
+      "noResultsForFilters": "Geen resultaten voor de geselecteerde filters.",
+      "sortBy": "Sorteren op {{header}}",
+      "filters": {
+        "button": "Filters",
+        "fieldLabel": "Veld",
+        "valueLabel": "Waarde",
+        "selectValue": "Waarde selecteren…",
+        "addFilter": "Filter toevoegen",
+        "removeFilter": "Filter voor {{label}} verwijderen"
+      }
+    }
+  },
+  "nav": {
+    "skipToContent": "Naar inhoud springen",
+    "primaryNavLabel": "Primair",
+    "home": "Start",
+    "matches": "Wedstrijden",
+    "opponents": "Tegenstanders",
+    "clubs": "Clubs",
+    "tournaments": "Toernooien",
+    "settings": "Instellingen",
+    "quickCreate": {
+      "label": "Aanmaken",
+      "newMatch": "Nieuwe wedstrijd",
+      "newOpponent": "Nieuwe tegenstander",
+      "newClub": "Nieuwe club",
+      "newTournament": "Nieuw toernooi"
+    }
+  },
+  "notFound": {
+    "title": "Pagina niet gevonden",
+    "description": "Die bal ging lang — hier is niets te vinden.",
+    "backToHome": "Terug naar Start"
+  },
+  "home": {
+    "pageTitle": "Start",
+    "pageDescription": "Je tennisportfolio in één oogopslag — recente wedstrijden, vorm en wat er nog komt.",
+    "viewAll": "Alles bekijken",
+    "opponentFallback": "Tegenstander #{{id}}",
+    "vsOpponent": "vs {{opponent}}",
+    "emptyState": {
+      "title": "Welkom bij Tennisfolio 🎾",
+      "description": "Je prestatiedashboard verschijnt hier zodra je een wedstrijd hebt geregistreerd — winratio, reeksen, grafieken en wat er nog komt.",
+      "cta": "Registreer je eerste wedstrijd"
+    },
+    "stats": {
+      "overallWinRate": "Algemene winratio",
+      "currentStreak": "Huidige reeks",
+      "currentStreakDescription": "Opeenvolgende resultaten",
+      "matchesThisSeason": "Wedstrijden dit seizoen",
+      "tiebreakRecord": "Tiebreakbalans"
+    },
+    "recentMatches": {
+      "title": "Recente wedstrijden",
+      "description": "Je laatste resultaten.",
+      "empty": "Nog geen gespeelde wedstrijden."
+    },
+    "winRateBySurface": {
+      "title": "Winratio per ondergrond",
+      "description": "Hoe resultaten variëren tussen de ondergronden waarop je hebt gespeeld.",
+      "empty": "Nog geen verdeling per ondergrond — registreer wedstrijden met een ondergrond om dit te zien.",
+      "winRate": "Winratio",
+      "matchesPlayed": "Gespeelde wedstrijden"
+    },
+    "resultsDistribution": {
+      "title": "Resultatenverdeling",
+      "description": "Elke gespeelde wedstrijd, opgesplitst per resultaat.",
+      "empty": "Speel je eerste wedstrijd om hier de verdeling van je resultaten te zien.",
+      "ariaLabel": "{{wins}} gewonnen, {{losses}} verloren van {{matches}} wedstrijden",
+      "wins": "Gewonnen",
+      "losses": "Verloren"
+    },
+    "winRateOverTime": {
+      "title": "Winratio in de tijd",
+      "description": "Maandelijkse winratio over alle gespeelde wedstrijden.",
+      "empty": "Speel een paar wedstrijden om hier je vormtrend te zien.",
+      "winRate": "Winratio",
+      "matchesPlayed": "Gespeelde wedstrijden"
+    },
+    "nextEvents": {
+      "upcomingMatches": {
+        "title": "Aankomende wedstrijden",
+        "description": "Geplande wedstrijden die nog gespeeld moeten worden.",
+        "empty": "Geen geplande wedstrijden in de agenda."
+      },
+      "tournaments": {
+        "title": "Toernooien",
+        "description": "Wat actief is of eraan komt.",
+        "empty": "Geen actieve of aankomende toernooien."
+      },
+      "tournamentActive": "Actief",
+      "tournamentUpcoming": "Binnenkort"
+    }
+  },
+  "matches": {
+    "pageTitle": "Wedstrijden",
+    "pageDescription": "Alle wedstrijden die je hebt gespeeld, met scores en afgeleide resultaten — plus wat er gepland staat.",
+    "opponentFallback": "Tegenstander #{{id}}",
+    "setScore": "Setstand",
+    "logMatch": "Wedstrijd registreren",
+    "logFirstMatch": "Registreer je eerste wedstrijd",
+    "deleteDescription": "Dit verwijdert de wedstrijd en de setstanden definitief. Dit kan niet ongedaan worden gemaakt.",
+    "filterPlaceholder": "Wedstrijden filteren…",
+    "filters": {
+      "statusLabel": "Wedstrijdstatus",
+      "dateFromLabel": "Van",
+      "dateToLabel": "Tot"
+    },
+    "tabs": {
+      "all": "Alle",
+      "played": "Gespeeld",
+      "scheduled": "Gepland"
+    },
+    "noResults": {
+      "scheduled": "Geen geplande wedstrijden.",
+      "played": "Geen gespeelde wedstrijden."
+    },
+    "columns": {
+      "date": "Datum",
+      "opponent": "Tegenstander",
+      "club": "Club",
+      "tournament": "Toernooi",
+      "surface": "Ondergrond",
+      "result": "Resultaat"
+    },
+    "rowOptions": {
+      "matchLabel": "wedstrijd op {{date}}"
+    },
+    "emptyState": {
+      "title": "Geen wedstrijden gevonden",
+      "description": "Geen enkele wedstrijd voldoet aan deze filters — pas ze aan of registreer je eerste wedstrijd."
+    },
+    "opponentQuickCreate": {
+      "title": "Nieuwe tegenstander",
+      "description": "Voeg net genoeg toe om de wedstrijd te registreren — de rest kun je later aanvullen.",
+      "firstName": "Voornaam",
+      "lastName": "Achternaam",
+      "lastNameRequired": "Achternaam is verplicht.",
+      "adding": "Toevoegen…",
+      "addOpponent": "Tegenstander toevoegen"
+    },
+    "clubQuickCreate": {
+      "title": "Nieuwe club",
+      "description": "Voeg net genoeg toe om de wedstrijd te registreren — de ondergrond wordt automatisch ingevuld zodra je deze club kiest.",
+      "name": "Naam",
+      "city": "Stad",
+      "nameRequired": "Naam is verplicht.",
+      "adding": "Toevoegen…",
+      "addClub": "Club toevoegen"
+    },
+    "detail": {
+      "backToMatches": "Terug naar Wedstrijden",
+      "pageTitleFallback": "Wedstrijd",
+      "vsOpponent": "vs {{opponent}}",
+      "invalidId": "“{{id}}” is geen geldig wedstrijd-id.",
+      "deleteConfirmTitle": "Deze wedstrijd verwijderen?",
+      "setBySet": "Set voor set",
+      "noSets": "Geen sets geregistreerd — voltooi deze wedstrijd met een stand om de set-voor-set-uitsplitsing te zien.",
+      "duration": "Duur",
+      "durationValue": "{{minutes}} min",
+      "notes": "Notities",
+      "yes": "Ja",
+      "setColumns": {
+        "set": "Set",
+        "games": "Games",
+        "tiebreak": "Tiebreak"
+      }
+    }
+  },
+  "matchForm": {
+    "pageTitleLog": "Wedstrijd registreren",
+    "invalidId": "“{{id}}” is geen geldig wedstrijd-id.",
+    "backToMatch": "Terug naar de wedstrijd",
+    "backToMatches": "Terug naar Wedstrijden",
+    "opponentFallback": "Tegenstander #{{id}}",
+    "titles": {
+      "complete": "Wedstrijd afronden",
+      "edit": "Wedstrijd bewerken",
+      "log": "Een wedstrijd registreren"
+    },
+    "descriptions": {
+      "edit": "Werk de stand of details bij — sets en resultaat worden automatisch opnieuw afgeleid.",
+      "complete": "Voeg de stand toe om deze geplande wedstrijd om te zetten in een gespeeld resultaat.",
+      "log": "Registreer een hele wedstrijd — tegenstander, sets en details — vanaf één scherm."
+    },
+    "sections": {
+      "whereAndWhat": "Waar & wat",
+      "details": "Details"
+    },
+    "fields": {
+      "opponentPlaceholder": "Tegenstander selecteren",
+      "newOpponent": "Nieuwe tegenstander",
+      "scheduleToggle": "Voor later plannen — opslaan zonder stand",
+      "scheduleModeNotice": "Deze wedstrijd wordt opgeslagen in je planning. Voeg de stand later toe op de pagina Wedstrijden om het resultaat te zien.",
+      "scoringType": "Telwijze",
+      "setLabel": "Set {{n}}",
+      "setGamesWonLabel": "Gewonnen games in set {{n}}",
+      "setGamesLostLabel": "Verloren games in set {{n}}",
+      "setOptional": "optioneel",
+      "pointsLabel": "Punten",
+      "pointsWonLabel": "Gewonnen punten",
+      "pointsLostLabel": "Verloren punten",
+      "scoreHintDefault": "Eerst jouw games — vul elke gespeelde set in.",
+      "clubPlaceholder": "Club selecteren",
+      "noClub": "Geen club",
+      "newClub": "Nieuwe club",
+      "surfacePlaceholder": "Ondergrond selecteren",
+      "friendlyNoTournament": "Vriendschappelijk (geen toernooi)",
+      "stage": "Ronde",
+      "stageHint": "Alleen voor toernooien — bijv. QF, SF, F",
+      "stagePlaceholder": "bijv. QF",
+      "duration": "Duur",
+      "durationHint": "In minuten",
+      "durationPlaceholder": "bijv. 90",
+      "notes": "Notities",
+      "notesPlaceholder": "Hoe het ging, waar je aan wilt werken…",
+      "court": "Baan",
+      "courtPlaceholder": "Selecteer een baan",
+      "courtPickClubFirst": "Kies eerst een club",
+      "courtNone": "Deze club heeft nog geen banen."
+    },
+    "scorePreview": {
+      "prefix": "Komt neer op een",
+      "summary_one": "{{formatted}} · {{count}} set",
+      "summary_other": "{{formatted}} · {{count}} sets"
+    },
+    "actions": {
+      "saving": "Opslaan…",
+      "saveScore": "Stand opslaan",
+      "scheduleMatch": "Wedstrijd plannen",
+      "saveMatch": "Wedstrijd opslaan"
+    },
+    "validation": {
+      "pickOpponent": "Kies een tegenstander.",
+      "pickDate": "Kies een datum.",
+      "durationWhole": "De duur moet een geheel aantal minuten zijn.",
+      "fillBothNumbers": "Vul beide getallen in voor elke {{unit}}, of maak hem leeg.",
+      "trailingOnly": "Alleen de laatste sets mogen leeg blijven.",
+      "enterScoreOrSchedule": "Voer een stand in, of schakel over naar planningsmodus.",
+      "invalidScore": "Ongeldige stand.",
+      "units": {
+        "set": "set",
+        "score": "stand"
+      }
+    },
+    "savedPanel": {
+      "scheduledTitle": "Wedstrijd gepland",
+      "savedTitle": "Wedstrijd opgeslagen",
+      "scheduledDescription": "Opgeslagen in je planning — voeg de stand toe zodra ze gespeeld is.",
+      "savedDescription": "Hier is het resultaat, afgeleid van de stand die je hebt ingevoerd.",
+      "vsOpponentAndDate": "vs {{opponent}} · {{date}}",
+      "logAnother": "Nog een wedstrijd registreren"
+    }
+  },
+  "opponents": {
+    "pageTitle": "Tegenstanders",
+    "pageDescription": "Spelers waartegen je hebt gespeeld en jullie onderlinge balansen.",
+    "deleteDescription": "Dit verwijdert de tegenstander definitief. Dit kan niet ongedaan worden gemaakt.",
+    "filterPlaceholder": "Tegenstanders filteren…",
+    "addOpponent": "Tegenstander toevoegen",
+    "addFirstOpponent": "Voeg je eerste tegenstander toe",
+    "columns": {
+      "name": "Naam",
+      "nationality": "Nationaliteit",
+      "handedness": "Handigheid",
+      "level": "Niveau"
+    },
+    "emptyState": {
+      "title": "Nog geen tegenstanders",
+      "description": "Voeg de spelers toe waartegen je hebt gespeeld om onderlinge balansen bij te houden."
+    },
+    "matches": {
+      "heading": "Wedstrijden",
+      "recordSummary_one": "{{wins}}–{{losses}} ({{count}} wedstrijd)",
+      "recordSummary_other": "{{wins}}–{{losses}} ({{count}} wedstrijden)",
+      "filterByResultLabel": "Filteren op resultaat",
+      "noFilterMatches": "Geen wedstrijden voor dit filter.",
+      "columns": {
+        "score": "Stand"
+      },
+      "filters": {
+        "all": "Alle",
+        "wins": "Gewonnen",
+        "losses": "Verloren"
+      },
+      "emptyState": {
+        "title": "Nog geen wedstrijden",
+        "description": "Wedstrijden gespeeld tegen deze tegenstander verschijnen hier."
+      }
+    },
+    "detail": {
+      "backToOpponents": "Terug naar Tegenstanders",
+      "pageTitleFallback": "Tegenstander",
+      "invalidId": "“{{id}}” is geen geldig tegenstander-id.",
+      "deleteConfirmTitle": "Deze tegenstander verwijderen?",
+      "ageRange": "Leeftijdscategorie",
+      "notes": "Notities"
+    },
+    "form": {
+      "backToOpponent": "Terug naar de tegenstander",
+      "editTitle": "Tegenstander bewerken",
+      "lastNameRequired": "Achternaam is verplicht.",
+      "icon": "Icoon",
+      "firstName": "Voornaam",
+      "lastName": "Achternaam",
+      "levelPlaceholder": "bijv. 4.5 NTRP, clubkampioen…",
+      "handednessPlaceholder": "Handigheid selecteren",
+      "handednessRight": "Rechtshandig",
+      "handednessLeft": "Linkshandig",
+      "ageRangePlaceholder": "Leeftijdscategorie selecteren",
+      "saveChanges": "Wijzigingen opslaan"
+    },
+    "headToHead": {
+      "title": "Onderling duel",
+      "noMatchesYet": "Nog geen wedstrijden",
+      "winRateSummary_one": "{{percent}}% winratio, {{count}} wedstrijd",
+      "winRateSummary_other": "{{percent}}% winratio, {{count}} wedstrijden",
+      "last5": "Laatste 5",
+      "bySurface": "Per ondergrond",
+      "matchTooltip": "{{date}} · {{score}}",
+      "resultWinShort": "W",
+      "resultLossShort": "V"
+    }
+  },
+  "clubs": {
+    "pageTitle": "Clubs",
+    "pageDescription": "De clubs en banen waar je wedstrijden plaatsvinden.",
+    "deleteDescription": "Dit verwijdert de club definitief. Dit kan niet ongedaan worden gemaakt.",
+    "filterPlaceholder": "Clubs filteren…",
+    "addClub": "Club toevoegen",
+    "addFirstClub": "Voeg je eerste club toe",
+    "columns": {
+      "name": "Naam",
+      "city": "Stad",
+      "country": "Land",
+      "surface": "Ondergrond",
+      "environment": "Omgeving",
+      "courts": "Banen"
+    },
+    "emptyState": {
+      "title": "Nog geen clubs",
+      "description": "Voeg de clubs en banen toe waar je speelt om balansen per locatie bij te houden."
+    },
+    "matches": {
+      "heading": "Wedstrijden bij deze club",
+      "recordSummary_one": "{{wins}}–{{losses}} ({{count}} wedstrijd)",
+      "recordSummary_other": "{{wins}}–{{losses}} ({{count}} wedstrijden)",
+      "recordBySurface": "Balans per ondergrond",
+      "filterByResultLabel": "Filteren op resultaat",
+      "noFilterMatches": "Geen wedstrijden voor dit filter.",
+      "columns": {
+        "score": "Stand"
+      },
+      "filters": {
+        "all": "Alle",
+        "wins": "Gewonnen",
+        "losses": "Verloren"
+      },
+      "emptyState": {
+        "title": "Nog geen wedstrijden",
+        "description": "Wedstrijden gespeeld bij deze club verschijnen hier."
+      }
+    },
+    "detail": {
+      "backToClubs": "Terug naar Clubs",
+      "pageTitleFallback": "Club",
+      "invalidId": "“{{id}}” is geen geldig club-id.",
+      "deleteConfirmTitle": "Deze club verwijderen?"
+    },
+    "form": {
+      "backToClub": "Terug naar de club",
+      "editTitle": "Club bewerken",
+      "nameRequired": "Naam is verplicht.",
+      "icon": "Icoon",
+      "environmentPlaceholder": "Omgeving selecteren",
+      "environmentIndoor": "Binnen",
+      "environmentOutdoor": "Buiten",
+      "saveChanges": "Wijzigingen opslaan",
+      "courts": "Banen",
+      "courtsHint": "Voeg minstens één baan toe. Elke baan moet een unieke combinatie van ondergrond en omgeving hebben.",
+      "courtsRequired": "Voeg minstens één baan toe.",
+      "courtIncomplete": "Elke baan heeft zowel een ondergrond als een omgeving nodig.",
+      "courtDuplicate": "Elke baan moet een unieke combinatie van ondergrond en omgeving hebben.",
+      "addCourt": "Baan toevoegen",
+      "removeCourt": "Baan verwijderen"
+    }
+  },
+  "tournaments": {
+    "pageTitle": "Toernooien",
+    "pageDescription": "Toernooien en competities waaraan je hebt deelgenomen, verleden en toekomstig.",
+    "deleteDescription": "Dit verwijdert het toernooi definitief. Dit kan niet ongedaan worden gemaakt.",
+    "filterPlaceholder": "Toernooien filteren…",
+    "addTournament": "Toernooi toevoegen",
+    "addFirstTournament": "Voeg je eerste toernooi toe",
+    "friendlies": {
+      "name": "Vriendschappelijke wedstrijden",
+      "cardDescription": "Vriendschappelijke wedstrijden gespeeld zonder toernooi.",
+      "detailDescription": "Je vriendschappelijke wedstrijden — gespeeld zonder toernooi."
+    },
+    "filters": {
+      "statusLabel": "Status",
+      "statusUpcoming": "Aankomend",
+      "statusOngoing": "Bezig",
+      "statusCompleted": "Afgerond"
+    },
+    "columns": {
+      "name": "Naam",
+      "season": "Seizoen",
+      "type": "Type",
+      "organiser": "Organisator",
+      "hostClub": "Gastclub",
+      "dates": "Data"
+    },
+    "emptyState": {
+      "title": "Nog geen toernooien",
+      "description": "Voeg de toernooien en competities toe waaraan je hebt deelgenomen om wedstrijden per ronde bij te houden."
+    },
+    "matches": {
+      "heading": "Wedstrijden",
+      "recordSummary_one": "{{wins}}–{{losses}} ({{count}} wedstrijd)",
+      "recordSummary_other": "{{wins}}–{{losses}} ({{count}} wedstrijden)",
+      "filterByResultLabel": "Filteren op resultaat",
+      "noFilterMatches": "Geen wedstrijden voor dit filter.",
+      "unspecifiedStage": "Niet gespecificeerd",
+      "columns": {
+        "score": "Stand"
+      },
+      "filters": {
+        "all": "Alle",
+        "wins": "Gewonnen",
+        "losses": "Verloren"
+      },
+      "emptyState": {
+        "title": "Nog geen wedstrijden",
+        "description": "Wedstrijden gespeeld in dit toernooi verschijnen hier."
+      }
+    },
+    "standings": {
+      "heading": "Stand",
+      "emptyState": {
+        "title": "Nog geen stand",
+        "description": "Speel een wedstrijd in deze competitie om de standentabel te zien."
+      },
+      "columns": {
+        "opponent": "Tegenstander",
+        "wins": "W",
+        "losses": "V",
+        "winPct": "Win %",
+        "sets": "Sets",
+        "games": "Games"
+      }
+    },
+    "detail": {
+      "backToTournaments": "Terug naar Toernooien",
+      "pageTitleFallback": "Toernooi",
+      "invalidId": "“{{id}}” is geen geldig toernooi-id.",
+      "deleteConfirmTitle": "Dit toernooi verwijderen?",
+      "format": "Formaat",
+      "notes": "Notities"
+    },
+    "form": {
+      "backToTournament": "Terug naar het toernooi",
+      "editTitle": "Toernooi bewerken",
+      "nameRequired": "Naam is verplicht.",
+      "typeRequired": "Toernooitype is verplicht.",
+      "endDateAfterStart": "Einddatum moet op of na de startdatum liggen.",
+      "icon": "Icoon",
+      "seasonPlaceholder": "bijv. 2026",
+      "typeLabel": "Toernooitype",
+      "typePlaceholder": "Toernooitype selecteren",
+      "typeKnockout": "Knock-outtoernooi",
+      "typeRanking": "Ranglijstcompetitie",
+      "formatLabel": "Formaat",
+      "formatPlaceholder": "Formaat selecteren",
+      "formatCustom": "Aangepast",
+      "customFormatLabel": "Aangepast formaat",
+      "customFormatPlaceholder": "bijv. Poulefase, dan knock-out",
+      "organiserPlaceholder": "bijv. Riverside Tennis Club",
+      "hostClubPlaceholder": "Gastclub selecteren",
+      "noHostClub": "Geen gastclub",
+      "startDate": "Startdatum",
+      "endDate": "Einddatum",
+      "saveChanges": "Wijzigingen opslaan"
+    }
+  },
+  "settings": {
+    "pageTitle": "Instellingen",
+    "pageDescription": "Beheer hoe Tennisfolio eruitziet en zich gedraagt, en maak een back-up van je gegevens.",
+    "sectionNavLabel": "Instellingensecties",
+    "backToSettings": "Terug naar Instellingen",
+    "general": {
+      "title": "Algemeen",
+      "description": "Regionale voorkeuren voor datums en de taal van de app.",
+      "menuDescription": "Tijdzone en taal",
+      "timezone": "Tijdzone",
+      "searchTimezone": "Tijdzone zoeken…",
+      "noTimezoneFound": "Geen tijdzone gevonden.",
+      "language": "Taal"
+    },
+    "appearance": {
+      "title": "Weergave",
+      "description": "Kies hoe Tennisfolio eruitziet op dit apparaat.",
+      "menuDescription": "Thema, accentkleur en lettertype",
+      "theme": "Thema",
+      "themeDescription": "Selecteer je voorkeursthema voor de applicatie.",
+      "themeLight": "Licht",
+      "themeDark": "Donker",
+      "themeSystem": "Systeem",
+      "fontFamily": "Lettertype",
+      "fontFamilyDescription": "Kies het lettertype dat in de hele interface wordt gebruikt.",
+      "fontSans": "Instrument Sans",
+      "fontSerif": "Instrument Serif",
+      "fontMono": "Ubuntu Mono",
+      "fontPreview": "Pa's wijze lynx bezag vroom het fikse aquaduct — 0123456789",
+      "accent": "Accentkleur",
+      "accentDescription": "Kies een tennisbaanondergrond om knoppen, links en accenten te kleuren.",
+      "accentClay": "Gravel",
+      "accentGrass": "Gras",
+      "accentHard": "Hardcourt"
+    },
+    "backupExport": {
+      "title": "Back-up & export",
+      "description": "Download elke wedstrijd, tegenstander, club en toernooi die je hebt geregistreerd — geen lock-in, neem je gegevens altijd mee.",
+      "menuDescription": "Exporteer en importeer je gegevens"
+    },
+    "dangerZone": {
+      "title": "Gevarenzone",
+      "description": "Onomkeerbare acties. Ga voorzichtig te werk.",
+      "menuDescription": "Verwijder je gegevens permanent"
+    }
+  },
+  "export": {
+    "downloadFailed": "Downloaden mislukt.",
+    "preparing": "Voorbereiden…",
+    "footerPrefix": "Zie",
+    "footerSuffix": "voor het volledige schema van beide formaten.",
+    "csv": {
+      "title": "CSV (gezipt)",
+      "description": "Vijf CSV-bestanden — clubs, tegenstanders, toernooien, wedstrijden, sets — samen gezipt. Gebruikt dezelfde kolomindeling die de seed-importer accepteert, zodat het ongewijzigd opnieuw kan worden geïmporteerd.",
+      "download": "CSV downloaden"
+    },
+    "json": {
+      "title": "JSON",
+      "description": "Eén JSON-bestand met elke tabel, wedstrijden genest met hun sets. Het meest geschikt voor scripting of om in een andere tool te laden.",
+      "download": "JSON downloaden"
+    }
+  },
+  "import": {
+    "title": "Importeren",
+    "description": "Herstel vanaf een Tennisfolio-exportbestand (.json of de gezipte CSV's). Dit vervangt alles wat momenteel in je portfolio staat.",
+    "filePickerLabel": "Exportbestand",
+    "importing": "Importeren…",
+    "confirmTitle": "Alle gegevens vervangen?",
+    "confirmDescription": "Het importeren van “{{filename}}” verwijdert permanent elke wedstrijd, tegenstander, club en toernooi die je nu hebt, en vervangt ze door de inhoud van dit bestand. Dit kan niet ongedaan worden gemaakt.",
+    "confirmAction": "Gegevens vervangen",
+    "successTitle": "Import voltooid",
+    "successSummary": "{{clubs}} clubs, {{opponents}} tegenstanders, {{tournaments}} toernooien, {{matches}} wedstrijden, {{sets}} sets geïmporteerd.",
+    "successSkipped_one": "{{count}} rij is overgeslagen — deze kwam niet overeen met het verwachte formaat.",
+    "successSkipped_other": "{{count}} rijen zijn overgeslagen — deze kwamen niet overeen met het verwachte formaat.",
+    "importFailed": "Importeren mislukt."
+  },
+  "dangerZone": {
+    "deleteAllData": {
+      "title": "Alle gegevens verwijderen",
+      "description": "Verwijder permanent elke wedstrijd, tegenstander, club en toernooi in je portfolio. Overweeg om eerst een back-up te exporteren — zie Back-up & export hierboven.",
+      "button": "Alle gegevens verwijderen",
+      "pending": "Verwijderen…",
+      "confirmTitle": "Alle gegevens verwijderen?",
+      "confirmDescription": "Dit verwijdert permanent elke wedstrijd, tegenstander, club en toernooi die je hebt geregistreerd. Dit kan niet ongedaan worden gemaakt. Exporteer, als je dat nog niet hebt gedaan, een back-up voordat je verdergaat.",
+      "confirmInputLabel": "Typ “{{phrase}}” om te bevestigen",
+      "confirmAction": "Alle gegevens verwijderen",
+      "successMessage": "Alle gegevens zijn verwijderd.",
+      "failed": "Gegevens verwijderen mislukt."
+    }
+  }
+}
