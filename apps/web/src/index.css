@@ -198,7 +198,7 @@
   --popover-foreground: var(--rg-slate);
   --primary: oklch(0.32 0.1 33); /* primary buttons — Clay Terracotta (clay accent default) */
   --primary-foreground: var(--rg-baseline);
-  --secondary: var(--court-clay-solid); /* filter chips / toggles — Classic Court Green */
+  --secondary: var(--court-clay-solid); /* secondary buttons / filter chips / toolbar toggles */
   --secondary-foreground: var(--rg-baseline);
   --muted: #e4e7e9; /* soft cool grey — tab list, table zebra/hover */
   --muted-foreground: #55636d; /* secondary text / placeholders (AA on bg) */
@@ -473,6 +473,7 @@
   --accent: oklch(0.916 0.025 150);
   --ring: oklch(0.684 0.152 150);
   --highlight: oklch(0.684 0.152 150);
+  --secondary: var(--court-grass-solid);
   --sidebar-primary: oklch(0.32 0.09 152);
   --sidebar-accent: oklch(0.916 0.025 150);
   --sidebar-ring: oklch(0.684 0.152 150);
@@ -483,6 +484,7 @@
   --accent: oklch(0.916 0.025 250);
   --ring: oklch(0.684 0.13 250);
   --highlight: oklch(0.684 0.13 250);
+  --secondary: var(--court-hard-solid);
   --sidebar-primary: oklch(0.32 0.11 252);
   --sidebar-accent: oklch(0.916 0.025 250);
   --sidebar-ring: oklch(0.684 0.13 250);
@@ -503,6 +505,7 @@
   --accent: oklch(0.291 0.033 150);
   --ring: oklch(0.684 0.152 150);
   --highlight: oklch(0.684 0.152 150);
+  --secondary: var(--court-grass-solid);
   --sidebar-primary: oklch(0.8 0.15 150);
   --sidebar-accent: oklch(0.33 0.033 150);
   --sidebar-ring: oklch(0.684 0.152 150);
