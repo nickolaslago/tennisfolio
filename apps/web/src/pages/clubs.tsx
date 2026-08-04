@@ -17,13 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/glass/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/glass/select'
+import { SearchableSelect } from '@/components/ui-ext/searchable-select'
 import {
   Table,
   TableBody,
@@ -746,37 +740,21 @@ function CourtsEditor({
       <div className="flex flex-col gap-2">
         {courts.map((court, index) => (
           <div key={index} className="flex items-center gap-2">
-            <Select
-              value={court.surface || undefined}
+            <SearchableSelect
+              aria-label={t('clubs.columns.surface')}
+              value={court.surface}
               onValueChange={(value) => update(index, { surface: value as Surface })}
-            >
-              <SelectTrigger className="w-full" aria-label={t('clubs.columns.surface')}>
-                <SelectValue placeholder={t('matchForm.fields.surfacePlaceholder')} />
-              </SelectTrigger>
-              <SelectContent>
-                {SURFACE_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              options={SURFACE_OPTIONS.map((option) => ({ value: option, label: option }))}
+              placeholder={t('matchForm.fields.surfacePlaceholder')}
+            />
 
-            <Select
-              value={court.environment || undefined}
+            <SearchableSelect
+              aria-label={t('clubs.columns.environment')}
+              value={court.environment}
               onValueChange={(value) => update(index, { environment: value as Environment })}
-            >
-              <SelectTrigger className="w-full" aria-label={t('clubs.columns.environment')}>
-                <SelectValue placeholder={t('clubs.form.environmentPlaceholder')} />
-              </SelectTrigger>
-              <SelectContent>
-                {environmentOptions(t).map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              options={environmentOptions(t)}
+              placeholder={t('clubs.form.environmentPlaceholder')}
+            />
 
             <Button
               type="button"

@@ -12,6 +12,11 @@
     "cancel": "Cancel",
     "close": "Close",
     "addNew": "Add new",
+    "searchableSelect": {
+      "placeholder": "Select…",
+      "searchPlaceholder": "Search…",
+      "noResults": "No results found."
+    },
     "rowActions": {
       "actionsFor": "Actions for {{label}}",
       "edit": "Edit",

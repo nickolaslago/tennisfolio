@@ -16,13 +16,7 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/glass/card'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/glass/select'
+import { SearchableSelect } from '@/components/ui-ext/searchable-select'
 import {
   Table,
   TableBody,
@@ -814,9 +808,6 @@ function tournamentTypeOptions(t: TFunction): { value: TournamentType; label: st
   ]
 }
 
-/** Sentinel select value for "no host club" — Radix Select item values can't be an empty string. */
-const NO_CLUB_VALUE = 'none'
-
 /** Sentinel select value for the "Custom" format option that reveals a free-text field. */
 const CUSTOM_FORMAT_VALUE = '__custom__'
 
@@ -1038,27 +1029,16 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
                 label={t('tournaments.form.typeLabel')}
                 error={errors.tournament_type}
               >
-                <Select
+                <SearchableSelect
+                  id="tournament_type"
                   value={form.tournament_type}
                   onValueChange={(value) =>
                     setForm({ ...form, tournament_type: value as TournamentType })
                   }
-                >
-                  <SelectTrigger
-                    id="tournament_type"
-                    className="w-full"
-                    aria-invalid={Boolean(errors.tournament_type)}
-                  >
-                    <SelectValue placeholder={t('tournaments.form.typePlaceholder')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {tournamentTypeOptions(t).map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={tournamentTypeOptions(t)}
+                  placeholder={t('tournaments.form.typePlaceholder')}
+                  aria-invalid={Boolean(errors.tournament_type)}
+                />
               </FormField>
 
               <FormField
@@ -1067,7 +1047,8 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
                 optional
                 error={errors.format}
               >
-                <Select
+                <SearchableSelect
+                  id="format"
                   value={customFormat ? CUSTOM_FORMAT_VALUE : form.format}
                   onValueChange={(value) => {
                     if (value === CUSTOM_FORMAT_VALUE) {
@@ -1078,25 +1059,16 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
                       setForm({ ...form, format: value })
                     }
                   }}
-                >
-                  <SelectTrigger
-                    id="format"
-                    className="w-full"
-                    aria-invalid={Boolean(errors.format)}
-                  >
-                    <SelectValue placeholder={t('tournaments.form.formatPlaceholder')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TOURNAMENT_FORMAT_OPTIONS.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                    <SelectItem value={CUSTOM_FORMAT_VALUE}>
-                      {t('tournaments.form.formatCustom')}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                  options={[
+                    ...TOURNAMENT_FORMAT_OPTIONS.map((option) => ({
+                      value: option,
+                      label: option,
+                    })),
+                    { value: CUSTOM_FORMAT_VALUE, label: t('tournaments.form.formatCustom') },
+                  ]}
+                  placeholder={t('tournaments.form.formatPlaceholder')}
+                  aria-invalid={Boolean(errors.format)}
+                />
                 {customFormat && (
                   <Input
                     id="format-custom"
@@ -1130,26 +1102,14 @@ function TournamentForm(props: { mode: 'create' } | { mode: 'edit'; tournament: 
                 optional
                 error={errors.club_id}
               >
-                <Select
-                  value={form.club_id || NO_CLUB_VALUE}
-                  onValueChange={(value) =>
-                    setForm({ ...form, club_id: value === NO_CLUB_VALUE ? '' : value })
-                  }
-                >
-                  <SelectTrigger id="club_id" className="w-full">
-                    <SelectValue placeholder={t('tournaments.form.hostClubPlaceholder')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NO_CLUB_VALUE}>
-                      {t('tournaments.form.noHostClub')}
-                    </SelectItem>
-                    {clubOptions.map((c) => (
-                      <SelectItem key={c.id} value={String(c.id)}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  id="club_id"
+                  value={form.club_id}
+                  onValueChange={(value) => setForm({ ...form, club_id: value })}
+                  options={clubOptions.map((c) => ({ value: String(c.id), label: c.name }))}
+                  noneLabel={t('tournaments.form.noHostClub')}
+                  placeholder={t('tournaments.form.hostClubPlaceholder')}
+                />
               </FormField>
 
               <FormField

@@ -1,15 +1,10 @@
 import { Plus } from 'lucide-react'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { EntityIcon } from '@/components/data/entity-icon'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/glass/select'
+import { SearchableSelect } from '@/components/ui-ext/searchable-select'
 
 export interface EntitySelectOption {
   value: string
@@ -17,13 +12,11 @@ export interface EntitySelectOption {
   icon?: string | null
 }
 
-/** Non-empty sentinel — Radix Select item values can't be an empty string. */
-const NONE_VALUE = '__none__'
-
 /**
- * Labeled Select for picking one related entity, with an optional adjacent
- * "＋" button that opens an inline quick-create dialog (see the match entry
- * form). `value` is the selected id as a string, or `''` for nothing selected.
+ * Labeled searchable dropdown for picking one related entity, with an optional
+ * adjacent "＋" button that opens an inline quick-create dialog (see the match
+ * entry form). `value` is the selected id as a string, or `''` for nothing
+ * selected.
  */
 export function EntitySelect({
   id,
@@ -52,49 +45,30 @@ export function EntitySelect({
   ariaDescribedby?: string
 }) {
   const { t } = useTranslation()
-  // An unmatched value keeps the trigger showing its placeholder; when a
-  // `noneLabel` row exists, map the empty selection onto it so it reads back.
-  const radixValue = value === '' ? (noneLabel ? NONE_VALUE : undefined) : value
-  const selectedOption = options.find((option) => option.value === value)
-
-  const handleValueChange = (next: string) => {
-    // Radix's hidden native <select> emits a spurious empty-string change right
-    // after the controlled value is set to a just-mounted item. None of our real
-    // items ever carry an empty value (the "none" row uses NONE_VALUE), so an
-    // empty payload is never a genuine selection — ignore it.
-    if (next === '') return
-    onValueChange(next === NONE_VALUE ? '' : next)
-  }
+  const searchableOptions = useMemo(
+    () =>
+      options.map((option) => ({
+        value: option.value,
+        label: option.label,
+        icon: <EntityIcon value={option.icon} />,
+      })),
+    [options],
+  )
 
   return (
     <div className="flex items-center gap-2">
-      <Select value={radixValue} onValueChange={handleValueChange}>
-        <SelectTrigger
-          id={id}
-          className="w-full flex-1"
-          autoFocus={autoFocus}
-          aria-invalid={ariaInvalid}
-          aria-describedby={ariaDescribedby}
-        >
-          <SelectValue placeholder={placeholder}>
-            {selectedOption ? (
-              <>
-                <EntityIcon value={selectedOption.icon} />
-                {selectedOption.label}
-              </>
-            ) : undefined}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          {noneLabel ? <SelectItem value={NONE_VALUE}>{noneLabel}</SelectItem> : null}
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              <EntityIcon value={option.icon} />
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <SearchableSelect
+        id={id}
+        className="flex-1"
+        value={value}
+        onValueChange={onValueChange}
+        options={searchableOptions}
+        placeholder={placeholder}
+        noneLabel={noneLabel}
+        autoFocus={autoFocus}
+        aria-invalid={ariaInvalid}
+        aria-describedby={ariaDescribedby}
+      />
       {onCreateNew ? (
         <Button
           type="button"
