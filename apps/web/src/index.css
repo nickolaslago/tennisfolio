@@ -468,17 +468,6 @@
   --sidebar-ring: oklch(0.684 0.152 33);
 }
 
-:root[data-accent='grass'] {
-  --primary: oklch(0.32 0.09 152);
-  --accent: oklch(0.916 0.025 150);
-  --ring: oklch(0.684 0.152 150);
-  --highlight: oklch(0.684 0.152 150);
-  --secondary: var(--court-grass-solid);
-  --sidebar-primary: oklch(0.32 0.09 152);
-  --sidebar-accent: oklch(0.916 0.025 150);
-  --sidebar-ring: oklch(0.684 0.152 150);
-}
-
 :root[data-accent='hard'] {
   --primary: oklch(0.32 0.11 252);
   --accent: oklch(0.916 0.025 250);
@@ -500,15 +489,22 @@
   --sidebar-ring: oklch(0.684 0.152 33);
 }
 
-.dark[data-accent='grass'] {
-  --primary: oklch(0.8 0.15 150);
-  --accent: oklch(0.291 0.033 150);
-  --ring: oklch(0.684 0.152 150);
-  --highlight: oklch(0.684 0.152 150);
+:root[data-accent='grass'],
+:root[data-accent='grass'] .light,
+:root[data-accent='grass'] .dark {
+  --primary: var(--court-grass-primary);
   --secondary: var(--court-grass-solid);
-  --sidebar-primary: oklch(0.8 0.15 150);
-  --sidebar-accent: oklch(0.33 0.033 150);
-  --sidebar-ring: oklch(0.684 0.152 150);
+  --accent: var(--court-grass-surface);
+  --ring: var(--court-grass-signature);
+  --highlight: var(--court-grass-signature);
+  --chart-accent: var(--court-grass-chart);
+  --ambient-1: var(--court-grass-wash-1);
+  --ambient-2: var(--court-grass-wash-2);
+  --ambient-3: var(--court-grass-wash-3);
+  --theme-color: var(--court-grass-chrome);
+  --sidebar-primary: var(--court-grass-primary);
+  --sidebar-accent: var(--court-grass-sidebar-surface);
+  --sidebar-ring: var(--court-grass-signature);
 }
 
 :root[data-accent='hard'],
