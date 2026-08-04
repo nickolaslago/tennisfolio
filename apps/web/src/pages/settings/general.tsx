@@ -1,22 +1,20 @@
 import { useTranslation } from 'react-i18next'
 
 import { Card, CardContent } from '@/components/glass/card'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/glass/select'
 import { TimezoneCombobox } from '@/components/settings/timezone-combobox'
 import { Label } from '@/components/ui/label'
+import { SearchableSelect } from '@/components/ui-ext/searchable-select'
 import { useTimezone } from '@/hooks/use-timezone'
 import { SettingsSection } from '@/pages/settings/settings-section'
 import i18n from '@/i18n'
 
-const LANGUAGE_OPTIONS: { code: string; label: string }[] = [
-  { code: 'en', label: 'English' },
-  { code: 'pt', label: 'Português' },
+const LANGUAGE_OPTIONS: { value: string; label: string }[] = [
+  { value: 'en', label: 'English' },
+  { value: 'pt', label: 'Português' },
+  { value: 'de', label: 'Deutsch' },
+  { value: 'fr', label: 'Français' },
+  { value: 'it', label: 'Italiano' },
+  { value: 'nl', label: 'Nederlands' },
 ]
 
 export function GeneralSettingsPage() {
@@ -36,21 +34,12 @@ export function GeneralSettingsPage() {
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="settings-language">{t('settings.general.language')}</Label>
-            <Select
+            <SearchableSelect
+              id="settings-language"
               value={i18n.language}
               onValueChange={(value) => void i18n.changeLanguage(value)}
-            >
-              <SelectTrigger id="settings-language" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {LANGUAGE_OPTIONS.map((language) => (
-                  <SelectItem key={language.code} value={language.code}>
-                    {language.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              options={LANGUAGE_OPTIONS}
+            />
           </div>
         </CardContent>
       </Card>

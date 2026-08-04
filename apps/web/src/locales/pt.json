@@ -12,6 +12,11 @@
     "cancel": "Cancelar",
     "close": "Fechar",
     "addNew": "Adicionar novo",
+    "searchableSelect": {
+      "placeholder": "Selecionar…",
+      "searchPlaceholder": "Buscar…",
+      "noResults": "Nenhum resultado encontrado."
+    },
     "rowActions": {
       "actionsFor": "Ações para {{label}}",
       "edit": "Editar",
@@ -53,7 +58,14 @@
     "opponents": "Adversários",
     "clubs": "Clubes",
     "tournaments": "Torneios",
-    "settings": "Configurações"
+    "settings": "Configurações",
+    "quickCreate": {
+      "label": "Criar",
+      "newMatch": "Nova partida",
+      "newOpponent": "Novo adversário",
+      "newClub": "Novo clube",
+      "newTournament": "Novo torneio"
+    }
   },
   "notFound": {
     "title": "Página não encontrada",
@@ -572,6 +584,20 @@
       "description": "Um único arquivo JSON com todas as tabelas, com as partidas aninhadas junto com seus sets. Ideal para scripts ou para alimentar outra ferramenta.",
       "download": "Baixar JSON"
     }
+  },
+  "import": {
+    "title": "Importar",
+    "description": "Restaure a partir de um arquivo de exportação do Tennisfolio (.json ou os CSVs compactados). Isso substitui tudo o que está atualmente no seu portfólio.",
+    "filePickerLabel": "Arquivo de exportação",
+    "importing": "Importando…",
+    "confirmTitle": "Substituir todos os dados?",
+    "confirmDescription": "Importar \"{{filename}}\" excluirá permanentemente todas as partidas, adversários, clubes e torneios que você tem atualmente, substituindo-os pelo conteúdo deste arquivo. Essa ação não pode ser desfeita.",
+    "confirmAction": "Substituir dados",
+    "successTitle": "Importação concluída",
+    "successSummary": "{{clubs}} clubes, {{opponents}} adversários, {{tournaments}} torneios, {{matches}} partidas, {{sets}} sets importados.",
+    "successSkipped_one": "{{count}} linha foi ignorada — não correspondia ao formato esperado.",
+    "successSkipped_other": "{{count}} linhas foram ignoradas — não correspondiam ao formato esperado.",
+    "importFailed": "Falha na importação."
   },
   "dangerZone": {
     "deleteAllData": {
