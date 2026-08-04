@@ -20,13 +20,7 @@ import { Card, CardContent } from '@/components/glass/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/glass/popover'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/glass/select'
+import { SearchableSelect } from '@/components/ui-ext/searchable-select'
 import {
   Table,
   TableBody,
@@ -67,6 +61,8 @@ export interface FilterField {
   /** `select` (default) needs `options`; `text`/`date` render a free-form input. */
   type?: 'select' | 'text' | 'date'
   options?: FilterFieldOption[]
+  /** Alphabetize `options` (default). Pass `false` for an ordinal scale. */
+  sortOptions?: boolean
   placeholder?: string
 }
 
@@ -260,18 +256,12 @@ function FilterPopover({ fields, values, onChange }: Omit<EntityListFilters, 'on
         <div className="flex flex-col gap-2.5">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="entity-filter-field">{t('common.entityList.filters.fieldLabel')}</Label>
-            <Select value={fieldId} onValueChange={handleFieldChange}>
-              <SelectTrigger id="entity-filter-field" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {fields.map((f) => (
-                  <SelectItem key={f.id} value={f.id}>
-                    {f.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SearchableSelect
+              id="entity-filter-field"
+              value={fieldId}
+              onValueChange={handleFieldChange}
+              options={fields.map((f) => ({ value: f.id, label: f.label }))}
+            />
           </div>
 
           {field ? (
@@ -294,20 +284,14 @@ function FilterPopover({ fields, values, onChange }: Omit<EntityListFilters, 'on
                   placeholder={field.placeholder}
                 />
               ) : (
-                <Select value={value || undefined} onValueChange={setValue}>
-                  <SelectTrigger id="entity-filter-value" className="w-full">
-                    <SelectValue
-                      placeholder={field.placeholder ?? t('common.entityList.filters.selectValue')}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(field.options ?? []).map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  id="entity-filter-value"
+                  value={value}
+                  onValueChange={setValue}
+                  options={field.options ?? []}
+                  sortOptions={field.sortOptions ?? true}
+                  placeholder={field.placeholder ?? t('common.entityList.filters.selectValue')}
+                />
               )}
             </div>
           ) : null}

@@ -24,13 +24,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/glass/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/glass/select'
+import { SearchableSelect } from '@/components/ui-ext/searchable-select'
 import { Textarea } from '@/components/ui/textarea'
 import { useClubs } from '@/hooks/use-clubs'
 import { useCreateMatch, useMatch, useUpdateMatch } from '@/hooks/use-matches'
@@ -316,6 +310,10 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
   )
   const selectedClub = allClubs.find((c) => String(c.id) === form.clubId)
   const clubCourts: Court[] = selectedClub?.courts ?? []
+  const courtOptions = clubCourts.map((court) => ({
+    value: String(court.id),
+    label: courtLabel(court, t),
+  }))
   const allOpponents = useMemo(
     () => [...(opponents.data?.items ?? []), ...extraOpponents],
     [opponents.data, extraOpponents],
@@ -552,21 +550,13 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-col gap-1.5">
                     <Label htmlFor="score-format">{t('matchForm.fields.scoringType')}</Label>
-                    <Select
+                    <SearchableSelect
+                      id="score-format"
+                      className="w-full sm:w-56"
                       value={form.scoreFormat}
                       onValueChange={(value) => setField('scoreFormat', value as ScoreFormat)}
-                    >
-                      <SelectTrigger id="score-format" className="w-full sm:w-56">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {SCORE_FORMAT_OPTIONS.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={SCORE_FORMAT_OPTIONS}
+                    />
                   </div>
 
                   <div className="flex flex-col gap-2">
@@ -667,28 +657,18 @@ function MatchForm(props: { mode: 'create' } | { mode: 'complete'; match: Match 
                       : undefined
                   }
                 >
-                  <Select
-                    value={form.courtId || undefined}
+                  <SearchableSelect
+                    id="court"
+                    value={form.courtId}
                     onValueChange={(value) => setField('courtId', value)}
                     disabled={!form.clubId || clubCourts.length === 0}
-                  >
-                    <SelectTrigger id="court" className="w-full">
-                      <SelectValue
-                        placeholder={
-                          form.clubId
-                            ? t('matchForm.fields.courtPlaceholder')
-                            : t('matchForm.fields.courtPickClubFirst')
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {clubCourts.map((court) => (
-                        <SelectItem key={court.id} value={String(court.id)}>
-                          {courtLabel(court, t)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={courtOptions}
+                    placeholder={
+                      form.clubId
+                        ? t('matchForm.fields.courtPlaceholder')
+                        : t('matchForm.fields.courtPickClubFirst')
+                    }
+                  />
                 </FormField>
 
                 <FormField

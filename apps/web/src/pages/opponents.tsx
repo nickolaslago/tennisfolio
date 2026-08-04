@@ -17,13 +17,7 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/glass/card'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/glass/select'
+import { SearchableSelect } from '@/components/ui-ext/searchable-select'
 import {
   Table,
   TableBody,
@@ -91,6 +85,7 @@ export function OpponentsPage() {
         id: 'age_range',
         label: t('opponents.detail.ageRange'),
         options: AGE_RANGE_OPTIONS.map((range) => ({ value: range, label: range })),
+        sortOptions: false,
       },
     ],
     [t],
@@ -641,21 +636,13 @@ function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Oppo
                 optional
                 error={errors.handedness}
               >
-                <Select
+                <SearchableSelect
+                  id="handedness"
                   value={form.handedness}
                   onValueChange={(value) => setForm({ ...form, handedness: value as Handedness })}
-                >
-                  <SelectTrigger id="handedness" className="w-full">
-                    <SelectValue placeholder={t('opponents.form.handednessPlaceholder')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {handednessOptions(t).map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={handednessOptions(t)}
+                  placeholder={t('opponents.form.handednessPlaceholder')}
+                />
               </FormField>
 
               <FormField
@@ -664,21 +651,16 @@ function OpponentForm(props: { mode: 'create' } | { mode: 'edit'; opponent: Oppo
                 optional
                 error={errors.age_range}
               >
-                <Select
+                <SearchableSelect
+                  id="age_range"
                   value={form.age_range}
                   onValueChange={(value) => setForm({ ...form, age_range: value as AgeRange })}
-                >
-                  <SelectTrigger id="age_range" className="w-full">
-                    <SelectValue placeholder={t('opponents.form.ageRangePlaceholder')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {AGE_RANGE_OPTIONS.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={AGE_RANGE_OPTIONS.map((option) => ({ value: option, label: option }))}
+                  // "Under 18 … Over 65" is an ordinal scale — alphabetizing it
+                  // would bury both ends in the middle of the list.
+                  sortOptions={false}
+                  placeholder={t('opponents.form.ageRangePlaceholder')}
+                />
               </FormField>
             </div>
 
