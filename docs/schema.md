@@ -153,3 +153,16 @@ uv run alembic upgrade head
 
 The chain builds from an empty database and downgrades cleanly back to empty
 (enum types included).
+
+## The mobile mirror
+
+The Expo app carries its own copy of this schema in an on-device SQLite database
+— it is local-first, not a client of the API — so a change here needs a matching
+migration in
+[`apps/mobile/src/db/migrations/`](../apps/mobile/src/db/migrations). That mirror
+is pinned by `apps/mobile/src/db/migrate.test.ts`, which asserts the local tables
+have exactly the columns, indexes and constraints the models above declare, so
+divergence fails in CI rather than on someone's phone. See
+[`docs/mobile.md`](./mobile.md) for the four deliberate differences (UUID primary
+keys, timestamps on `sets`, enums as `CHECK` lists, and a `deletions` tombstone
+table) and why each is there.

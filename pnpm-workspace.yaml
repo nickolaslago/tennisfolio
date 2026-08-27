@@ -27,3 +27,4 @@ minimumReleaseAgeExclude:
   - expo-system-ui@57.0.3
   - expo@57.0.17
   - jest-expo@57.0.5
+  - expo-sqlite@57.0.2

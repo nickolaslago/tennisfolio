@@ -1,4 +1,5 @@
 export * from './types'
+export * from './entities'
 export * from './score'
 export * from './score-format'
 export * from './tournament-format'
