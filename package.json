@@ -12,7 +12,12 @@
     "lint:web": "pnpm --filter @tennisfolio/web lint",
     "format:web": "pnpm --filter @tennisfolio/web format",
     "test:web": "pnpm --filter @tennisfolio/web test",
-    "test:core": "pnpm --filter @tennisfolio/core test"
+    "test:core": "pnpm --filter @tennisfolio/core test",
+    "dev:mobile": "pnpm --filter @tennisfolio/mobile dev",
+    "ios:mobile": "pnpm --filter @tennisfolio/mobile ios",
+    "lint:mobile": "pnpm --filter @tennisfolio/mobile lint",
+    "typecheck:mobile": "pnpm --filter @tennisfolio/mobile typecheck",
+    "test:mobile": "pnpm --filter @tennisfolio/mobile test"
   },
   "packageManager": "pnpm@11.13.0"
 }
