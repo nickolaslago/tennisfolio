@@ -71,6 +71,10 @@ export default function TabLayout() {
             ),
           }}
         />
+        {/* DAT-109 living style guide: not a real tab, `href: null` hides it
+            from the tab bar while keeping the route navigable (reachable from
+            Settings once that screen exists). */}
+        <Tabs.Screen name="dev-style-guide" options={{ href: null, headerShown: false }} />
       </Tabs>
     </>
   );
