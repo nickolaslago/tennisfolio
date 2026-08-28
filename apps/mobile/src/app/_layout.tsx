@@ -4,19 +4,23 @@ import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'react-native';
 
 import { Colors } from '@/constants/theme';
+import { ThemeProvider } from '@/theme';
 
 /**
  * Bottom-tab navigation skeleton for Tennisfolio: Home, Matches, Opponents,
  * Clubs, Tournaments. Built on Expo Router's file-based `Tabs` — the rationale
  * for Expo Router over bare React Navigation is documented in docs/mobile.md.
  * Each `Tabs.Screen name` maps to a route file in this directory.
+ *
+ * Wrapped in the DAT-109 `ThemeProvider` so every screen — not just the
+ * hidden dev style guide, which scoped its own — can call `useTheme()`.
  */
 export default function TabLayout() {
   const scheme = useColorScheme();
   const theme = Colors[scheme === 'dark' ? 'dark' : 'light'];
 
   return (
-    <>
+    <ThemeProvider>
       <StatusBar style="auto" />
       <Tabs
         screenOptions={{
@@ -76,6 +80,6 @@ export default function TabLayout() {
             Settings once that screen exists). */}
         <Tabs.Screen name="dev-style-guide" options={{ href: null, headerShown: false }} />
       </Tabs>
-    </>
+    </ThemeProvider>
   );
 }
