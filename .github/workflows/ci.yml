@@ -97,6 +97,37 @@ jobs:
       - name: typecheck
         run: pnpm --filter @tennisfolio/core typecheck
 
+  mobile:
+    name: mobile (eslint + tsc + jest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          # 22+: the storage-layer tests drive a real SQLite engine through
+          # node:sqlite (see apps/mobile/src/db/drivers/node.ts).
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: eslint
+        run: pnpm --filter @tennisfolio/mobile lint
+
+      - name: typecheck
+        run: pnpm --filter @tennisfolio/mobile typecheck
+
+      - name: jest
+        run: pnpm --filter @tennisfolio/mobile test
+
   e2e:
     name: e2e smoke (docker compose)
     runs-on: ubuntu-latest
